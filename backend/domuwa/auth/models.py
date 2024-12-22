@@ -1,14 +1,14 @@
-from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
 
 
-class Token(BaseModel):
+class Token(SQLModel):
     access_token: str
     token_type: str
 
 
-class TokenData(BaseModel):
+class TokenData(SQLModel):
     username: str
+    scopes: list[str] = Field(default_factory=list)
 
 
 class User(SQLModel):
