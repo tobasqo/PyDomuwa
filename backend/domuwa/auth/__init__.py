@@ -1,11 +1,11 @@
 # Add Fb/Google authorization: https://fastapi.tiangolo.com/advanced/security/oauth2-scopes/#global-view
 
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
+from typing import Annotated, Literal
 
 import jwt
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, Security, status
+from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from passlib.context import CryptContext
 from sqlmodel import Session
 
@@ -16,7 +16,21 @@ from domuwa.database import get_db_session
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+ScopeName = Literal["me", "read", "create", "update", "delete"]
+ScopeDescription = str
+
+JWTScopes: dict[ScopeName, ScopeDescription] = {
+    "me": "Read information about the current user.",
+    "read": "Read information about database records.",
+    "create": "Create new database records.",
+    "update": "Update database records.",
+    "delete": "Delete database records.",
+}
+
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="token",
+    scopes=JWTScopes,  # type: ignore
+)
 
 CredentialsException = HTTPException(
     status.HTTP_401_UNAUTHORIZED,
@@ -53,9 +67,15 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 
 async def get_current_user(
+    security_scopes: SecurityScopes,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Annotated[Session, Depends(get_db_session)],
 ):
+    if security_scopes.scopes:
+        authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
+    else:
+        authenticate_value = 'Bearer'
+
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.HASH_ALGORITHM]
@@ -67,15 +87,36 @@ async def get_current_user(
     if username is None:
         raise CredentialsException
 
-    token_data = TokenData(username=username)
+    token_scopes = payload.get("scopes", [])
+    token_data = TokenData(username=username, scopes=token_scopes)
     user = services.get_user(token_data.username, session)
     if user is None:
         raise CredentialsException
+
+    for scope in security_scopes.scopes:
+        if scope not in token_data.scopes:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not enough permissions",
+                headers={"WWW-Authenticate": authenticate_value},
+            )
+
     return user
 
 
-async def get_current_active_user(current_user: User = Depends(get_current_user)):
+async def get_current_active_user(
+    current_user: Annotated[User, Security(get_current_user, scopes=["me"])],
+):
     if not current_user.is_active:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
+        )
+
+
+async def get_current_admin_user(
+    admin_user: Annotated[User, Security(get_current_active_user, scopes=["me"])],
+):
+    if not admin_user.is_staff:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions"
         )
