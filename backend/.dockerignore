@@ -11,3 +11,4 @@ coverage.xml
 README.md
 .env.example
 Dockerfile
+.idea
