@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 
 from domuwa.models.game_type import GameType, GameTypeChoices
 from domuwa.services.game_type_services import GameTypeServices
-from tests.common_tc import CommonTestCase
+from tests import CommonTestCase
 from tests.factories import GameTypeFactory
 
 
