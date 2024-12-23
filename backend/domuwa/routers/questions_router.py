@@ -49,7 +49,7 @@ class QuestionRouter(CommonRouter[QuestionCreate, QuestionUpdate, Question]):
         if not model.deleted:
             return model
 
-        err_msg = f"Got Question(id={model_id}) to get, but it was deleted"
+        err_msg = f"Got {self.db_model_type_name}(id={model_id}) to get, but it doesn't exist"
         self.logger.warning(err_msg)
         raise HTTPException(status.HTTP_404_NOT_FOUND, err_msg)
 
