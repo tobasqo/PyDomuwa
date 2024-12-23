@@ -55,7 +55,7 @@ class CommonServices(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
             self.logger.error(str(exc))
             return None
         session.refresh(model)
-        self.logger.debug(f"saved {model.__class__.__name__}({model}) to db")
+        self.logger.debug("saved %s(%s) to db", model.__class__.__name__, model)
         return model  # type: ignore
 
     async def delete(self, model: DbModelT, session: Session):
