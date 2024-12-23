@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 
 from domuwa.models.qna_category import QnACategory, QnACategoryChoices
 from domuwa.services.qna_categories_services import QnACategoryServices
-from tests.common_tc import CommonTestCase
+from tests import CommonTestCase
 from tests.factories import QnACategoryFactory
 
 

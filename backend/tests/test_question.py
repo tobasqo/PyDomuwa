@@ -5,7 +5,7 @@ from sqlmodel import Session
 
 from domuwa.models.question import Question
 from domuwa.services.questions_services import QuestionServices
-from tests.common_tc import CommonTestCase
+from tests import CommonTestCase
 from tests.factories import (
     AnswerFactory,
     GameTypeFactory,
