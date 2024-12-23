@@ -1,7 +1,7 @@
 import logging
 
 from domuwa.models.qna_category import QnACategory, QnACategoryCreate, QnACategoryUpdate
-from domuwa.services.common_services import CommonServices
+from domuwa.services import CommonServices
 
 
 class QnACategoryServices(

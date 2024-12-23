@@ -1,7 +1,7 @@
 import logging
 
 from domuwa.models.player import Player, PlayerCreate, PlayerUpdate
-from domuwa.services.common_services import CommonServices
+from domuwa.services import CommonServices
 
 
 class PlayerServices(CommonServices[PlayerCreate, PlayerUpdate, Player]):

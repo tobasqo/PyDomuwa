@@ -11,7 +11,7 @@ from domuwa.models.player import (
     PlayerRead,
     PlayerUpdate,
 )
-from domuwa.routers.common_router import CommonRouter400OnSaveError
+from domuwa.routers import CommonRouter400OnSaveError
 from domuwa.services.players_services import PlayerServices
 
 

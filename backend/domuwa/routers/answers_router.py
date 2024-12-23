@@ -6,7 +6,7 @@ from typing_extensions import override
 
 from domuwa.database import get_db_session
 from domuwa.models.answer import Answer, AnswerCreate, AnswerRead, AnswerUpdate
-from domuwa.routers.common_router import CommonRouter
+from domuwa.routers import CommonRouter
 from domuwa.services.answers_services import AnswerServices
 
 

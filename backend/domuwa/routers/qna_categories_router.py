@@ -12,7 +12,7 @@ from domuwa.models.qna_category import (
     QnACategoryRead,
     QnACategoryUpdate,
 )
-from domuwa.routers.common_router import CommonRouter400OnSaveError
+from domuwa.routers import CommonRouter400OnSaveError
 from domuwa.services.qna_categories_services import QnACategoryServices
 
 
