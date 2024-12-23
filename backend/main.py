@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import Response
 
+from domuwa.auth.routes import router as auth_router
 from domuwa.config import settings
 from domuwa.database import create_db_and_tables
 from domuwa.routers.answers_router import get_answers_router
@@ -25,6 +26,7 @@ async def lifespan(_: FastAPI):
 app = FastAPI(debug=True, lifespan=lifespan)
 
 API_PREFIX = "/api"
+app.include_router(auth_router)
 app.include_router(get_players_router(), prefix=API_PREFIX)
 app.include_router(get_game_types_router(), prefix=API_PREFIX)
 app.include_router(get_qna_categories_router(), prefix=API_PREFIX)
