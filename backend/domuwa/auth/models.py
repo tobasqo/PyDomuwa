@@ -18,8 +18,18 @@ class User(SQLModel):
     is_staff: bool | None = None
 
 
+class UserCreate(User):
+    pass
+
+
+class UserUpdate(SQLModel):
+    login: str | None = None
+    email: str | None = None
+    is_active: bool | None = None
+    is_staff: bool | None = None
+
+
 class UserDb(User, table=True):
-    # TODO: add admin privileges
     __tablename__ = "user"
 
     id: int | None = Field(None, primary_key=True)

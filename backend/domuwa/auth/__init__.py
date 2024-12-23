@@ -47,8 +47,8 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def authenticate_user(username: str, password: str, session: Session):
-    user = services.get_user(username, session)
+async def authenticate_user(username: str, password: str, session: Session):
+    user = await services.get_by_username(username, session)
     if user is None:
         return False
     if not verify_password(password, user.hashed_password):
@@ -89,7 +89,7 @@ async def get_current_user(
 
     token_scopes = payload.get("scopes", [])
     token_data = TokenData(username=username, scopes=token_scopes)
-    user = services.get_user(token_data.username, session)
+    user = await services.get_by_username(token_data.username, session)
     if user is None:
         raise CredentialsException
 
@@ -113,7 +113,7 @@ async def get_current_active_user(
         )
 
 
-async def get_current_admin_user(
+async def get_admin_user(
     admin_user: Annotated[User, Security(get_current_active_user, scopes=["me"])],
 ):
     if not admin_user.is_staff:
