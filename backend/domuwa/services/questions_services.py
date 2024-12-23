@@ -4,7 +4,7 @@ from sqlmodel import Session
 from typing_extensions import override
 
 from domuwa.models.question import Question, QuestionCreate, QuestionUpdate
-from domuwa.services.common_services import CommonServices
+from domuwa.services import CommonServices
 
 
 class QuestionServices(CommonServices[QuestionCreate, QuestionUpdate, Question]):

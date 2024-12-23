@@ -11,7 +11,7 @@ from domuwa.models.game_type import (
     GameTypeRead,
     GameTypeUpdate,
 )
-from domuwa.routers.common_router import CommonRouter400OnSaveError
+from domuwa.routers import CommonRouter400OnSaveError
 from domuwa.services.game_type_services import GameTypeServices
 
 logger = logging.getLogger(__name__)

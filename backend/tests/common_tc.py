@@ -6,7 +6,7 @@ from fastapi import status
 from fastapi.testclient import TestClient
 from sqlmodel import SQLModel, Session
 
-from domuwa.services.common_services import CommonServices
+from domuwa.services import CommonServices
 
 DbModelT = TypeVar("DbModelT", bound=SQLModel)
 

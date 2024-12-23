@@ -12,7 +12,7 @@ from domuwa.models.question import (
     QuestionUpdate,
     QuestionWithAnswersRead,
 )
-from domuwa.routers.common_router import CommonRouter
+from domuwa.routers import CommonRouter
 from domuwa.services.questions_services import QuestionServices
 
 
