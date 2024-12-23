@@ -10,7 +10,7 @@ from domuwa.auth.models import Token, User
 from domuwa.config import settings
 from domuwa.database import get_db_session
 
-router = APIRouter(prefix="auth")
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @router.post("/login")
