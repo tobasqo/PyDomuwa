@@ -1,0 +1,26 @@
+services:
+  api:
+    build:
+      context: ../backend/
+      target: development
+    volumes:
+      - ../backend/:/home/app/
+    ports:
+      - "9000:8000"
+    env_file:
+      - ../.env
+
+  # client:
+  #   depends_on:
+  #     - api
+  #   build: ../frontend
+  #   command: npm run start
+  #   volumes:
+  #     - ../frontend:/app
+  #   ports:
+  #     - target: 3000
+  #       published: ${CLIENT_PORT}
+  #       protocol: tcp
+  #   env_file:
+  #     - ../frontend/.env
+
