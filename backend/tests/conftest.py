@@ -9,6 +9,8 @@ from sqlmodel import SQLModel, Session, create_engine
 from sqlmodel.pool import StaticPool
 
 from domuwa import database as db
+from domuwa.auth.models import UserCreate
+from domuwa.auth.services import create as create_user
 
 logging.getLogger("faker").setLevel(logging.INFO)
 logging.getLogger("factory").setLevel(logging.INFO)
@@ -54,3 +56,12 @@ def api_client_fixture(db_session: Session):
         yield client
 
     app.dependency_overrides.clear()
+
+
+@pytest.fixture(name="test_user")
+async def user_fixture(db_session: Session):
+    username = "user"
+    password = "<PASSWORD>"
+    user_data = {"username": username, "password": password}
+    await create_user(UserCreate(**user_data), db_session)
+    return user_data
