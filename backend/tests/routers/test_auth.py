@@ -124,6 +124,7 @@ class TestAuth:
         authorization_headers = get_authorization_headers(api_client, user_data)
         update_data = {"username": "new username"}
 
+        # noinspection PyTestUnpassedFixture
         response = api_client.patch(
             f"{self.path}{user.id}",
             json=update_data,
