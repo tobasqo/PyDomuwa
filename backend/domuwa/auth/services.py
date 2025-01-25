@@ -1,16 +1,16 @@
 import logging
+from typing import Any
 
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
 from domuwa.auth.models import User, UserCreate, UserDb, UserUpdate
+from domuwa.auth.security import get_password_hash
 
 logger = logging.getLogger(__name__)
 
 
 async def save_user(user: User, session: Session):
-    if not isinstance(user, UserDb):
-        user = UserDb.model_validate(user)
     try:
         session.add(user)
         session.commit()
@@ -23,7 +23,7 @@ async def save_user(user: User, session: Session):
 
 
 async def get_by_username(username: str, session: Session):
-    return session.exec(select(UserDb).where(UserDb.login == username)).first()  # type: ignore
+    return session.exec(select(UserDb).where(UserDb.username == username)).first()  # type: ignore
 
 
 async def get_by_id(user_id: int, session: Session):
@@ -34,14 +34,21 @@ async def get_all(session: Session):
     return session.exec(select(UserDb)).all()
 
 
-async def create(user: UserCreate, session: Session):
+async def create(user_create: UserCreate, session: Session):
+    user = UserDb.model_validate(
+        user_create, update={"hashed_password": get_password_hash(user_create.password)}
+    )
     return await save_user(user, session)
 
 
 async def update(user: UserDb, user_update: UserUpdate, session: Session):
     update_data = user_update.model_dump(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(user, field, value)
+    extra_data: dict[str, Any] = {}
+    if "password" in update_data:
+        password = update_data["password"]
+        hashed_password = get_password_hash(password)
+        extra_data["hashed_password"] = hashed_password
+    user.sqlmodel_update(update_data, update=extra_data)
     return await save_user(user, session)
 
 

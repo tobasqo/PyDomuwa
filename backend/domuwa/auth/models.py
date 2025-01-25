@@ -12,21 +12,20 @@ class TokenData(SQLModel):
 
 
 class User(SQLModel):
-    login: str
-    email: str | None = None
-    is_active: bool | None = None
-    is_staff: bool | None = None
+    username: str
+    is_active: bool = True
+    is_staff: bool = False
 
 
 class UserCreate(User):
-    pass
+    password: str = Field(min_length=8, max_length=40)
 
 
 class UserUpdate(SQLModel):
-    login: str | None = None
-    email: str | None = None
+    username: str | None = None
     is_active: bool | None = None
     is_staff: bool | None = None
+    password: str | None = Field(None, min_length=8, max_length=40)
 
 
 class UserDb(User, table=True):

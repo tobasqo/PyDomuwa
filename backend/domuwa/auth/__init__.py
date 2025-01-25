@@ -1,50 +1,23 @@
-# Add Fb/Google authorization: https://fastapi.tiangolo.com/advanced/security/oauth2-scopes/#global-view
-
-from datetime import datetime, timedelta, timezone
-from typing import Annotated, Literal
+from typing import Annotated
 
 import jwt
 from fastapi import Depends, HTTPException, Security, status
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
-from passlib.context import CryptContext
 from sqlmodel import Session
 
 from domuwa.auth import services
 from domuwa.auth.models import TokenData, User
+from domuwa.auth.security import verify_password
 from domuwa.config import settings
 from domuwa.database import get_db_session
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-ScopeName = Literal["me", "read", "create", "update", "delete"]
-ScopeDescription = str
-
-JWTScopes: dict[ScopeName, ScopeDescription] = {
-    "me": "Read information about the current user.",
-    "read": "Read information about database records.",
-    "create": "Create new database records.",
-    "update": "Update database records.",
-    "delete": "Delete database records.",
-}
-
-oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="token",
-    scopes=JWTScopes,  # type: ignore
-)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 CredentialsException = HTTPException(
     status.HTTP_401_UNAUTHORIZED,
     detail="Could not validate credentials",
     headers={"WWW-Authenticate": "Bearer"},
 )
-
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
-
-
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
 
 
 async def authenticate_user(username: str, password: str, session: Session):
@@ -54,16 +27,6 @@ async def authenticate_user(username: str, password: str, session: Session):
     if not verify_password(password, user.hashed_password):
         return False
     return user
-
-
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
-    else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.HASH_ALGORITHM)
 
 
 async def get_current_user(
@@ -109,7 +72,7 @@ async def get_current_active_user(
 ):
     if not current_user.is_active:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Inactive user"
         )
 
 

@@ -9,6 +9,7 @@ from sqlmodel import Session
 from domuwa import auth
 from domuwa.auth import services
 from domuwa.auth.models import Token, User, UserCreate, UserUpdate
+from domuwa.auth.security import create_access_token
 from domuwa.config import settings
 from domuwa.database import get_db_session
 
@@ -19,7 +20,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 async def get_user_or_404(user_id: int, session: Session):
     user = await services.get_by_id(user_id, session)
     if not user:
-        err_msg = f"{User.__name__}(id={user_id} not found"
+        err_msg = f"{User.__name__}(id={user_id}) not found"
         logger.error(err_msg)
         raise HTTPException(status.HTTP_404_NOT_FOUND, err_msg)
     return user
@@ -38,8 +39,8 @@ async def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = auth.create_access_token(
-        {"sub": user.username, "scopes": form_data.scopes},
+    access_token = create_access_token(
+        {"sub": user.username},
         expires_delta=access_token_expires,
     )
     return Token(access_token=access_token, token_type="bearer")
