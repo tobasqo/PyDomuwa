@@ -1,6 +1,7 @@
 import factory
 from factory.alchemy import SQLAlchemyModelFactory
 
+from domuwa.auth.models import UserDb
 from domuwa.models.answer import Answer
 from domuwa.models.game_type import GameType, GameTypeChoices
 from domuwa.models.player import Player
@@ -8,12 +9,21 @@ from domuwa.models.qna_category import QnACategory, QnACategoryChoices
 from domuwa.models.question import Question
 
 
+class UserFactory(SQLAlchemyModelFactory):
+    username = factory.Sequence(lambda n: f"user{n}")
+    is_active = True
+    is_staff = False
+    hashed_password = "h45h3dp455w0rd"
+
+    class Meta:
+        model = UserDb
+
+
 class GameTypeFactory(SQLAlchemyModelFactory):
     name = GameTypeChoices.EGO
 
     class Meta:  # type: ignore
         model = GameType
-        sqlalchemy_session_persistence = "commit"
         sqlalchemy_get_or_create = ("name",)
 
 
@@ -22,7 +32,6 @@ class PlayerFactory(SQLAlchemyModelFactory):
 
     class Meta:  # type: ignore
         model = Player
-        sqlalchemy_session_persistence = "commit"
 
 
 class QnACategoryFactory(SQLAlchemyModelFactory):
@@ -30,7 +39,6 @@ class QnACategoryFactory(SQLAlchemyModelFactory):
 
     class Meta:  # type: ignore
         model = QnACategory
-        sqlalchemy_session_persistence = "commit"
         sqlalchemy_get_or_create = ("name",)
 
 
@@ -44,7 +52,6 @@ class AnswerFactory(SQLAlchemyModelFactory):
 
     class Meta:  # type: ignore
         model = Answer
-        sqlalchemy_session_persistence = "commit"
 
 
 class QuestionFactory(SQLAlchemyModelFactory):
@@ -57,4 +64,3 @@ class QuestionFactory(SQLAlchemyModelFactory):
 
     class Meta:  # type: ignore
         model = Question
-        sqlalchemy_session_persistence = "commit"

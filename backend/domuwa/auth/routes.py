@@ -2,7 +2,7 @@ import logging
 from datetime import timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 
@@ -24,6 +24,13 @@ async def get_user_or_404(user_id: int, session: Session):
         logger.error(err_msg)
         raise HTTPException(status.HTTP_404_NOT_FOUND, err_msg)
     return user
+
+
+def check_same_user(user1: User, user2: User):
+    for field in ("id", "username", "hashed_password", "is_active", "is_staff"):
+        if getattr(user1, field) != getattr(user2, field):
+            return False
+    return True
 
 
 @router.post("/login")
@@ -51,12 +58,20 @@ async def read_user(current_user: Annotated[User, Depends(auth.get_current_user)
     return current_user
 
 
-@router.post("/")
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_user(
-    user: UserCreate, session: Annotated[Session, Depends(get_db_session)]
+    user_create: UserCreate, session: Annotated[Session, Depends(get_db_session)]
 ):
-    logger.debug("got %s(%s) to create", User.__name__, user)
-    return await services.create(user, session)
+    logger.debug("got %s(%s) to create", User.__name__, user_create)
+    user = await services.create(user_create, session)
+    if user is None:
+        err_msg = f"{User.__name__}(username={user_create.username}) already exists"
+        logger.error(err_msg)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=err_msg,
+        )
+    return user
 
 
 @router.get("/")
@@ -99,7 +114,8 @@ async def update_user(
         user_id,
     )
     user = await get_user_or_404(user_id, session)
-    if user != current_user or not current_user.is_staff:
+    is_same_user = check_same_user(current_user, user)
+    if not (is_same_user or current_user.is_staff):
         raise HTTPException(
             status.HTTP_403_FORBIDDEN,
             "Not enough permissions",
@@ -107,7 +123,11 @@ async def update_user(
     return await services.update(user, user_update, session)
 
 
-@router.delete("/{user_id}")
+@router.delete(
+    "/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
+)
 async def delete_user(
     user_id: int,
     session: Annotated[Session, Depends(get_db_session)],
@@ -115,4 +135,4 @@ async def delete_user(
 ):
     logger.debug("got %s(id=%d) to mark as inactive", User.__name__, user_id)
     user = await get_user_or_404(user_id, session)
-    await services.delete(user, session)
+    return await services.delete(user, session)

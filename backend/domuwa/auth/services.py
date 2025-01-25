@@ -35,8 +35,18 @@ async def get_all(session: Session):
 
 
 async def create(user_create: UserCreate, session: Session):
+    user = await get_by_username(user_create.username, session)
+    if user is not None:
+        logger.error(
+            "%s(username=%s) already exists",
+            UserDb.__name__,
+            user_create.username,
+        )
+        return None
+
     user = UserDb.model_validate(
-        user_create, update={"hashed_password": get_password_hash(user_create.password)}
+        user_create,
+        update={"hashed_password": get_password_hash(user_create.password)},
     )
     return await save_user(user, session)
 
