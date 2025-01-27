@@ -60,18 +60,23 @@ Then go to http address printed in console
 - [x] update tests for answers
 - [x] add game type
 - [x] add qna category
-- [x] add game category
+- [ ] add game category
+- [ ] add `deleted_by` field
+- permissions tests
+  - [ ] game type
+  - [ ] qna category
 - add auth
   - [x] add user model
+  - [ ] remove `player_id` from `create` models
   - [ ] update player to use user
   - [x] admin privileges
   - update allowed only by admin
-    - [ ] game type
-    - [ ] qna category
+    - [x] game type
+    - [x] qna category
     - [ ] game category
   - delete allowed only by admin
-    - [ ] game type
-    - [ ] qna category
+    - [x] game type
+    - [x] qna category
     - [ ] game category
   - update author on update
     - [ ] question
