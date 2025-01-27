@@ -1,11 +1,13 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Generic, final
+from typing import Annotated, Generic, final
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import SQLModel, Session
 from starlette.responses import Response
 
+from domuwa import auth
+from domuwa.auth import User
 from domuwa.database import get_db_session
 from domuwa.services import (
     CommonServices,
@@ -77,18 +79,24 @@ class CommonRouter(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
     async def get_by_id(
         self,
         model_id: int,
-        session: Session = Depends(get_db_session),
+        session: Annotated[Session, Depends(get_db_session)],
+        _: Annotated[User, Depends(auth.get_current_active_user)],
     ):
         return await self.get_instance(model_id, session)
 
-    async def get_all(self, session: Session = Depends(get_db_session)):
+    async def get_all(
+        self,
+        session: Annotated[Session, Depends(get_db_session)],
+        _: Annotated[User, Depends(auth.get_current_active_user)],
+    ):
         return await self.services.get_all(session)
 
     @abstractmethod
     async def create(
         self,
         model: CreateModelT,
-        session: Session = Depends(get_db_session),
+        session: Annotated[Session, Depends(get_db_session)],
+        user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
         self.logger.debug(
             "got %s(%s) to create",
@@ -102,7 +110,8 @@ class CommonRouter(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
         self,
         model_id: int,
         model_update: UpdateModelT,
-        session: Session = Depends(get_db_session),
+        session: Annotated[Session, Depends(get_db_session)],
+        user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
         self.logger.debug(
             "got %s(%s) to update %s(id=%d)",
@@ -114,7 +123,12 @@ class CommonRouter(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
         model = await self.get_instance(model_id, session)
         return await self.services.update(model, model_update, session)
 
-    async def delete(self, model_id: int, session: Session = Depends(get_db_session)):
+    async def delete(
+        self,
+        model_id: int,
+        session: Annotated[Session, Depends(get_db_session)],
+        user: Annotated[User, Depends(auth.get_current_active_user)],
+    ):
         self.logger.debug(
             "got %s(id=%d) to delete",
             self.db_model_type_name,
@@ -129,9 +143,10 @@ class CommonRouter400OnSaveError(CommonRouter[CreateModelT, UpdateModelT, DbMode
     async def create(
         self,
         model: CreateModelT,
-        session: Session = Depends(get_db_session),
+        session: Annotated[Session, Depends(get_db_session)],
+        user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
-        db_model = await super().create(model, session)
+        db_model = await super().create(model, session, user)
         if db_model is None:
             err_msg = f"{self.db_model_type_name}({model}) cannot be created"
             self.logger.warning(err_msg)
@@ -143,7 +158,8 @@ class CommonRouter400OnSaveError(CommonRouter[CreateModelT, UpdateModelT, DbMode
         self,
         model_id: int,
         model_update: UpdateModelT,
-        session: Session = Depends(get_db_session),
+        session: Annotated[Session, Depends(get_db_session)],
+        user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
         db_model = await self.get_instance(model_id, session)
         model_updated = await self.services.update(db_model, model_update, session)

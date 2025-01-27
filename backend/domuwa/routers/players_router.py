@@ -1,9 +1,12 @@
 import logging
+from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
 from typing_extensions import override
 
+from domuwa import auth
+from domuwa.auth import User
 from domuwa.database import get_db_session
 from domuwa.models.player import (
     Player,
@@ -28,18 +31,20 @@ class PlayerRouter(CommonRouter400OnSaveError[PlayerCreate, PlayerUpdate, Player
     async def create(
         self,
         model: PlayerCreate,
-        session: Session = Depends(get_db_session),
+        session: Annotated[Session, Depends(get_db_session)],
+        user: Annotated[User, auth.get_current_active_user],
     ):
-        return await super().create(model, session)
+        return await super().create(model, session, user)
 
     @override
     async def update(
         self,
         model_id: int,
         model_update: PlayerUpdate,
-        session: Session = Depends(get_db_session),
+        session: Annotated[Session, Depends(get_db_session)],
+        user: Annotated[User, auth.get_current_active_user],
     ):
-        return await super().update(model_id, model_update, session)
+        return await super().update(model_id, model_update, session, user)
 
 
 def get_players_router():

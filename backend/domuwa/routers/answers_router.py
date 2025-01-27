@@ -1,9 +1,12 @@
 import logging
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 from typing_extensions import override
 
+from domuwa import auth
+from domuwa.auth import User
 from domuwa.database import get_db_session
 from domuwa.models.answer import Answer, AnswerCreate, AnswerRead, AnswerUpdate
 from domuwa.routers import CommonRouter
@@ -37,9 +40,10 @@ class AnswerRouter(CommonRouter[AnswerCreate, AnswerUpdate, Answer]):
     async def get_by_id(
         self,
         model_id: int,
-        session: Session = Depends(get_db_session),
+        session: Annotated[Session, Depends(get_db_session)],
+        user: Annotated[User, auth.get_current_active_user],
     ):
-        model = await super().get_by_id(model_id, session)
+        model = await super().get_by_id(model_id, session, user)
         if not model.deleted:
             return model
 
@@ -53,18 +57,20 @@ class AnswerRouter(CommonRouter[AnswerCreate, AnswerUpdate, Answer]):
     async def create(
         self,
         model: AnswerCreate,
-        session: Session = Depends(get_db_session),
+        session: Annotated[Session, Depends(get_db_session)],
+        user: Annotated[User, auth.get_current_active_user],
     ):
-        return await super().create(model, session)
+        return await super().create(model, session, user)
 
     @override
     async def update(
         self,
         model_id: int,
         model_update: AnswerUpdate,
-        session: Session = Depends(get_db_session),
+        session: Annotated[Session, Depends(get_db_session)],
+        user: Annotated[User, auth.get_current_active_user],
     ):
-        return await super().update(model_id, model_update, session)
+        return await super().update(model_id, model_update, session, user)
 
 
 def get_answers_router():

@@ -1,9 +1,12 @@
 import logging
+from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
 from typing_extensions import override
 
+from domuwa import auth
+from domuwa.auth import User
 from domuwa.database import get_db_session
 from domuwa.models.game_type import (
     GameType,
@@ -36,24 +39,29 @@ class GameTypeRouter(
     async def create(
         self,
         model: GameTypeCreate,
-        session: Session = Depends(get_db_session),
+        session: Annotated[Session, Depends(get_db_session)],
+        admin_user: Annotated[User, auth.get_admin_user],
     ):
-        return await super().create(model, session)
+        return await super().create(model, session, admin_user)
 
-    # TODO: add auth user
     @override
     async def update(
         self,
         model_id: int,
         model_update: GameTypeUpdate,
-        session: Session = Depends(get_db_session),
+        session: Annotated[Session, Depends(get_db_session)],
+        admin_user: Annotated[User, auth.get_admin_user],
     ):
-        return await super().update(model_id, model_update, session)
+        return await super().update(model_id, model_update, session, admin_user)
 
-    # TODO: add auth user
     @override
-    async def delete(self, model_id: int, session: Session = Depends(get_db_session)):
-        return await super().delete(model_id, session)
+    async def delete(
+        self,
+        model_id: int,
+        session: Annotated[Session, Depends(get_db_session)],
+        admin_user: Annotated[User, auth.get_admin_user],
+    ):
+        return await super().delete(model_id, session, admin_user)
 
 
 def get_game_types_router():
