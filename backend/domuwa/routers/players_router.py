@@ -32,7 +32,7 @@ class PlayerRouter(CommonRouter400OnSaveError[PlayerCreate, PlayerUpdate, Player
         self,
         model: PlayerCreate,
         session: Annotated[Session, Depends(get_db_session)],
-        user: Annotated[User, auth.get_current_active_user],
+        user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
         return await super().create(model, session, user)
 
@@ -42,7 +42,7 @@ class PlayerRouter(CommonRouter400OnSaveError[PlayerCreate, PlayerUpdate, Player
         model_id: int,
         model_update: PlayerUpdate,
         session: Annotated[Session, Depends(get_db_session)],
-        user: Annotated[User, auth.get_current_active_user],
+        user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
         return await super().update(model_id, model_update, session, user)
 

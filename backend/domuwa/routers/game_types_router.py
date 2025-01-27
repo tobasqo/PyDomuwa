@@ -40,7 +40,7 @@ class GameTypeRouter(
         self,
         model: GameTypeCreate,
         session: Annotated[Session, Depends(get_db_session)],
-        admin_user: Annotated[User, auth.get_admin_user],
+        admin_user: Annotated[User, Depends(auth.get_admin_user)],
     ):
         return await super().create(model, session, admin_user)
 
@@ -50,7 +50,7 @@ class GameTypeRouter(
         model_id: int,
         model_update: GameTypeUpdate,
         session: Annotated[Session, Depends(get_db_session)],
-        admin_user: Annotated[User, auth.get_admin_user],
+        admin_user: Annotated[User, Depends(auth.get_admin_user)],
     ):
         return await super().update(model_id, model_update, session, admin_user)
 
@@ -59,7 +59,7 @@ class GameTypeRouter(
         self,
         model_id: int,
         session: Annotated[Session, Depends(get_db_session)],
-        admin_user: Annotated[User, auth.get_admin_user],
+        admin_user: Annotated[User, Depends(auth.get_admin_user)],
     ):
         return await super().delete(model_id, session, admin_user)
 

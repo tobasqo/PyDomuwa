@@ -35,7 +35,7 @@ class QnACategoriesRouter(
         self,
         model: QnACategoryCreate,
         session: Annotated[Session, Depends(get_db_session)],
-        admin_user: Annotated[User, auth.get_admin_user],
+        admin_user: Annotated[User, Depends(auth.get_admin_user)],
     ):
         return await super().create(model, session, admin_user)
 
@@ -45,7 +45,7 @@ class QnACategoriesRouter(
         model_id: int,
         model_update: QnACategoryUpdate,
         session: Annotated[Session, Depends(get_db_session)],
-        admin_user: Annotated[User, auth.get_admin_user],
+        admin_user: Annotated[User, Depends(auth.get_admin_user)],
     ):
         return await super().update(model_id, model_update, session, admin_user)
 
@@ -54,7 +54,7 @@ class QnACategoriesRouter(
         self,
         model_id: int,
         session: Annotated[Session, Depends(get_db_session)],
-        admin_user: Annotated[User, auth.get_admin_user],
+        admin_user: Annotated[User, Depends(auth.get_admin_user)],
     ):
         return await super().delete(model_id, session, admin_user)
 

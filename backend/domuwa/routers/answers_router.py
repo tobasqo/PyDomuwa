@@ -41,7 +41,7 @@ class AnswerRouter(CommonRouter[AnswerCreate, AnswerUpdate, Answer]):
         self,
         model_id: int,
         session: Annotated[Session, Depends(get_db_session)],
-        user: Annotated[User, auth.get_current_active_user],
+        user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
         model = await super().get_by_id(model_id, session, user)
         if not model.deleted:
@@ -58,7 +58,7 @@ class AnswerRouter(CommonRouter[AnswerCreate, AnswerUpdate, Answer]):
         self,
         model: AnswerCreate,
         session: Annotated[Session, Depends(get_db_session)],
-        user: Annotated[User, auth.get_current_active_user],
+        user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
         return await super().create(model, session, user)
 
@@ -68,7 +68,7 @@ class AnswerRouter(CommonRouter[AnswerCreate, AnswerUpdate, Answer]):
         model_id: int,
         model_update: AnswerUpdate,
         session: Annotated[Session, Depends(get_db_session)],
-        user: Annotated[User, auth.get_current_active_user],
+        user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
         return await super().update(model_id, model_update, session, user)
 
