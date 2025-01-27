@@ -1,11 +1,9 @@
-import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from domuwa.models.question import Question
 from domuwa.services.questions_services import QuestionServices
-from tests import CommonTestCase
 from tests.factories import (
     AnswerFactory,
     GameTypeFactory,
@@ -13,6 +11,7 @@ from tests.factories import (
     QnACategoryFactory,
     QuestionFactory,
 )
+from tests.routers import CommonTestCase
 
 
 class TestQuestion(CommonTestCase[Question]):
@@ -68,7 +67,11 @@ class TestQuestion(CommonTestCase[Question]):
         )
 
     # noinspection DuplicatedCode
-    def test_update(self, api_client: TestClient):
+    def test_update(
+        self,
+        api_client: TestClient,
+        authorization_headers: dict[str, str],
+    ):
         import warnings
 
         warnings.filterwarnings("ignore", module="sqlmodel.orm.session")
@@ -79,6 +82,7 @@ class TestQuestion(CommonTestCase[Question]):
         response = api_client.patch(
             f"{self.path}{question.id}",
             json={"text": new_text},
+            headers=authorization_headers,
         )
         assert response.status_code == status.HTTP_200_OK, response.text
         response_data = response.json()
@@ -106,10 +110,10 @@ class TestQuestion(CommonTestCase[Question]):
         assert not response_data["answers"], response_data
 
     # noinspection DuplicatedCode
-    @pytest.mark.asyncio
     async def test_delete_with_answers(
         self,
         api_client: TestClient,
+        authorization_headers: dict[str, str],
         db_session: Session,
     ):
         model = self.create_model()
@@ -118,10 +122,16 @@ class TestQuestion(CommonTestCase[Question]):
 
         AnswerFactory.create_batch(2, question_id=model_id)
 
-        response = api_client.delete(f"{self.path}{model_id}")
+        response = api_client.delete(
+            f"{self.path}{model_id}",
+            headers=authorization_headers,
+        )
         assert response.status_code == status.HTTP_204_NO_CONTENT, response.text
 
-        response = api_client.get(f"{self.path}{model_id}")
+        response = api_client.get(
+            f"{self.path}{model_id}",
+            headers=authorization_headers,
+        )
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
 
         await self.assert_valid_delete(model_id, db_session)

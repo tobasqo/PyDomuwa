@@ -3,8 +3,8 @@ from fastapi.testclient import TestClient
 
 from domuwa.models import Player
 from domuwa.services.players_services import PlayerServices
-from tests import CommonTestCase
 from tests.factories import PlayerFactory
+from tests.routers import CommonTestCase
 
 
 class TestPlayer(CommonTestCase[Player]):
@@ -33,38 +33,57 @@ class TestPlayer(CommonTestCase[Player]):
     def create_model(self) -> Player:
         return PlayerFactory.create()
 
-    def test_create_non_unique_name(self, api_client: TestClient):
+    def test_create_non_unique_name(
+        self,
+        api_client: TestClient,
+        authorization_headers: dict[str, str],
+    ):
         player = PlayerFactory.create()
         response = api_client.post(
             self.path,
             json={"name": player.name},
+            headers=authorization_headers,
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
 
-    def test_update(self, api_client: TestClient):
+    def test_update(
+        self,
+        api_client: TestClient,
+        authorization_headers: dict[str, str],
+    ):
         player_old = PlayerFactory.create()
         player_new = PlayerFactory.build()
 
         response = api_client.patch(
             f"{self.path}{player_old.id}",
             json={"name": player_new.name},
+            headers=authorization_headers,
         )
         assert response.status_code == status.HTTP_200_OK, response.text
         response_data = response.json()
         self.assert_valid_response(response_data)
         assert player_new.name == response_data["name"]
 
-        response = api_client.get(f"{self.path}{player_old.id}")
+        response = api_client.get(
+            f"{self.path}{player_old.id}",
+            headers=authorization_headers,
+        )
         assert response.status_code == status.HTTP_200_OK, response.text
         response_data = response.json()
         self.assert_valid_response(response_data)
         assert player_new.name == response_data["name"]
 
-    def test_update_non_unique_name(self, api_client: TestClient):
+    def test_update_non_unique_name(
+        self,
+        api_client: TestClient,
+        authorization_headers: dict[str, str],
+    ):
         player1 = PlayerFactory.create()
         player2 = PlayerFactory.create()
 
         response = api_client.patch(
-            f"{self.path}{player1.id}", json={"name": player2.name}
+            f"{self.path}{player1.id}",
+            json={"name": player2.name},
+            headers=authorization_headers,
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text

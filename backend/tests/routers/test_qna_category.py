@@ -3,8 +3,8 @@ from fastapi.testclient import TestClient
 
 from domuwa.models.qna_category import QnACategory, QnACategoryChoices
 from domuwa.services.qna_categories_services import QnACategoryServices
-from tests import CommonTestCase
 from tests.factories import QnACategoryFactory
+from tests.routers import CommonTestCase
 
 
 class TestQnACategory(CommonTestCase[QnACategory]):
@@ -30,61 +30,101 @@ class TestQnACategory(CommonTestCase[QnACategory]):
     def create_model(self) -> QnACategory:
         return QnACategoryFactory.create()
 
-    def test_update(self, api_client: TestClient):
+    def test_update(
+        self,
+        api_client: TestClient,
+        authorization_headers: dict[str, str],
+    ):
         qna_category = QnACategoryFactory.create()
         updated_qna_category_data = {"name": QnACategoryChoices.NSFW}
 
         response = api_client.patch(
             f"{self.path}{qna_category.id}",
             json=updated_qna_category_data,
+            headers=authorization_headers,
         )
         assert response.status_code == status.HTTP_200_OK, response.text
         self.assert_valid_response(response.json())
 
-        response = api_client.get(f"{self.path}{qna_category.id}")
+        response = api_client.get(
+            f"{self.path}{qna_category.id}",
+            headers=authorization_headers,
+        )
         assert response.status_code == status.HTTP_200_OK, response.text
 
         response_data = response.json()
         self.assert_valid_response(response_data)
         assert response_data["name"] == updated_qna_category_data["name"], response_data
 
-    def test_create_invalid_name(self, api_client: TestClient):
-        response = api_client.post(self.path, json={"name": "not from enum"})
+    def test_create_invalid_name(
+        self,
+        api_client: TestClient,
+        authorization_headers: dict[str, str],
+    ):
+        response = api_client.post(
+            self.path,
+            json={"name": "not from enum"},
+            headers=authorization_headers,
+        )
         assert (
             response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         ), response.text
 
-    def test_create_non_unique_name(self, api_client: TestClient):
+    def test_create_non_unique_name(
+        self,
+        api_client: TestClient,
+        authorization_headers: dict[str, str],
+    ):
         qna_category = QnACategoryFactory.create(name=QnACategoryChoices.SFW)
 
-        response = api_client.post(self.path, json={"name": qna_category.name})
+        response = api_client.post(
+            self.path,
+            json={"name": qna_category.name},
+            headers=authorization_headers,
+        )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
 
-    def test_update_invalid_name(self, api_client: TestClient):
+    def test_update_invalid_name(
+        self,
+        api_client: TestClient,
+        authorization_headers: dict[str, str],
+    ):
         qna_category = QnACategoryFactory.create()
 
         response = api_client.patch(
             f"{self.path}{qna_category.id}",
             json={"name": "not from enum"},
+            headers=authorization_headers,
         )
         assert (
             response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         ), response.text
 
-    def test_update_non_unique_name(self, api_client: TestClient):
+    def test_update_non_unique_name(
+        self,
+        api_client: TestClient,
+        authorization_headers: dict[str, str],
+    ):
         qna_category1 = QnACategoryFactory.create(name=QnACategoryChoices.SFW)
         qna_category2 = QnACategoryFactory.create(name=QnACategoryChoices.NSFW)
 
         response = api_client.patch(
-            f"{self.path}{qna_category1.id}", json={"name": qna_category2.name}
+            f"{self.path}{qna_category1.id}",
+            json={"name": qna_category2.name},
+            headers=authorization_headers,
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
 
-    def test_get_all(self, api_client: TestClient, model_count: int = 2):
+    def test_get_all(
+        self,
+        api_client: TestClient,
+        authorization_headers: dict[str, str],
+        model_count: int = 2,
+    ):
         QnACategoryFactory.create(name=QnACategoryChoices.SFW)
         QnACategoryFactory.create(name=QnACategoryChoices.NSFW)
 
-        response = api_client.get(self.path)
+        response = api_client.get(self.path, headers=authorization_headers)
         assert response.status_code == status.HTTP_200_OK, response.text
         response_data = response.json()
 

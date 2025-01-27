@@ -1,13 +1,11 @@
 from typing import Any
 
-import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from domuwa.models.answer import Answer
 from domuwa.services.answers_services import AnswerServices
-from tests import CommonTestCase
 from tests.factories import (
     AnswerFactory,
     GameTypeFactory,
@@ -15,6 +13,7 @@ from tests.factories import (
     QnACategoryFactory,
     QuestionFactory,
 )
+from tests.routers import CommonTestCase
 
 
 class TestAnswer(CommonTestCase[Answer]):
@@ -104,7 +103,11 @@ class TestAnswer(CommonTestCase[Answer]):
         )
 
     # noinspection DuplicatedCode
-    def test_update(self, api_client: TestClient):
+    def test_update(
+        self,
+        api_client: TestClient,
+        authorization_headers: dict[str, str],
+    ):
         import warnings
 
         warnings.filterwarnings("ignore", module="sqlmodel.orm.session")
@@ -115,6 +118,7 @@ class TestAnswer(CommonTestCase[Answer]):
         response = api_client.patch(
             f"{self.path}{answer.id}",
             json={"text": new_text},
+            headers=authorization_headers,
         )
         assert response.status_code == status.HTTP_200_OK, response.text
         response_data = response.json()
@@ -140,20 +144,27 @@ class TestAnswer(CommonTestCase[Answer]):
         assert response_data["game_category"]["name"] == answer.game_category.name  # type: ignore
 
     # noinspection DuplicatedCode
-    @pytest.mark.asyncio
     async def test_create_answer_with_question(
         self,
         api_client: TestClient,
+        authorization_headers: dict[str, str],
         db_session: Session,
     ):
         answer = self.build_model_with_question()
 
-        response = api_client.post(self.path, json=answer.model_dump())
+        response = api_client.post(
+            self.path,
+            json=answer.model_dump(),
+            headers=authorization_headers,
+        )
         assert response.status_code == status.HTTP_201_CREATED, response.text
         response_data = response.json()
         self.assert_valid_response(response_data)
 
-        response = api_client.get(f"{self.path}{response_data['id']}")
+        response = api_client.get(
+            f"{self.path}{response_data['id']}",
+            headers=authorization_headers,
+        )
         assert response.status_code == status.HTTP_200_OK, response.text
         answer_response_data = response.json()
         self.assert_valid_response(answer_response_data)
@@ -166,20 +177,26 @@ class TestAnswer(CommonTestCase[Answer]):
         answer.id = response_data["id"]
         assert answer == question.answers[0], question.answers
 
-    @pytest.mark.asyncio
     async def test_delete_answer_with_question(
         self,
         api_client: TestClient,
+        authorization_headers: dict[str, str],
         db_session: Session,
     ):
         answer = self.create_model_with_question()
         answer_id = answer.id
         assert answer_id is not None
 
-        response = api_client.delete(f"{self.path}{answer_id}")
+        response = api_client.delete(
+            f"{self.path}{answer_id}",
+            headers=authorization_headers,
+        )
         assert response.status_code == status.HTTP_204_NO_CONTENT, response.text
 
-        response = api_client.get(f"{self.path}{answer_id}")
+        response = api_client.get(
+            f"{self.path}{answer_id}",
+            headers=authorization_headers,
+        )
         assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
 
         db_answer = await self.services.get_by_id(answer_id, db_session)
