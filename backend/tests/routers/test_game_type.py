@@ -1,5 +1,7 @@
 from fastapi import status
 from fastapi.testclient import TestClient
+from sqlmodel import Session
+from typing_extensions import override
 
 from domuwa.models.game_type import GameType, GameTypeChoices
 from domuwa.services.game_type_services import GameTypeServices
@@ -32,15 +34,26 @@ class TestGameType(CommonTestCase[GameType]):
     def create_model(self) -> GameType:
         return GameTypeFactory.create()
 
+    @override
+    async def test_create(
+        self,
+        api_client: TestClient,
+        admin_authorization_headers: dict[str, str],
+        db_session: Session,
+    ):
+        return await super().test_create(
+            api_client, admin_authorization_headers, db_session
+        )
+
     def test_create_invalid_name(
         self,
         api_client: TestClient,
-        authorization_headers: dict[str, str],
+        admin_authorization_headers: dict[str, str],
     ):
         response = api_client.post(
             self.path,
             json={"name": "not from enum"},
-            headers=authorization_headers,
+            headers=admin_authorization_headers,
         )
         assert (
             response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
@@ -49,13 +62,13 @@ class TestGameType(CommonTestCase[GameType]):
     def test_create_non_unique_name(
         self,
         api_client: TestClient,
-        authorization_headers: dict[str, str],
+        admin_authorization_headers: dict[str, str],
     ):
         game_type = GameTypeFactory.create()
         response = api_client.post(
             self.path,
             json={"name": game_type.name},
-            headers=authorization_headers,
+            headers=admin_authorization_headers,
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
 
@@ -82,7 +95,7 @@ class TestGameType(CommonTestCase[GameType]):
     def test_update(
         self,
         api_client: TestClient,
-        authorization_headers: dict[str, str],
+        admin_authorization_headers: dict[str, str],
     ):
         game_type = GameTypeFactory.create(name=GameTypeChoices.EGO)
         updated_game_type_data = {"name": GameTypeChoices.WHOS_MOST_LIKELY}
@@ -90,14 +103,14 @@ class TestGameType(CommonTestCase[GameType]):
         response = api_client.patch(
             f"{self.path}{game_type.id}",
             json=updated_game_type_data,
-            headers=authorization_headers,
+            headers=admin_authorization_headers,
         )
         assert response.status_code == status.HTTP_200_OK, response.text
         self.assert_valid_response(response.json())
 
         response = api_client.get(
             f"{self.path}{game_type.id}",
-            headers=authorization_headers,
+            headers=admin_authorization_headers,
         )
         assert response.status_code == status.HTTP_200_OK, response.text
 
@@ -108,14 +121,14 @@ class TestGameType(CommonTestCase[GameType]):
     def test_update_invalid_name(
         self,
         api_client: TestClient,
-        authorization_headers: dict[str, str],
+        admin_authorization_headers: dict[str, str],
     ):
         game_type = GameTypeFactory.create()
 
         response = api_client.patch(
             f"{self.path}{game_type.id}",
             json={"name": "not from enum"},
-            headers=authorization_headers,
+            headers=admin_authorization_headers,
         )
         assert (
             response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
@@ -124,7 +137,7 @@ class TestGameType(CommonTestCase[GameType]):
     def test_update_non_unique_name(
         self,
         api_client: TestClient,
-        authorization_headers: dict[str, str],
+        admin_authorization_headers: dict[str, str],
     ):
         game_type1 = GameTypeFactory.create(name=GameTypeChoices.EGO)
         game_type2 = GameTypeFactory.create(name=GameTypeChoices.WHOS_MOST_LIKELY)
@@ -132,6 +145,18 @@ class TestGameType(CommonTestCase[GameType]):
         response = api_client.patch(
             f"{self.path}{game_type1.id}",
             json={"name": game_type2.name},
-            headers=authorization_headers,
+            headers=admin_authorization_headers,
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
+
+    async def test_delete(
+        self,
+        api_client: TestClient,
+        admin_authorization_headers: dict[str, str],
+        db_session: Session,
+    ):
+        return await super().test_delete(
+            api_client,
+            admin_authorization_headers,
+            db_session,
+        )

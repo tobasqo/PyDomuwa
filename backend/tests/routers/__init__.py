@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
-import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 from sqlmodel import SQLModel, Session
@@ -56,7 +55,10 @@ class CommonTestCase(ABC, Generic[DbModelT]):
         response_data = response.json()
         self.assert_valid_response(response_data)
 
-        response = api_client.get(f"{self.path}{response_data['id']}")
+        response = api_client.get(
+            f"{self.path}{response_data['id']}",
+            headers=authorization_headers,
+        )
         assert response.status_code == status.HTTP_200_OK, response.text
         self.assert_valid_response(response.json())
 
@@ -106,7 +108,6 @@ class CommonTestCase(ABC, Generic[DbModelT]):
     ):
         pass
 
-    @pytest.mark.asyncio
     async def test_delete(
         self,
         api_client: TestClient,
