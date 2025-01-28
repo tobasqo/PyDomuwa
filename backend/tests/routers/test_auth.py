@@ -11,8 +11,6 @@ class TestAuth:
     path = "/auth/"
     services = services
 
-    # TODO: add tests for non unique username
-
     async def test_login_for_access_token(
         self,
         api_client: TestClient,
@@ -183,6 +181,15 @@ class TestAuth:
         )
         response_data = response.json()
         assert response.status_code == status.HTTP_404_NOT_FOUND, response_data
+
+    def test_update_user_existing_name(
+        self,
+        api_client: TestClient,
+        user_data: UserData,
+    ):
+        response = api_client.post(self.path, json=user_data)  # type: ignore
+        assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
+
 
     def test_delete_user(
         self,
