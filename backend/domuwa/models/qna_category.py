@@ -18,7 +18,7 @@ class QnACategoryBase(SQLModel):
 
 
 class QnACategory(SQLModel, table=True):
-    __tablename__ = "qna_category"  # type: ignore
+    __tablename__ = "qna_category"
 
     id: Optional[int] = Field(default=None, primary_key=True)
     name: QnACategoryChoices = Field(index=True, unique=True)

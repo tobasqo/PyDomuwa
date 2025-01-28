@@ -37,8 +37,7 @@ class CommonServices(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
         session: Session,
     ):
         update_data = model_update.model_dump(exclude_unset=True)
-        for field, value in update_data.items():
-            setattr(model, field, value)
+        model.sqlmodel_update(update_data)
         return await self.save(model, session)
 
     async def save(

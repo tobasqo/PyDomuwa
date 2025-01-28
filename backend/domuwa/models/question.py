@@ -24,7 +24,7 @@ class QuestionBase(SQLModel):
 
 
 class Question(SQLModel, table=True):
-    __tablename__ = "question"  # type: ignore
+    __tablename__ = "question"
 
     id: Optional[int] = Field(None, primary_key=True)
     text: str = Field(min_length=TEXT_MIN_LEN, max_length=TEXT_MAX_LEN)

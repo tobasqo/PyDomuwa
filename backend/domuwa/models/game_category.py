@@ -18,7 +18,7 @@ class GameCategoryBase(SQLModel):
 
 
 class GameCategory(SQLModel, table=True):
-    __tablename__ = "game_category"  # type: ignore
+    __tablename__ = "game_category"
 
     id: Optional[int] = Field(default=None, primary_key=True)
     name: GameCategoryChoices = Field(index=True, unique=True)

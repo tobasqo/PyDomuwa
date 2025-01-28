@@ -1,8 +1,9 @@
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from fastapi import status
 from fastapi.testclient import TestClient
 from sqlmodel import Session
+from typing_extensions import override
 
 from domuwa.models.answer import Answer
 from domuwa.services.answers_services import AnswerServices
@@ -12,14 +13,20 @@ from tests.factories import (
     PlayerFactory,
     QnACategoryFactory,
     QuestionFactory,
+    UserFactory,
 )
 from tests.routers import CommonTestCase
+
+if TYPE_CHECKING:
+    from domuwa.auth import User
+    from domuwa.models import GameCategory, GameType, Player, Question
 
 
 class TestAnswer(CommonTestCase[Answer]):
     path = "/api/answers/"
     services = AnswerServices()
 
+    @override
     def assert_valid_response(self, response_data: dict[str, Any]):
         assert "id" in response_data, response_data
         assert "text" in response_data, response_data
@@ -29,6 +36,7 @@ class TestAnswer(CommonTestCase[Answer]):
         assert "game_category" in response_data, response_data
 
     # noinspection DuplicatedCode
+    @override
     def assert_valid_response_values(
         self,
         response_data: dict,
@@ -41,15 +49,18 @@ class TestAnswer(CommonTestCase[Answer]):
         assert response_data["game_type"]["id"] == model.game_type.id  # type: ignore
         assert response_data["game_category"]["id"] == model.game_category.id  # type: ignore
 
+    @override
     async def assert_valid_delete(self, model_id: int, db_session: Session) -> None:
         answer = await self.services.get_by_id(model_id, db_session)
         assert answer is not None
         assert answer.deleted
 
-    def build_model(self):
-        author = PlayerFactory.create()
-        game_type = GameTypeFactory.create()
-        game_category = QnACategoryFactory.create()
+    @override
+    def build_model(self) -> Answer:
+        user: User = UserFactory.create()
+        author: Player = PlayerFactory.create(id=user.id)
+        game_type: GameType = GameTypeFactory.create()
+        game_category: GameType = QnACategoryFactory.create()
         return AnswerFactory.build(
             author_id=author.id,
             game_type_id=game_type.id,
@@ -59,10 +70,11 @@ class TestAnswer(CommonTestCase[Answer]):
     # noinspection DuplicatedCode
     @staticmethod
     def build_model_with_question() -> Answer:
-        author = PlayerFactory.create()
-        game_type = GameTypeFactory.create()
-        game_category = QnACategoryFactory.create()
-        question = QuestionFactory.create(
+        user: User = UserFactory.create()
+        author: Player = PlayerFactory.create(id=user.id)
+        game_type: GameType = GameTypeFactory.create()
+        game_category: GameCategory = QnACategoryFactory.create()
+        question: Question = QuestionFactory.create(
             author_id=author.id,
             game_type_id=game_type.id,
             game_category_id=game_category.id,
@@ -74,10 +86,12 @@ class TestAnswer(CommonTestCase[Answer]):
             question_id=question.id,
         )
 
+    @override
     def create_model(self) -> Answer:
-        author = PlayerFactory.create()
-        game_type = GameTypeFactory.create()
-        game_category = QnACategoryFactory.create()
+        user: User = UserFactory.create()
+        author: Player = PlayerFactory.create(id=user.id)
+        game_type: GameType = GameTypeFactory.create()
+        game_category: GameCategory = QnACategoryFactory.create()
         return AnswerFactory.create(
             author_id=author.id,
             game_type_id=game_type.id,
@@ -87,10 +101,11 @@ class TestAnswer(CommonTestCase[Answer]):
     # noinspection DuplicatedCode
     @staticmethod
     def create_model_with_question() -> Answer:
-        author = PlayerFactory.create()
-        game_type = GameTypeFactory.create()
-        game_category = QnACategoryFactory.create()
-        question = QuestionFactory.create(
+        user: User = UserFactory.create()
+        author: Player = PlayerFactory.create(id=user.id)
+        game_type: GameType = GameTypeFactory.create()
+        game_category: GameCategory = QnACategoryFactory.create()
+        question: Question = QuestionFactory.create(
             author_id=author.id,
             game_type_id=game_type.id,
             game_category_id=game_category.id,
@@ -103,6 +118,7 @@ class TestAnswer(CommonTestCase[Answer]):
         )
 
     # noinspection DuplicatedCode
+    @override
     def test_update(
         self,
         api_client: TestClient,

@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class GameRoom(SQLModel, table=True):
-    __tablename__ = "game_room"  # type: ignore
+    __tablename__ = "game_room"
 
     id: Optional[int] = Field(default=None, primary_key=True)
     websocket: Optional[str] = Field(default=None, index=True)

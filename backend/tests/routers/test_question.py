@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from fastapi import status
 from fastapi.testclient import TestClient
 from sqlmodel import Session
@@ -10,8 +12,13 @@ from tests.factories import (
     PlayerFactory,
     QnACategoryFactory,
     QuestionFactory,
+    UserFactory,
 )
 from tests.routers import CommonTestCase
+
+if TYPE_CHECKING:
+    from domuwa.auth import User
+    from domuwa.models import GameCategory, GameType, Player
 
 
 class TestQuestion(CommonTestCase[Question]):
@@ -47,9 +54,10 @@ class TestQuestion(CommonTestCase[Question]):
             assert answer.deleted
 
     def build_model(self) -> Question:
-        author = PlayerFactory.create()
-        game_type = GameTypeFactory.create()
-        game_category = QnACategoryFactory.create()
+        user: User = UserFactory.create()
+        author: Player = PlayerFactory.create(id=user.id)
+        game_type: GameType = GameTypeFactory.create()
+        game_category: GameCategory = QnACategoryFactory.create()
         return QuestionFactory.build(
             author_id=author.id,
             game_type_id=game_type.id,
@@ -57,9 +65,10 @@ class TestQuestion(CommonTestCase[Question]):
         )
 
     def create_model(self) -> Question:
-        author = PlayerFactory.create()
-        game_type = GameTypeFactory.create()
-        game_category = QnACategoryFactory.create()
+        user: User = UserFactory.create()
+        author: Player = PlayerFactory.create(id=user.id)
+        game_type: GameType = GameTypeFactory.create()
+        game_category: GameCategory = QnACategoryFactory.create()
         return QuestionFactory.create(
             author_id=author.id,
             game_type_id=game_type.id,

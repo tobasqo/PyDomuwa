@@ -11,6 +11,8 @@ class TestAuth:
     path = "/auth/"
     services = services
 
+    # TODO: add tests for non unique username
+
     async def test_login_for_access_token(
         self,
         api_client: TestClient,

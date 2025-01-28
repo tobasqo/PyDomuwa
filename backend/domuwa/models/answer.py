@@ -23,7 +23,7 @@ class AnswerBase(SQLModel):
 
 
 class Answer(SQLModel, table=True):
-    __tablename__ = "answer"  # type: ignore
+    __tablename__ = "answer"
 
     id: Optional[int] = Field(default=None, primary_key=True)
     text: str = Field(min_length=TEXT_MIN_LEN, max_length=TEXT_MAX_LEN)
@@ -54,8 +54,13 @@ class Answer(SQLModel, table=True):
     question: Optional["Question"] = Relationship(back_populates="answers")
 
 
-class AnswerCreate(AnswerBase):
-    pass
+class AnswerCreate(SQLModel):
+    text: str = Field(min_length=TEXT_MIN_LEN, max_length=TEXT_MAX_LEN)
+    excluded: bool = False
+    author_id: int | None = None  # updated from `get_current_user` dependency
+    game_type_id: int
+    game_category_id: int
+    question_id: int | None = None
 
 
 class AnswerUpdate(SQLModel):

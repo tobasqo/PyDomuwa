@@ -4,13 +4,13 @@ from typing import Any
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
-from domuwa.auth.models import User, UserCreate, UserDb, UserUpdate
+from domuwa.auth.models import User, UserBase, UserCreate, UserUpdate
 from domuwa.auth.security import get_password_hash
 
 logger = logging.getLogger(__name__)
 
 
-async def save_user(user: User, session: Session):
+async def save_user(user: UserBase, session: Session):
     try:
         session.add(user)
         session.commit()
@@ -18,20 +18,20 @@ async def save_user(user: User, session: Session):
         logger.error(str(exc))
         return None
     session.refresh(user)
-    logger.debug("saved %s(%s) to db", User.__name__, user)
+    logger.debug("saved %s(%s) to db", UserBase.__name__, user)
     return user
 
 
 async def get_by_username(username: str, session: Session):
-    return session.exec(select(UserDb).where(UserDb.username == username)).first()  # type: ignore
+    return session.exec(select(User).where(User.username == username)).first()  # type: ignore
 
 
 async def get_by_id(user_id: int, session: Session):
-    return session.exec(select(UserDb).where(UserDb.id == user_id)).first()
+    return session.exec(select(User).where(User.id == user_id)).first()  # type: ignore
 
 
 async def get_all(session: Session):
-    return session.exec(select(UserDb)).all()
+    return session.exec(select(User)).all()
 
 
 async def create(user_create: UserCreate, session: Session):
@@ -39,19 +39,19 @@ async def create(user_create: UserCreate, session: Session):
     if user is not None:
         logger.error(
             "%s(username=%s) already exists",
-            UserDb.__name__,
+            User.__name__,
             user_create.username,
         )
         return None
 
-    user = UserDb.model_validate(
+    user = User.model_validate(
         user_create,
         update={"hashed_password": get_password_hash(user_create.password)},
     )
     return await save_user(user, session)
 
 
-async def update(user: UserDb, user_update: UserUpdate, session: Session):
+async def update(user: User, user_update: UserUpdate, session: Session):
     update_data = user_update.model_dump(exclude_unset=True)
     extra_data: dict[str, Any] = {}
     if "password" in update_data:
@@ -62,8 +62,8 @@ async def update(user: UserDb, user_update: UserUpdate, session: Session):
     return await save_user(user, session)
 
 
-async def delete(user: UserDb, session: Session):
+async def delete(user: User, session: Session):
     user.is_active = False
     session.add(user)
     session.commit()
-    logger.debug("marked %s(id=%d) as inactive", User.__name__, user.id)
+    logger.debug("marked %s(id=%d) as inactive", UserBase.__name__, user.id)

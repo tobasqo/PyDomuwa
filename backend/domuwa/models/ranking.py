@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class Ranking(SQLModel, table=True):
-    __tablename__ = "ranking"  # type: ignore
+    __tablename__ = "ranking"
 
     id: Optional[int] = Field(None, primary_key=True)
 

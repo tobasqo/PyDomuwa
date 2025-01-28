@@ -82,7 +82,7 @@ class TestGameType(CommonTestCase[GameType]):
         api_client: TestClient,
         admin_authorization_headers: dict[str, str],
     ):
-        game_type = GameTypeFactory.create()
+        game_type: GameType = GameTypeFactory.create()
         response = api_client.post(
             self.path,
             json={"name": game_type.name},
@@ -117,7 +117,7 @@ class TestGameType(CommonTestCase[GameType]):
         api_client: TestClient,
         admin_authorization_headers: dict[str, str],
     ):
-        game_type = GameTypeFactory.create(name=GameTypeChoices.EGO)
+        game_type: GameType = GameTypeFactory.create(name=GameTypeChoices.EGO)
         updated_game_type_data = {"name": GameTypeChoices.WHOS_MOST_LIKELY}
 
         response = api_client.patch(
@@ -143,7 +143,7 @@ class TestGameType(CommonTestCase[GameType]):
         api_client: TestClient,
         authorization_headers: dict[str, str],
     ):
-        game_type = GameTypeFactory.create(name=GameTypeChoices.EGO)
+        game_type: GameType = GameTypeFactory.create(name=GameTypeChoices.EGO)
         updated_game_type_data = {"name": GameTypeChoices.WHOS_MOST_LIKELY}
 
         response = api_client.patch(
@@ -158,7 +158,7 @@ class TestGameType(CommonTestCase[GameType]):
         api_client: TestClient,
         admin_authorization_headers: dict[str, str],
     ):
-        game_type = GameTypeFactory.create()
+        game_type: GameType = GameTypeFactory.create()
 
         response = api_client.patch(
             f"{self.path}{game_type.id}",
@@ -174,8 +174,10 @@ class TestGameType(CommonTestCase[GameType]):
         api_client: TestClient,
         admin_authorization_headers: dict[str, str],
     ):
-        game_type1 = GameTypeFactory.create(name=GameTypeChoices.EGO)
-        game_type2 = GameTypeFactory.create(name=GameTypeChoices.WHOS_MOST_LIKELY)
+        game_type1: GameType = GameTypeFactory.create(name=GameTypeChoices.EGO)
+        game_type2: GameType = GameTypeFactory.create(
+            name=GameTypeChoices.WHOS_MOST_LIKELY
+        )
 
         response = api_client.patch(
             f"{self.path}{game_type1.id}",

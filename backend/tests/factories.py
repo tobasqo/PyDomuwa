@@ -1,7 +1,7 @@
 import factory
 from factory.alchemy import SQLAlchemyModelFactory
 
-from domuwa.auth.models import UserDb
+from domuwa.auth.models import User
 from domuwa.models.answer import Answer
 from domuwa.models.game_type import GameType, GameTypeChoices
 from domuwa.models.player import Player
@@ -16,7 +16,7 @@ class UserFactory(SQLAlchemyModelFactory):
     hashed_password = "h45h3dp455w0rd"
 
     class Meta:
-        model = UserDb
+        model = User
 
 
 class GameTypeFactory(SQLAlchemyModelFactory):
@@ -28,7 +28,7 @@ class GameTypeFactory(SQLAlchemyModelFactory):
 
 
 class PlayerFactory(SQLAlchemyModelFactory):
-    name = factory.Sequence(lambda n: "Player %d" % n)
+    id: int
 
     class Meta:  # type: ignore
         model = Player

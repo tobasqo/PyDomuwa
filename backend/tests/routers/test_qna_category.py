@@ -23,7 +23,9 @@ class TestQnACategory(CommonTestCase[QnACategory]):
 
     @override
     def assert_valid_response_values(
-        self, response_data: dict, model: QnACategory
+        self,
+        response_data: dict,
+        model: QnACategory,
     ) -> None:
         assert response_data["id"] == model.id
         assert response_data["name"] == model.name
@@ -44,7 +46,9 @@ class TestQnACategory(CommonTestCase[QnACategory]):
         db_session: Session,
     ):
         return await super().test_create(
-            api_client, admin_authorization_headers, db_session
+            api_client,
+            admin_authorization_headers,
+            db_session,
         )
 
     async def test_create_non_admin(
@@ -80,7 +84,9 @@ class TestQnACategory(CommonTestCase[QnACategory]):
         api_client: TestClient,
         admin_authorization_headers: dict[str, str],
     ):
-        qna_category = QnACategoryFactory.create(name=QnACategoryChoices.SFW)
+        qna_category: QnACategory = QnACategoryFactory.create(
+            name=QnACategoryChoices.SFW
+        )
 
         response = api_client.post(
             self.path,
@@ -95,7 +101,7 @@ class TestQnACategory(CommonTestCase[QnACategory]):
         api_client: TestClient,
         admin_authorization_headers: dict[str, str],
     ):
-        qna_category = QnACategoryFactory.create()
+        qna_category: QnACategory = QnACategoryFactory.create()
         updated_qna_category_data = {"name": QnACategoryChoices.NSFW}
 
         response = api_client.patch(
@@ -121,7 +127,7 @@ class TestQnACategory(CommonTestCase[QnACategory]):
         api_client: TestClient,
         authorization_headers: dict[str, str],
     ):
-        qna_category = QnACategoryFactory.create()
+        qna_category: QnACategory = QnACategoryFactory.create()
         updated_qna_category_data = {"name": QnACategoryChoices.NSFW}
 
         response = api_client.patch(
@@ -136,7 +142,7 @@ class TestQnACategory(CommonTestCase[QnACategory]):
         api_client: TestClient,
         admin_authorization_headers: dict[str, str],
     ):
-        qna_category = QnACategoryFactory.create()
+        qna_category: QnACategory = QnACategoryFactory.create()
 
         response = api_client.patch(
             f"{self.path}{qna_category.id}",
@@ -152,8 +158,12 @@ class TestQnACategory(CommonTestCase[QnACategory]):
         api_client: TestClient,
         admin_authorization_headers: dict[str, str],
     ):
-        qna_category1 = QnACategoryFactory.create(name=QnACategoryChoices.SFW)
-        qna_category2 = QnACategoryFactory.create(name=QnACategoryChoices.NSFW)
+        qna_category1: QnACategory = QnACategoryFactory.create(
+            name=QnACategoryChoices.SFW
+        )
+        qna_category2: QnACategory = QnACategoryFactory.create(
+            name=QnACategoryChoices.NSFW
+        )
 
         response = api_client.patch(
             f"{self.path}{qna_category1.id}",

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Optional
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
+    from domuwa.auth import User
     from domuwa.models.answer import Answer
     from domuwa.models.game_room import GameRoom
     from domuwa.models.player_score import PlayerScore
@@ -13,19 +14,15 @@ NAME_MAX_LEN = 25
 
 
 class PlayerBase(SQLModel):
-    name: str = Field(min_length=NAME_MIN_LEN, max_length=NAME_MAX_LEN)
+    id: int
 
 
 class Player(SQLModel, table=True):
-    __tablename__ = "player"  # type: ignore
+    __tablename__ = "player"
 
-    id: Optional[int] = Field(None, primary_key=True)
-    name: str = Field(
-        min_length=NAME_MIN_LEN,
-        max_length=NAME_MAX_LEN,
-        index=True,
-        unique=True,
-    )
+    id: int = Field(primary_key=True, foreign_key="user.id")
+    user: "User" = Relationship(back_populates="player")
+
     games_played: int = 0
     games_won: int = 0
 
@@ -43,10 +40,10 @@ class PlayerCreate(PlayerBase):
 
 
 class PlayerRead(PlayerBase):
-    id: int
     games_played: int
     games_won: int
 
 
-class PlayerUpdate(PlayerBase):
-    pass
+class PlayerUpdate(SQLModel):
+    games_played: int | None = None
+    games_won: int | None = None
