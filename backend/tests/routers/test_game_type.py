@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from fastapi import status
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from sqlmodel import Session
 from typing_extensions import override
 
@@ -53,7 +53,7 @@ class TestGameType(CommonTestCase[GameType]):
     @override
     async def test_create(  # type: ignore
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         admin_authorization_headers: dict[str, str],
         db_session: Session,
         *args,
@@ -63,26 +63,26 @@ class TestGameType(CommonTestCase[GameType]):
             api_client, admin_authorization_headers, db_session
         )
 
-    def test_create_non_admin(
+    async def test_create_non_admin(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         authorization_headers: dict[str, str],
     ):
         model = self.build_model()
 
-        response = api_client.post(
+        response = await api_client.post(
             self.path,
             json=model.model_dump(),
             headers=authorization_headers,
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN, response.text
 
-    def test_create_invalid_name(
+    async def test_create_invalid_name(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         admin_authorization_headers: dict[str, str],
     ):
-        response = api_client.post(
+        response = await api_client.post(
             self.path,
             json={"name": "not from enum"},
             headers=admin_authorization_headers,
@@ -91,13 +91,13 @@ class TestGameType(CommonTestCase[GameType]):
             response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         ), response.text
 
-    def test_create_non_unique_name(
+    async def test_create_non_unique_name(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         admin_authorization_headers: dict[str, str],
     ):
         game_type: GameType = GameTypeFactory.create()
-        response = api_client.post(
+        response = await api_client.post(
             self.path,
             json={"name": game_type.name},
             headers=admin_authorization_headers,
@@ -105,9 +105,9 @@ class TestGameType(CommonTestCase[GameType]):
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
 
     @override
-    def test_get_all(
+    async def test_get_all(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         authorization_headers: dict[str, str],
         model_count: int = 3,
         *args,
@@ -117,7 +117,7 @@ class TestGameType(CommonTestCase[GameType]):
         GameTypeFactory.create(name=GameTypeChoices.WHOS_MOST_LIKELY)
         GameTypeFactory.create(name=GameTypeChoices.GENTLEMENS_CARDS)
 
-        response = api_client.get(self.path, headers=authorization_headers)
+        response = await api_client.get(self.path, headers=authorization_headers)
         assert response.status_code == status.HTTP_200_OK, response.text
         response_data = response.json()
 
@@ -127,9 +127,9 @@ class TestGameType(CommonTestCase[GameType]):
         for game_type in response_data:
             self.assert_valid_response(game_type)
 
-    def test_get_all_questions(
+    async def test_get_all_questions(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         authorization_headers: dict[str, str],
     ):
         expected_count = 3
@@ -154,7 +154,7 @@ class TestGameType(CommonTestCase[GameType]):
             author_id=player.id,
         )
 
-        response = api_client.get(
+        response = await api_client.get(
             f"{self.path}{game_type.id}/questions",
             headers=authorization_headers,
         )
@@ -162,9 +162,9 @@ class TestGameType(CommonTestCase[GameType]):
         response_data = response.json()
         assert len(response_data) == expected_count, response_data
 
-    def test_get_all_deleted_questions(
+    async def test_get_all_deleted_questions(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         authorization_headers: dict[str, str],
     ):
         user: User = UserFactory.create()
@@ -179,7 +179,7 @@ class TestGameType(CommonTestCase[GameType]):
             deleted=True,
         )
 
-        response = api_client.get(
+        response = await api_client.get(
             f"{self.path}{game_type.id}/questions",
             headers=authorization_headers,
         )
@@ -187,9 +187,9 @@ class TestGameType(CommonTestCase[GameType]):
         response_data = response.json()
         assert len(response_data) == 0, response_data
 
-    def test_get_all_deleted_questions_as_admin(
+    async def test_get_all_deleted_questions_as_admin(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         admin_authorization_headers: dict[str, str],
     ):
         expected_count = 3
@@ -205,7 +205,7 @@ class TestGameType(CommonTestCase[GameType]):
             deleted=True,
         )
 
-        response = api_client.get(
+        response = await api_client.get(
             f"{self.path}{game_type.id}/questions",
             headers=admin_authorization_headers,
         )
@@ -214,9 +214,9 @@ class TestGameType(CommonTestCase[GameType]):
         assert len(response_data) == expected_count, response_data
 
     @override
-    def test_update(  # type: ignore
+    async def test_update(  # type: ignore
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         admin_authorization_headers: dict[str, str],
         *args,
         **kwargs,
@@ -224,7 +224,7 @@ class TestGameType(CommonTestCase[GameType]):
         game_type: GameType = GameTypeFactory.create(name=GameTypeChoices.EGO)
         updated_game_type_data = {"name": GameTypeChoices.WHOS_MOST_LIKELY}
 
-        response = api_client.patch(
+        response = await api_client.patch(
             f"{self.path}{game_type.id}",
             json=updated_game_type_data,
             headers=admin_authorization_headers,
@@ -232,7 +232,7 @@ class TestGameType(CommonTestCase[GameType]):
         assert response.status_code == status.HTTP_200_OK, response.text
         self.assert_valid_response(response.json())
 
-        response = api_client.get(
+        response = await api_client.get(
             f"{self.path}{game_type.id}",
             headers=admin_authorization_headers,
         )
@@ -242,29 +242,29 @@ class TestGameType(CommonTestCase[GameType]):
         self.assert_valid_response(response_data)
         assert response_data["name"] == updated_game_type_data["name"], response_data
 
-    def test_update_non_admin(
+    async def test_update_non_admin(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         authorization_headers: dict[str, str],
     ):
         game_type: GameType = GameTypeFactory.create(name=GameTypeChoices.EGO)
         updated_game_type_data = {"name": GameTypeChoices.WHOS_MOST_LIKELY}
 
-        response = api_client.patch(
+        response = await api_client.patch(
             f"{self.path}{game_type.id}",
             json=updated_game_type_data,
             headers=authorization_headers,
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN, response.text
 
-    def test_update_invalid_name(
+    async def test_update_invalid_name(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         admin_authorization_headers: dict[str, str],
     ):
         game_type: GameType = GameTypeFactory.create()
 
-        response = api_client.patch(
+        response = await api_client.patch(
             f"{self.path}{game_type.id}",
             json={"name": "not from enum"},
             headers=admin_authorization_headers,
@@ -273,9 +273,9 @@ class TestGameType(CommonTestCase[GameType]):
             response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         ), response.text
 
-    def test_update_non_unique_name(
+    async def test_update_non_unique_name(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         admin_authorization_headers: dict[str, str],
     ):
         game_type1: GameType = GameTypeFactory.create(name=GameTypeChoices.EGO)
@@ -283,7 +283,7 @@ class TestGameType(CommonTestCase[GameType]):
             name=GameTypeChoices.WHOS_MOST_LIKELY
         )
 
-        response = api_client.patch(
+        response = await api_client.patch(
             f"{self.path}{game_type1.id}",
             json={"name": game_type2.name},
             headers=admin_authorization_headers,
@@ -293,7 +293,7 @@ class TestGameType(CommonTestCase[GameType]):
     @override
     async def test_delete(  # type: ignore
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         admin_authorization_headers: dict[str, str],
         db_session: Session,
         *args,

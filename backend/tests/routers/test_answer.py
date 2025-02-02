@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any
 
 from fastapi import status
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from sqlmodel import Session
 from typing_extensions import override
 
@@ -115,13 +115,13 @@ class TestAnswer(CommonTestCase[Answer]):
     # noinspection DuplicatedCode
     async def test_create_answer_with_question(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         authorization_headers: dict[str, str],
         db_session: Session,
     ):
         answer = self.build_model_with_question()
 
-        response = api_client.post(
+        response = await api_client.post(
             self.path,
             json=answer.model_dump(),
             headers=authorization_headers,
@@ -130,7 +130,7 @@ class TestAnswer(CommonTestCase[Answer]):
         response_data = response.json()
         self.assert_valid_response(response_data)
 
-        response = api_client.get(
+        response = await api_client.get(
             f"{self.path}{response_data['id']}",
             headers=authorization_headers,
         )
@@ -150,9 +150,9 @@ class TestAnswer(CommonTestCase[Answer]):
         )
         assert answer_response_data == answer_from_db_question_data, question.answers
 
-    def test_get_all_deleted_answers(
+    async def test_get_all_deleted_answers(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         authorization_headers: dict[str, str],
     ):
         user: User = UserFactory.create()
@@ -167,14 +167,14 @@ class TestAnswer(CommonTestCase[Answer]):
             deleted=True,
         )
 
-        response = api_client.get(self.path, headers=authorization_headers)
+        response = await api_client.get(self.path, headers=authorization_headers)
         assert response.status_code == status.HTTP_200_OK, response.text
         response_data = response.json()
         assert len(response_data) == 0, response_data
 
-    def test_get_all_deleted_answers_as_admin(
+    async def test_get_all_deleted_answers_as_admin(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         admin_authorization_headers: dict[str, str],
     ):
         expected_count = 3
@@ -190,16 +190,16 @@ class TestAnswer(CommonTestCase[Answer]):
             deleted=True,
         )
 
-        response = api_client.get(self.path, headers=admin_authorization_headers)
+        response = await api_client.get(self.path, headers=admin_authorization_headers)
         assert response.status_code == status.HTTP_200_OK, response.text
         response_data = response.json()
         assert len(response_data) == expected_count, response_data
 
     # noinspection DuplicatedCode
     @override
-    def test_update(
+    async def test_update(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         authorization_headers: dict[str, str],
         *args,
         **kwargs,
@@ -211,7 +211,7 @@ class TestAnswer(CommonTestCase[Answer]):
         answer = self.create_model()
         new_text = "new text"
 
-        response = api_client.patch(
+        response = await api_client.patch(
             f"{self.path}{answer.id}",
             json={"text": new_text},
             headers=authorization_headers,
@@ -241,7 +241,7 @@ class TestAnswer(CommonTestCase[Answer]):
 
     async def test_delete_answer_with_question(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         authorization_headers: dict[str, str],
         db_session: Session,
     ):
@@ -249,13 +249,13 @@ class TestAnswer(CommonTestCase[Answer]):
         answer_id = answer.id
         assert answer_id is not None
 
-        response = api_client.delete(
+        response = await api_client.delete(
             f"{self.path}{answer_id}",
             headers=authorization_headers,
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT, response.text
 
-        response = api_client.get(
+        response = await api_client.get(
             f"{self.path}{answer_id}",
             headers=authorization_headers,
         )

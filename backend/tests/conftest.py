@@ -3,7 +3,7 @@ import warnings
 
 import pytest
 from factory.alchemy import SQLAlchemyModelFactory
-from fastapi.testclient import TestClient
+from httpx import ASGITransport, AsyncClient
 from main import app
 from sqlmodel import SQLModel, Session, create_engine
 from sqlmodel.pool import StaticPool
@@ -50,13 +50,17 @@ def db_session_fixture():
 
 
 @pytest.fixture(name="api_client")
-def api_client_fixture(db_session: Session):
+async def api_client_fixture(db_session: Session):
     def override_get_db_session():
         return db_session
 
     app.dependency_overrides[db.get_db_session] = override_get_db_session
 
-    with TestClient(app) as client:
+    host, port = "localhost", 9000
+    async with AsyncClient(
+        transport=ASGITransport(app=app, client=(host, port)),
+        base_url="http://test",
+    ) as client:
         yield client
 
     app.dependency_overrides.clear()
@@ -86,21 +90,21 @@ async def admin_user_data_fixture(db_session: Session):
 
 
 @pytest.fixture(name="authorization_headers")
-async def authorization_headers_fixture(api_client: TestClient, user_data: UserData):
-    return get_authorization_headers(api_client, user_data)
+async def authorization_headers_fixture(api_client: AsyncClient, user_data: UserData):
+    return await get_authorization_headers(api_client, user_data)
 
 
 @pytest.fixture(name="inactive_authorization_headers")
 async def inactive_authorization_headers_fixture(
-    api_client: TestClient,
+    api_client: AsyncClient,
     inactive_user_data: UserData,
 ):
-    return get_authorization_headers(api_client, inactive_user_data)
+    return await get_authorization_headers(api_client, inactive_user_data)
 
 
 @pytest.fixture(name="admin_authorization_headers")
 async def admin_authorization_headers_fixture(
-    api_client: TestClient,
+    api_client: AsyncClient,
     admin_user_data: UserData,
 ):
-    return get_authorization_headers(api_client, admin_user_data)
+    return await get_authorization_headers(api_client, admin_user_data)

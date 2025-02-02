@@ -1,6 +1,6 @@
 from typing import NotRequired, TypedDict
 
-from starlette.testclient import TestClient
+from httpx import AsyncClient
 
 
 class UserData(TypedDict):
@@ -19,8 +19,8 @@ def get_default_user_data() -> UserData:
     )
 
 
-def get_authorization_headers(api_client: TestClient, user_data: UserData):
-    response = api_client.post("/auth/login", data=user_data)  # type: ignore
+async def get_authorization_headers(api_client: AsyncClient, user_data: UserData):
+    response = await api_client.post("/auth/login", data=user_data)  # type: ignore
     response_data = response.json()
     access_token = response_data["access_token"]
     return {"Authorization": f"Bearer {access_token}"}

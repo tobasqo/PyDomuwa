@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from fastapi import status
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from typing_extensions import override
 
 from domuwa.models import Player
@@ -44,9 +44,9 @@ class TestPlayer(CommonTestCase[Player]):
         return PlayerFactory.create(id=user.id)
 
     @override
-    def test_get_all(
+    async def test_get_all(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         authorization_headers: dict[str, str],
         model_count: int = 2,
         *args,
@@ -55,7 +55,7 @@ class TestPlayer(CommonTestCase[Player]):
         for _ in range(model_count):
             self.create_model()
 
-        response = api_client.get(self.path, headers=authorization_headers)
+        response = await api_client.get(self.path, headers=authorization_headers)
         assert response.status_code == status.HTTP_200_OK, response.text
         response_data = response.json()
 
@@ -65,9 +65,9 @@ class TestPlayer(CommonTestCase[Player]):
             self.assert_valid_response(model_data)
 
     @override
-    def test_update(
+    async def test_update(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         authorization_headers: dict[str, str],
         *args,
         **kwargs,
@@ -75,7 +75,7 @@ class TestPlayer(CommonTestCase[Player]):
         user: User = UserFactory.create()
         player: Player = PlayerFactory.create(id=user.id)
 
-        response = api_client.patch(
+        response = await api_client.patch(
             f"{self.path}{player.id}",
             json={"games_won": 1},
             headers=authorization_headers,
@@ -84,7 +84,7 @@ class TestPlayer(CommonTestCase[Player]):
         response_data = response.json()
         self.assert_valid_response(response_data)
 
-        response = api_client.get(
+        response = await api_client.get(
             f"{self.path}{player.id}",
             headers=authorization_headers,
         )

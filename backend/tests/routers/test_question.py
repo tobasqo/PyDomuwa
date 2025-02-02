@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from fastapi import status
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from sqlmodel import Session
 
 from domuwa.models.question import Question
@@ -75,9 +75,9 @@ class TestQuestion(CommonTestCase[Question]):
             game_category_id=game_category.id,
         )
 
-    def test_get_all_deleted_questions(
+    async def test_get_all_deleted_questions(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         authorization_headers: dict[str, str],
     ):
         user: User = UserFactory.create()
@@ -92,14 +92,14 @@ class TestQuestion(CommonTestCase[Question]):
             deleted=True,
         )
 
-        response = api_client.get(self.path, headers=authorization_headers)
+        response = await api_client.get(self.path, headers=authorization_headers)
         assert response.status_code == status.HTTP_200_OK, response.text
         response_data = response.json()
         assert len(response_data) == 0, response_data
 
-    def test_get_all_deleted_questions_as_admin(
+    async def test_get_all_deleted_questions_as_admin(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         admin_authorization_headers: dict[str, str],
     ):
         expected_count = 3
@@ -115,15 +115,15 @@ class TestQuestion(CommonTestCase[Question]):
             deleted=True,
         )
 
-        response = api_client.get(self.path, headers=admin_authorization_headers)
+        response = await api_client.get(self.path, headers=admin_authorization_headers)
         assert response.status_code == status.HTTP_200_OK, response.text
         response_data = response.json()
         assert len(response_data) == expected_count, response_data
 
     # noinspection DuplicatedCode
-    def test_update(
+    async def test_update(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         authorization_headers: dict[str, str],
         *args,
         **kwargs,
@@ -135,7 +135,7 @@ class TestQuestion(CommonTestCase[Question]):
         question = self.create_model()
         new_text = "new text"
 
-        response = api_client.patch(
+        response = await api_client.patch(
             f"{self.path}{question.id}",
             json={"text": new_text},
             headers=authorization_headers,
@@ -164,7 +164,7 @@ class TestQuestion(CommonTestCase[Question]):
     # noinspection DuplicatedCode
     async def test_delete_with_answers(
         self,
-        api_client: TestClient,
+        api_client: AsyncClient,
         authorization_headers: dict[str, str],
         db_session: Session,
     ):
@@ -174,13 +174,13 @@ class TestQuestion(CommonTestCase[Question]):
 
         AnswerFactory.create_batch(2, question_id=model_id)
 
-        response = api_client.delete(
+        response = await api_client.delete(
             f"{self.path}{model_id}",
             headers=authorization_headers,
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT, response.text
 
-        response = api_client.get(
+        response = await api_client.get(
             f"{self.path}{model_id}",
             headers=authorization_headers,
         )

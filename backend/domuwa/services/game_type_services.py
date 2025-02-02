@@ -27,15 +27,12 @@ class GameTypeServices(CommonServices[GameTypeCreate, GameTypeUpdate, GameType])
             .join(QnACategory, isouter=True)
             .where(Question.game_type_id == game_type_id)  # type: ignore
         )
-        
+
         if not include_deleted:
             stmt = stmt.where(Question.deleted == False)  # noqa: E712
 
         stmt = (
-            stmt
-            .offset(offset)
-            .limit(page_size)
-            .order_by(Question.game_category_id)  # type: ignore
+            stmt.offset(offset).limit(page_size).order_by(Question.game_category_id)  # type: ignore
         )
 
         return session.exec(stmt).all()

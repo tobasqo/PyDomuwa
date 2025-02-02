@@ -63,11 +63,7 @@ class GameTypeRouter(
         offset = page * page_size
         include_deleted = user.is_staff
         return await self.services.get_all_questions(
-            session,
-            model_id,
-            offset,
-            page_size,
-            include_deleted
+            session, model_id, offset, page_size, include_deleted
         )
 
     @override
