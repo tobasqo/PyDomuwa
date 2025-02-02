@@ -22,7 +22,7 @@ class UserFactory(SQLAlchemyModelFactory):
 class GameTypeFactory(SQLAlchemyModelFactory):
     name = GameTypeChoices.EGO
 
-    class Meta:  # type: ignore
+    class Meta:
         model = GameType
         sqlalchemy_get_or_create = ("name",)
 
@@ -30,14 +30,14 @@ class GameTypeFactory(SQLAlchemyModelFactory):
 class PlayerFactory(SQLAlchemyModelFactory):
     id: int
 
-    class Meta:  # type: ignore
+    class Meta:
         model = Player
 
 
 class QnACategoryFactory(SQLAlchemyModelFactory):
     name = QnACategoryChoices.SFW
 
-    class Meta:  # type: ignore
+    class Meta:
         model = QnACategory
         sqlalchemy_get_or_create = ("name",)
 
@@ -50,7 +50,7 @@ class AnswerFactory(SQLAlchemyModelFactory):
     game_category_id: int
     question_id: int | None = None
 
-    class Meta:  # type: ignore
+    class Meta:
         model = Answer
 
 
@@ -62,5 +62,5 @@ class QuestionFactory(SQLAlchemyModelFactory):
     game_type_id: int
     game_category_id: int
 
-    class Meta:  # type: ignore
+    class Meta:
         model = Question

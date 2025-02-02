@@ -33,12 +33,14 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 python_version = "3.11"
+exclude = [".venv", "alembic"]
 
 [tool.ruff]
 show-fixes = true
 target-version = "py311"
 line-length = 88
 src = ["domuwa/*", "tests/*"]
+exclude = ["alembic"]
 
 [tool.ruff.lint]
 extend-select = ["ANN", "C4", "COM", "I", "N", "PT", "RET", "SIM", "TCH", "TID"]
