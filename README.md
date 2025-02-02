@@ -52,9 +52,9 @@ Then go to http address printed in console
 - [x] fix autoformatting in pycharm using ruff (probably paths)
 - [x] raise 404 in routers
 - [x] add tests for question
-  - [ ] understand `next_version` from questions and answers
+  - [x] understand `next_version` from questions and answers
   - [x] add tests for update and delete
-- [ ] add ep for questions view
+- [x] add ep for questions view
 - [x] fix answer services - update and delete
 - [ ] on `get_all` in questions and answers filter for `deleted` and order by `excluded`
 - [x] update tests for answers
@@ -62,13 +62,14 @@ Then go to http address printed in console
 - [x] add qna category
 - [ ] add game category
 - [ ] add `deleted_by` field
+- [ ] [async test client](https://github.com/zhanymkanov/fastapi-best-practices?tab=readme-ov-file#set-tests-client-async-from-day-0) & [async sqlite](https://arunanshub.hashnode.dev/async-database-operations-with-sqlmodel)
 - permissions tests
-  - [ ] game type
-  - [ ] qna category
+  - [x] game type
+  - [x] qna category
 - add auth
   - [x] add user model
-  - [ ] remove `player_id` from `create` models
-  - [ ] update player to use user
+  - [x] remove `player_id` from `create` models
+  - [x] update player to use user
   - [x] admin privileges
   - update allowed only by admin
     - [x] game type
@@ -79,8 +80,8 @@ Then go to http address printed in console
     - [x] qna category
     - [ ] game category
   - update author on update
-    - [ ] question
-    - [ ] answer
+    - [x] question
+    - [x] answer
 - add game room
   - [ ] services
   - [ ] router

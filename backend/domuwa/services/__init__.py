@@ -28,8 +28,15 @@ class CommonServices(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
             )
         return model
 
-    async def get_all(self, session: Session) -> Sequence[DbModelT]:
-        return session.exec(select(self.db_model_type)).all()
+    async def get_all(
+        self,
+        session: Session,
+        offset: int = 0,
+        limit: int = 25,
+    ) -> Sequence[DbModelT]:
+        return session.exec(
+            select(self.db_model_type).offset(offset).limit(limit)
+        ).all()
 
     async def update(
         self,

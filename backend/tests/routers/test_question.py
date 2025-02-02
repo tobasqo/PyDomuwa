@@ -116,8 +116,6 @@ class TestQuestion(CommonTestCase[Question]):
         ), response_data
         assert response_data["game_category"]["name"] == question.game_category.name  # type: ignore
 
-        assert not response_data["answers"], response_data
-
     # noinspection DuplicatedCode
     async def test_delete_with_answers(
         self,

@@ -23,7 +23,7 @@ class QuestionRouter(CommonRouter[QuestionCreate, QuestionUpdate, Question]):
     prefix = "/questions"
     tags = ["Question"]
     router = APIRouter(prefix=prefix, tags=tags)  # type: ignore
-    response_model = QuestionWithAnswersRead
+    response_model = QuestionRead
     services = QuestionServices()
     logger = logging.getLogger(__name__)
     db_model_type_name = Question.__name__
@@ -32,14 +32,14 @@ class QuestionRouter(CommonRouter[QuestionCreate, QuestionUpdate, Question]):
         super().__init__()
 
         self.router.routes.remove(
-            next(route for route in self.router.routes if route.name == "create")  # type: ignore
+            next(route for route in self.router.routes if route.name == "get_by_id")  # type: ignore
         )
         self.router.add_api_route(
-            "/",
-            self.create,
-            status_code=status.HTTP_201_CREATED,
-            methods=["POST"],
-            response_model=QuestionRead,
+            f"/{self._lookup}",
+            self.get_by_id,
+            status_code=status.HTTP_200_OK,
+            methods=["GET"],
+            response_model=QuestionWithAnswersRead,
         )
 
     @override

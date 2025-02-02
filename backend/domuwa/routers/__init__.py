@@ -25,7 +25,7 @@ class CommonRouter(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
     services: CommonServices[CreateModelT, UpdateModelT, DbModelT]
     logger: logging.Logger
     db_model_type_name: str
-    __lookup = "{model_id}"
+    _lookup = "{model_id}"
 
     def __init__(self) -> None:
         super().__init__()
@@ -44,19 +44,19 @@ class CommonRouter(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
             response_model=list[self.response_model],  # type: ignore
         )
         self.router.add_api_route(
-            f"/{self.__lookup}",
+            f"/{self._lookup}",
             self.get_by_id,
             methods=["GET"],
             response_model=self.response_model,
         )
         self.router.add_api_route(
-            f"/{self.__lookup}",
+            f"/{self._lookup}",
             self.update,
             response_model=self.response_model,
             methods=["PATCH"],
         )
         self.router.add_api_route(
-            f"/{self.__lookup}",
+            f"/{self._lookup}",
             self.delete,
             status_code=status.HTTP_204_NO_CONTENT,
             methods=["DELETE"],
