@@ -182,9 +182,7 @@ class TestAnswer(CommonTestCase[Answer]):
 
         assert response_data["excluded"] == answer.excluded, response_data
 
-        # TODO: after auth
-        # assert response_data["author"]["id"] != answer.author.id
-        # assert response_data["author"]["name"] == answer.author.name
+        assert response_data["author"]["id"] != answer.author.id
 
         assert response_data["game_type"]["id"] == answer.game_type.id, response_data  # type: ignore
         assert response_data["game_type"]["name"] == answer.game_type.name  # type: ignore

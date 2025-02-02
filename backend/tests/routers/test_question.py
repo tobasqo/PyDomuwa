@@ -80,6 +80,8 @@ class TestQuestion(CommonTestCase[Question]):
         self,
         api_client: TestClient,
         authorization_headers: dict[str, str],
+        *args,
+        **kwargs,
     ):
         import warnings
 
@@ -104,9 +106,7 @@ class TestQuestion(CommonTestCase[Question]):
 
         assert response_data["excluded"] == question.excluded, response_data
 
-        # TODO: after auth
-        # assert response_data["author"]["id"] != question.author.id
-        # assert response_data["author"]["id"] == new_author.id
+        assert response_data["author"]["id"] != question.author_id
 
         assert response_data["game_type"]["id"] == question.game_type.id, response_data  # type: ignore
         assert response_data["game_type"]["name"] == question.game_type.name  # type: ignore
