@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from fastapi import status
 from fastapi.testclient import TestClient
 from sqlmodel import Session
@@ -5,8 +7,18 @@ from typing_extensions import override
 
 from domuwa.models.game_type import GameType, GameTypeChoices
 from domuwa.services.game_type_services import GameTypeServices
-from tests.factories import GameTypeFactory
+from tests.factories import (
+    GameTypeFactory,
+    PlayerFactory,
+    QnACategoryFactory,
+    QuestionFactory,
+    UserFactory,
+)
 from tests.routers import CommonTestCase
+
+if TYPE_CHECKING:
+    from domuwa.auth import User
+    from domuwa.models import Player, QnACategory
 
 
 class TestGameType(CommonTestCase[GameType]):
@@ -114,6 +126,36 @@ class TestGameType(CommonTestCase[GameType]):
 
         for game_type in response_data:
             self.assert_valid_response(game_type)
+
+    def test_get_all_questions(
+        self,
+        api_client: TestClient,
+        authorization_headers: dict[str, str],
+    ):
+        expected_count = 3
+        game_type: GameType = GameTypeFactory.create(name=GameTypeChoices.EGO)
+        game_category: QnACategory = QnACategoryFactory.create()
+        user: User = UserFactory.create()
+        player: Player = PlayerFactory.create(id=user.id)
+        QuestionFactory.create_batch(
+            expected_count,
+            game_type_id=game_type.id,
+            game_category_id=game_category.id,
+            author_id=player.id,
+        )
+
+        other_game_type: GameType = GameTypeFactory.create(name=GameTypeChoices.WHOS_MOST_LIKELY)
+        QuestionFactory.create_batch(
+            2,
+            game_type_id=other_game_type.id,
+            game_category_id=game_category.id,
+            author_id=player.id,
+        )
+
+        response = api_client.get(f"{self.path}{game_type.id}/questions", headers=authorization_headers)
+        assert response.status_code == status.HTTP_200_OK, response.text
+        response_data = response.json()
+        assert len(response_data) == expected_count, response_data
 
     @override
     def test_update(  # type: ignore

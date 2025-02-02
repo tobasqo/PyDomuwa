@@ -2,7 +2,7 @@ import logging
 
 from sqlmodel import Session, select
 
-from domuwa.models import Question
+from domuwa.models import Player, QnACategory, Question
 from domuwa.models.game_type import GameType, GameTypeCreate, GameTypeUpdate
 from domuwa.services import CommonServices
 
@@ -21,9 +21,12 @@ class GameTypeServices(CommonServices[GameTypeCreate, GameTypeUpdate, GameType])
         offset = page * page_size
         stmt = (
             select(Question)
+            .join(Player, isouter=True)
+            .join(GameType, isouter=True)
+            .join(QnACategory, isouter=True)
             .where(Question.game_type_id == game_type_id)
             .offset(offset)
             .limit(page_size)
-            .order_by(self.db_model_type.game_category_id)  # type: ignore
+            .order_by(Question.game_category_id)  # type: ignore
         )
         return session.exec(stmt).all()

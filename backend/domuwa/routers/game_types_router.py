@@ -1,7 +1,7 @@
 import logging
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends
 from sqlmodel import Session
 from typing_extensions import override
 
@@ -39,7 +39,6 @@ class GameTypeRouter(
         self.router.add_api_route(
             f"/{self._lookup}/questions",  # type: ignore
             self.get_all_questions,
-            status_code=status.HTTP_200_OK,
             methods=["GET"],
             response_model=list[QuestionWithAnswersRead],
         )
@@ -55,18 +54,20 @@ class GameTypeRouter(
 
     async def get_all_questions(
         self,
-        game_type_id: int,
+        model_id: int,
         session: Annotated[Session, Depends(get_db_session)],
         _: Annotated[User, Depends(auth.get_current_active_user)],
         page: int = 0,
         page_size: int = 25,
     ):
-        return await self.services.get_all_questions(
+        questions = await self.services.get_all_questions(
             session,
-            game_type_id,
+            model_id,
             page,
             page_size,
         )
+        print(questions)
+        return questions
 
     @override
     async def update(

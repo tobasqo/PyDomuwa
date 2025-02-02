@@ -63,6 +63,7 @@ Then go to http address printed in console
 - [ ] add game category
 - [ ] add `deleted_by` field
 - [ ] [async test client](https://github.com/zhanymkanov/fastapi-best-practices?tab=readme-ov-file#set-tests-client-async-from-day-0) & [async sqlite](https://arunanshub.hashnode.dev/async-database-operations-with-sqlmodel)
+- [ ] aliases for api models' fields
 - permissions tests
   - [x] game type
   - [x] qna category
