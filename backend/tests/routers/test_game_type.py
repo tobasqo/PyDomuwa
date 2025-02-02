@@ -162,6 +162,57 @@ class TestGameType(CommonTestCase[GameType]):
         response_data = response.json()
         assert len(response_data) == expected_count, response_data
 
+    def test_get_all_deleted_questions(
+        self,
+        api_client: TestClient,
+        authorization_headers: dict[str, str],
+    ):
+        user: User = UserFactory.create()
+        player: Player = PlayerFactory.create(id=user.id)
+        game_type: GameType = GameTypeFactory.create()
+        game_category: QnACategory = QnACategoryFactory.create()
+        QuestionFactory.create_batch(
+            2,
+            game_type_id=game_type.id,
+            game_category_id=game_category.id,
+            author_id=player.id,
+            deleted=True,
+        )
+
+        response = api_client.get(
+            f"{self.path}{game_type.id}/questions",
+            headers=authorization_headers,
+        )
+        assert response.status_code == status.HTTP_200_OK, response.text
+        response_data = response.json()
+        assert len(response_data) == 0, response_data
+
+    def test_get_all_deleted_questions_as_admin(
+        self,
+        api_client: TestClient,
+        admin_authorization_headers: dict[str, str],
+    ):
+        expected_count = 3
+        user: User = UserFactory.create()
+        player: Player = PlayerFactory.create(id=user.id)
+        game_type: GameType = GameTypeFactory.create()
+        game_category: QnACategory = QnACategoryFactory.create()
+        QuestionFactory.create_batch(
+            expected_count,
+            game_type_id=game_type.id,
+            game_category_id=game_category.id,
+            author_id=player.id,
+            deleted=True,
+        )
+
+        response = api_client.get(
+            f"{self.path}{game_type.id}/questions",
+            headers=admin_authorization_headers,
+        )
+        assert response.status_code == status.HTTP_200_OK, response.text
+        response_data = response.json()
+        assert len(response_data) == expected_count, response_data
+
     @override
     def test_update(  # type: ignore
         self,

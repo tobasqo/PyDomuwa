@@ -56,7 +56,7 @@ Then go to http address printed in console
   - [x] add tests for update and delete
 - [x] add ep for questions view
 - [x] fix answer services - update and delete
-- [ ] on `get_all` in questions and answers filter for `deleted` and order by `excluded`
+- [x] on `get_all` in questions and answers filter for `deleted` and order by `excluded`
 - [x] update tests for answers
 - [x] add game type
 - [x] add qna category
