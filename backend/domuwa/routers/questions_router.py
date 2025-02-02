@@ -50,14 +50,24 @@ class QuestionRouter(CommonRouter[QuestionCreate, QuestionUpdate, Question]):
         user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
         model = await super().get_by_id(model_id, session, user)
-        if not model.deleted:
-            return model
+        if model.deleted and not user.is_staff:
+            err_msg = f"got {self.db_model_type_name}(id={model_id}) to get, but it was deleted"
+            self.logger.warning(err_msg)
+            raise HTTPException(status.HTTP_404_NOT_FOUND, err_msg)
 
-        err_msg = (
-            f"got {self.db_model_type_name}(id={model_id}) to get, but it doesn't exist"
-        )
-        self.logger.warning(err_msg)
-        raise HTTPException(status.HTTP_404_NOT_FOUND, err_msg)
+        return model
+
+    @override
+    async def get_all(
+        self,
+        session: Annotated[Session, Depends(get_db_session)],
+        user: Annotated[User, Depends(auth.get_current_active_user)],
+        page: int = 0,
+        page_size: int = 25,
+    ):
+        offset = page * page_size
+        include_deleted = user.is_staff
+        return await self.services.get_all(session, offset, page_size, include_deleted)
 
     @override
     async def create(

@@ -88,8 +88,11 @@ class CommonRouter(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
         self,
         session: Annotated[Session, Depends(get_db_session)],
         _: Annotated[User, Depends(auth.get_current_active_user)],
+        page: int = 0,
+        page_size: int = 25,
     ):
-        return await self.services.get_all(session)
+        offset = page * page_size
+        return await self.services.get_all(session, offset, page_size)
 
     @abstractmethod
     async def create(

@@ -60,14 +60,12 @@ class GameTypeRouter(
         page: int = 0,
         page_size: int = 25,
     ):
-        questions = await self.services.get_all_questions(
+        return await self.services.get_all_questions(
             session,
             model_id,
             page,
             page_size,
         )
-        print(questions)
-        return questions
 
     @override
     async def update(

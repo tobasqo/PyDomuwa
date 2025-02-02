@@ -1,6 +1,7 @@
 import logging
+from typing import Sequence
 
-from sqlmodel import Session
+from sqlmodel import Session, select
 from typing_extensions import override
 
 from domuwa.models.question import Question, QuestionCreate, QuestionUpdate
@@ -10,6 +11,22 @@ from domuwa.services import CommonServices
 class QuestionServices(CommonServices[QuestionCreate, QuestionUpdate, Question]):
     db_model_type = Question
     logger = logging.getLogger(__name__)
+
+    @override
+    async def get_all(
+        self,
+        session: Session,
+        offset: int = 0,
+        limit: int = 25,
+        include_deleted: bool = False,
+    ) -> Sequence[Question]:
+        stmt = select(self.db_model_type)
+
+        if not include_deleted:
+            stmt = stmt.where(Question.deleted == False)  # noqa: E712
+
+        stmt = stmt.offset(offset).limit(limit).order_by(Question.excluded)  # type: ignore
+        return session.exec(stmt).all()
 
     @override
     async def update(

@@ -144,7 +144,9 @@ class TestGameType(CommonTestCase[GameType]):
             author_id=player.id,
         )
 
-        other_game_type: GameType = GameTypeFactory.create(name=GameTypeChoices.WHOS_MOST_LIKELY)
+        other_game_type: GameType = GameTypeFactory.create(
+            name=GameTypeChoices.WHOS_MOST_LIKELY
+        )
         QuestionFactory.create_batch(
             2,
             game_type_id=other_game_type.id,
@@ -152,7 +154,10 @@ class TestGameType(CommonTestCase[GameType]):
             author_id=player.id,
         )
 
-        response = api_client.get(f"{self.path}{game_type.id}/questions", headers=authorization_headers)
+        response = api_client.get(
+            f"{self.path}{game_type.id}/questions",
+            headers=authorization_headers,
+        )
         assert response.status_code == status.HTTP_200_OK, response.text
         response_data = response.json()
         assert len(response_data) == expected_count, response_data

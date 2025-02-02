@@ -150,6 +150,51 @@ class TestAnswer(CommonTestCase[Answer]):
         )
         assert answer_response_data == answer_from_db_question_data, question.answers
 
+    def test_get_all_deleted_answers(
+        self,
+        api_client: TestClient,
+        authorization_headers: dict[str, str],
+    ):
+        user: User = UserFactory.create()
+        player: Player = PlayerFactory.create(id=user.id)
+        game_type: GameType = GameTypeFactory.create()
+        game_category: QnACategory = QnACategoryFactory.create()
+        AnswerFactory.create_batch(
+            3,
+            game_type_id=game_type.id,
+            game_category_id=game_category.id,
+            author_id=player.id,
+            deleted=True,
+        )
+
+        response = api_client.get(self.path, headers=authorization_headers)
+        assert response.status_code == status.HTTP_200_OK, response.text
+        response_data = response.json()
+        assert len(response_data) == 0, response_data
+
+    def test_get_all_deleted_answers_as_admin(
+        self,
+        api_client: TestClient,
+        admin_authorization_headers: dict[str, str],
+    ):
+        expected_count = 3
+        user: User = UserFactory.create()
+        player: Player = PlayerFactory.create(id=user.id)
+        game_type: GameType = GameTypeFactory.create()
+        game_category: QnACategory = QnACategoryFactory.create()
+        AnswerFactory.create_batch(
+            expected_count,
+            game_type_id=game_type.id,
+            game_category_id=game_category.id,
+            author_id=player.id,
+            deleted=True,
+        )
+
+        response = api_client.get(self.path, headers=admin_authorization_headers)
+        assert response.status_code == status.HTTP_200_OK, response.text
+        response_data = response.json()
+        assert len(response_data) == expected_count, response_data
+
     # noinspection DuplicatedCode
     @override
     def test_update(
@@ -182,6 +227,8 @@ class TestAnswer(CommonTestCase[Answer]):
 
         assert response_data["excluded"] == answer.excluded, response_data
 
+        assert response_data["author"] is not None, response_data
+        assert answer.author is not None
         assert response_data["author"]["id"] != answer.author.id
 
         assert response_data["game_type"]["id"] == answer.game_type.id, response_data  # type: ignore

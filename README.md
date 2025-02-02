@@ -60,6 +60,7 @@ Then go to http address printed in console
 - [x] update tests for answers
 - [x] add game type
 - [x] add qna category
+- [ ] services return None on error -> raise custom exc
 - [ ] add game category
 - [ ] add `deleted_by` field
 - [ ] [async test client](https://github.com/zhanymkanov/fastapi-best-practices?tab=readme-ov-file#set-tests-client-async-from-day-0) & [async sqlite](https://arunanshub.hashnode.dev/async-database-operations-with-sqlmodel)
@@ -99,3 +100,4 @@ Then go to http address printed in console
 - [ ] add pagination
 - [ ] move to postgres
 - [ ] add auth with fb
+- [ ] lookup previous answer and question versions

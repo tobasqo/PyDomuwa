@@ -76,7 +76,9 @@ class AnswerRead(SQLModel):
     id: int
     text: str = Field(min_length=TEXT_MIN_LEN, max_length=TEXT_MAX_LEN)
     excluded: bool
+    deleted: bool
     author: "PlayerRead"
     game_type: "GameTypeRead"
     game_category: "QnACategoryRead"
     question: Optional["QuestionRead"] = None
+    prev_version_id: Optional[int] = None
