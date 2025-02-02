@@ -1,5 +1,6 @@
 import logging
 from abc import ABC
+from collections.abc import Sequence
 from typing import Generic, TypeVar
 
 from sqlalchemy.exc import IntegrityError
@@ -14,7 +15,7 @@ class CommonServices(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
     db_model_type: type[DbModelT]
     logger: logging.Logger
 
-    async def create(self, model: CreateModelT, session: Session):
+    async def create(self, model: CreateModelT, session: Session) -> DbModelT | None:
         return await self.save(model, session)
 
     async def get_by_id(self, model_id: int, session: Session) -> DbModelT | None:
@@ -27,7 +28,7 @@ class CommonServices(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
             )
         return model
 
-    async def get_all(self, session: Session):
+    async def get_all(self, session: Session) -> Sequence[DbModelT]:
         return session.exec(select(self.db_model_type)).all()
 
     async def update(
@@ -35,7 +36,7 @@ class CommonServices(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
         model: DbModelT,
         model_update: UpdateModelT,
         session: Session,
-    ):
+    ) -> DbModelT | None:
         update_data = model_update.model_dump(exclude_unset=True)
         model.sqlmodel_update(update_data)
         return await self.save(model, session)
@@ -57,7 +58,7 @@ class CommonServices(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
         self.logger.debug("saved %s(%s) to db", model.__class__.__name__, model)
         return model  # type: ignore
 
-    async def delete(self, model: DbModelT, session: Session):
+    async def delete(self, model: DbModelT, session: Session) -> None:
         session.delete(model)
         session.commit()
         self.logger.debug("removed %s(id=%d)", model.__class__.__name__, model.id)  # type: ignore

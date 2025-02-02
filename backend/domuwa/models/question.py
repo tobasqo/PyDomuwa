@@ -18,7 +18,7 @@ TEXT_MAX_LEN = 250
 class QuestionBase(SQLModel):
     text: str = Field(min_length=TEXT_MIN_LEN, max_length=TEXT_MAX_LEN)
     excluded: bool = False
-    author_id: int
+    author_id: Optional[int] = None
     game_type_id: int
     game_category_id: int
 

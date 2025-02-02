@@ -39,11 +39,13 @@ class TestQnACategory(CommonTestCase[QnACategory]):
         return QnACategoryFactory.create()
 
     @override
-    async def test_create(
+    async def test_create(  # type: ignore
         self,
         api_client: TestClient,
         admin_authorization_headers: dict[str, str],
         db_session: Session,
+        *args,
+        **kwargs,
     ):
         return await super().test_create(
             api_client,
@@ -96,10 +98,12 @@ class TestQnACategory(CommonTestCase[QnACategory]):
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
 
     @override
-    def test_update(
+    def test_update(  # type: ignore
         self,
         api_client: TestClient,
         admin_authorization_headers: dict[str, str],
+        *args,
+        **kwargs,
     ):
         qna_category: QnACategory = QnACategoryFactory.create()
         updated_qna_category_data = {"name": QnACategoryChoices.NSFW}
@@ -173,11 +177,13 @@ class TestQnACategory(CommonTestCase[QnACategory]):
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
 
     @override
-    def test_get_all(
+    def test_get_all(  # type: ignore
         self,
         api_client: TestClient,
         authorization_headers: dict[str, str],
         model_count: int = 2,
+        *args,
+        **kwargs,
     ):
         QnACategoryFactory.create(name=QnACategoryChoices.SFW)
         QnACategoryFactory.create(name=QnACategoryChoices.NSFW)
@@ -193,11 +199,13 @@ class TestQnACategory(CommonTestCase[QnACategory]):
             self.assert_valid_response(qna_category)
 
     @override
-    async def test_delete(
+    async def test_delete(  # type: ignore
         self,
         api_client: TestClient,
         admin_authorization_headers: dict[str, str],
         db_session: Session,
+        *args,
+        **kwargs,
     ):
         return await super().test_delete(
             api_client,

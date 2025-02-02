@@ -17,7 +17,7 @@ logging.getLogger("faker").setLevel(logging.INFO)
 logging.getLogger("factory").setLevel(logging.INFO)
 logging.getLogger("asyncio").setLevel(logging.INFO)
 logging.getLogger("python_multipart").setLevel(logging.INFO)
-logging.getLogger("passlib").setLevel(logging.INFO)
+logging.getLogger("passlib").setLevel(logging.ERROR)
 
 warnings.filterwarnings(action="ignore", category=DeprecationWarning)
 

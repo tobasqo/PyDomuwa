@@ -39,11 +39,13 @@ class TestGameType(CommonTestCase[GameType]):
         return GameTypeFactory.create()
 
     @override
-    async def test_create(
+    async def test_create(  # type: ignore
         self,
         api_client: TestClient,
         admin_authorization_headers: dict[str, str],
         db_session: Session,
+        *args,
+        **kwargs,
     ):
         return await super().test_create(
             api_client, admin_authorization_headers, db_session
@@ -96,6 +98,8 @@ class TestGameType(CommonTestCase[GameType]):
         api_client: TestClient,
         authorization_headers: dict[str, str],
         model_count: int = 3,
+        *args,
+        **kwargs,
     ):
         GameTypeFactory.create(name=GameTypeChoices.EGO)
         GameTypeFactory.create(name=GameTypeChoices.WHOS_MOST_LIKELY)
@@ -112,10 +116,12 @@ class TestGameType(CommonTestCase[GameType]):
             self.assert_valid_response(game_type)
 
     @override
-    def test_update(
+    def test_update(  # type: ignore
         self,
         api_client: TestClient,
         admin_authorization_headers: dict[str, str],
+        *args,
+        **kwargs,
     ):
         game_type: GameType = GameTypeFactory.create(name=GameTypeChoices.EGO)
         updated_game_type_data = {"name": GameTypeChoices.WHOS_MOST_LIKELY}
@@ -187,11 +193,13 @@ class TestGameType(CommonTestCase[GameType]):
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
 
     @override
-    async def test_delete(
+    async def test_delete(  # type: ignore
         self,
         api_client: TestClient,
         admin_authorization_headers: dict[str, str],
         db_session: Session,
+        *args,
+        **kwargs,
     ):
         return await super().test_delete(
             api_client,

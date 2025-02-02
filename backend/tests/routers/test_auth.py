@@ -190,7 +190,6 @@ class TestAuth:
         response = api_client.post(self.path, json=user_data)  # type: ignore
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
 
-
     def test_delete_user(
         self,
         api_client: TestClient,

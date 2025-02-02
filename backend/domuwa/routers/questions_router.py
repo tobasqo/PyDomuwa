@@ -66,6 +66,7 @@ class QuestionRouter(CommonRouter[QuestionCreate, QuestionUpdate, Question]):
         session: Annotated[Session, Depends(get_db_session)],
         user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
+        model.author = user
         return await super().create(model, session, user)
 
     @override
@@ -76,6 +77,7 @@ class QuestionRouter(CommonRouter[QuestionCreate, QuestionUpdate, Question]):
         session: Annotated[Session, Depends(get_db_session)],
         user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
+        model_update.author = user
         return await super().update(model_id, model_update, session, user)
 
 

@@ -60,6 +60,7 @@ class AnswerRouter(CommonRouter[AnswerCreate, AnswerUpdate, Answer]):
         session: Annotated[Session, Depends(get_db_session)],
         user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
+        model.author_id = user.id
         return await super().create(model, session, user)
 
     @override
@@ -70,6 +71,7 @@ class AnswerRouter(CommonRouter[AnswerCreate, AnswerUpdate, Answer]):
         session: Annotated[Session, Depends(get_db_session)],
         user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
+        model_update.author_id = user.id
         return await super().update(model_id, model_update, session, user)
 
 

@@ -19,7 +19,7 @@ from tests.routers import CommonTestCase
 
 if TYPE_CHECKING:
     from domuwa.auth import User
-    from domuwa.models import GameCategory, GameType, Player, Question
+    from domuwa.models import GameType, Player, QnACategory, Question
 
 
 class TestAnswer(CommonTestCase[Answer]):
@@ -57,12 +57,9 @@ class TestAnswer(CommonTestCase[Answer]):
 
     @override
     def build_model(self) -> Answer:
-        user: User = UserFactory.create()
-        author: Player = PlayerFactory.create(id=user.id)
         game_type: GameType = GameTypeFactory.create()
-        game_category: GameType = QnACategoryFactory.create()
+        game_category: QnACategory = QnACategoryFactory.create()
         return AnswerFactory.build(
-            author_id=author.id,
             game_type_id=game_type.id,
             game_category_id=game_category.id,
         )
@@ -71,16 +68,15 @@ class TestAnswer(CommonTestCase[Answer]):
     @staticmethod
     def build_model_with_question() -> Answer:
         user: User = UserFactory.create()
-        author: Player = PlayerFactory.create(id=user.id)
+        player: Player = PlayerFactory.create(id=user.id)
         game_type: GameType = GameTypeFactory.create()
-        game_category: GameCategory = QnACategoryFactory.create()
+        game_category: QnACategory = QnACategoryFactory.create()
         question: Question = QuestionFactory.create(
-            author_id=author.id,
+            author_id=player.id,
             game_type_id=game_type.id,
             game_category_id=game_category.id,
         )
         return AnswerFactory.build(
-            author_id=author.id,
             game_type_id=game_type.id,
             game_category_id=game_category.id,
             question_id=question.id,
@@ -89,11 +85,11 @@ class TestAnswer(CommonTestCase[Answer]):
     @override
     def create_model(self) -> Answer:
         user: User = UserFactory.create()
-        author: Player = PlayerFactory.create(id=user.id)
+        player: Player = PlayerFactory.create(id=user.id)
         game_type: GameType = GameTypeFactory.create()
-        game_category: GameCategory = QnACategoryFactory.create()
+        game_category: QnACategory = QnACategoryFactory.create()
         return AnswerFactory.create(
-            author_id=author.id,
+            author_id=player.id,
             game_type_id=game_type.id,
             game_category_id=game_category.id,
         )
@@ -102,20 +98,57 @@ class TestAnswer(CommonTestCase[Answer]):
     @staticmethod
     def create_model_with_question() -> Answer:
         user: User = UserFactory.create()
-        author: Player = PlayerFactory.create(id=user.id)
+        player: Player = PlayerFactory.create(id=user.id)
         game_type: GameType = GameTypeFactory.create()
-        game_category: GameCategory = QnACategoryFactory.create()
+        game_category: QnACategory = QnACategoryFactory.create()
         question: Question = QuestionFactory.create(
-            author_id=author.id,
+            author_id=player.id,
             game_type_id=game_type.id,
             game_category_id=game_category.id,
         )
         return AnswerFactory.create(
-            author_id=author.id,
             game_type_id=game_type.id,
             game_category_id=game_category.id,
             question_id=question.id,
         )
+
+    # noinspection DuplicatedCode
+    async def test_create_answer_with_question(
+        self,
+        api_client: TestClient,
+        authorization_headers: dict[str, str],
+        db_session: Session,
+    ):
+        answer = self.build_model_with_question()
+
+        response = api_client.post(
+            self.path,
+            json=answer.model_dump(),
+            headers=authorization_headers,
+        )
+        assert response.status_code == status.HTTP_201_CREATED, response.text
+        response_data = response.json()
+        self.assert_valid_response(response_data)
+
+        response = api_client.get(
+            f"{self.path}{response_data['id']}",
+            headers=authorization_headers,
+        )
+        assert response.status_code == status.HTTP_200_OK, response.text
+        answer_response_data = response.json()
+        self.assert_valid_response(answer_response_data)
+
+        db_answer = await self.services.get_by_id(response_data["id"], db_session)
+        assert db_answer is not None
+
+        question = db_answer.question
+        assert question is not None
+
+        answer_response_data = answer.model_dump(exclude={"id", "author_id"})
+        answer_from_db_question_data = question.answers[0].model_dump(
+            exclude={"id", "author_id"}
+        )
+        assert answer_response_data == answer_from_db_question_data, question.answers
 
     # noinspection DuplicatedCode
     @override
@@ -123,6 +156,8 @@ class TestAnswer(CommonTestCase[Answer]):
         self,
         api_client: TestClient,
         authorization_headers: dict[str, str],
+        *args,
+        **kwargs,
     ):
         import warnings
 
@@ -158,40 +193,6 @@ class TestAnswer(CommonTestCase[Answer]):
             response_data["game_category"]["id"] == answer.game_category.id  # type: ignore
         ), response_data
         assert response_data["game_category"]["name"] == answer.game_category.name  # type: ignore
-
-    # noinspection DuplicatedCode
-    async def test_create_answer_with_question(
-        self,
-        api_client: TestClient,
-        authorization_headers: dict[str, str],
-        db_session: Session,
-    ):
-        answer = self.build_model_with_question()
-
-        response = api_client.post(
-            self.path,
-            json=answer.model_dump(),
-            headers=authorization_headers,
-        )
-        assert response.status_code == status.HTTP_201_CREATED, response.text
-        response_data = response.json()
-        self.assert_valid_response(response_data)
-
-        response = api_client.get(
-            f"{self.path}{response_data['id']}",
-            headers=authorization_headers,
-        )
-        assert response.status_code == status.HTTP_200_OK, response.text
-        answer_response_data = response.json()
-        self.assert_valid_response(answer_response_data)
-
-        db_answer = await self.services.get_by_id(response_data["id"], db_session)
-        assert db_answer is not None
-
-        question = db_answer.question
-        assert question is not None
-        answer.id = response_data["id"]
-        assert answer == question.answers[0], question.answers
 
     async def test_delete_answer_with_question(
         self,

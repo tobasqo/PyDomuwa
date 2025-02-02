@@ -6,6 +6,8 @@ from sqlmodel import Session, select
 
 from domuwa.auth.models import User, UserBase, UserCreate, UserUpdate
 from domuwa.auth.security import get_password_hash
+from domuwa.models import PlayerCreate
+from domuwa.services.players_services import PlayerServices
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +50,9 @@ async def create(user_create: UserCreate, session: Session):
         user_create,
         update={"hashed_password": get_password_hash(user_create.password)},
     )
-    return await save_user(user, session)
+    user = await save_user(user, session)
+    await PlayerServices().create(PlayerCreate(id=user.id), session)
+    return user
 
 
 async def update(user: User, user_update: UserUpdate, session: Session):

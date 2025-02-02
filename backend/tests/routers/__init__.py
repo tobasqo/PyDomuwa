@@ -43,6 +43,8 @@ class CommonTestCase(ABC, Generic[DbModelT]):
         api_client: TestClient,
         authorization_headers: dict[str, str],
         db_session: Session,
+        *args,
+        **kwargs,
     ):
         model = self.build_model()
 
@@ -87,6 +89,8 @@ class CommonTestCase(ABC, Generic[DbModelT]):
         api_client: TestClient,
         authorization_headers: dict[str, str],
         model_count: int = 3,
+        *args,
+        **kwargs,
     ):
         for _ in range(model_count):
             self.create_model()
@@ -105,6 +109,8 @@ class CommonTestCase(ABC, Generic[DbModelT]):
         self,
         api_client: TestClient,
         authorization_headers: dict[str, str],
+        *args,
+        **kwargs,
     ):
         pass
 
@@ -113,6 +119,8 @@ class CommonTestCase(ABC, Generic[DbModelT]):
         api_client: TestClient,
         authorization_headers: dict[str, str],
         db_session: Session,
+        *args,
+        **kwargs,
     ):
         model = self.create_model()
         model_id = model.id  # type: ignore
