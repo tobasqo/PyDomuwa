@@ -44,10 +44,33 @@ class TestPlayer(CommonTestCase[Player]):
         return PlayerFactory.create(id=user.id)
 
     @override
+    def test_get_all(
+        self,
+        api_client: TestClient,
+        authorization_headers: dict[str, str],
+        model_count: int = 2,
+        *args,
+        **kwargs,
+    ):
+        for _ in range(model_count):
+            self.create_model()
+
+        response = api_client.get(self.path, headers=authorization_headers)
+        assert response.status_code == status.HTTP_200_OK, response.text
+        response_data = response.json()
+
+        assert isinstance(response_data, list), response_data
+        assert len(response_data) == model_count + 1, response_data
+        for model_data in response_data:
+            self.assert_valid_response(model_data)
+
+    @override
     def test_update(
         self,
         api_client: TestClient,
         authorization_headers: dict[str, str],
+        *args,
+        **kwargs,
     ):
         user: User = UserFactory.create()
         player: Player = PlayerFactory.create(id=user.id)

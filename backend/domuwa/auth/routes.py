@@ -8,7 +8,7 @@ from sqlmodel import Session
 
 from domuwa import auth
 from domuwa.auth import services
-from domuwa.auth.models import Token, User, UserCreate, UserUpdate
+from domuwa.auth.models import Token, User, UserCreate, UserRead, UserUpdate
 from domuwa.auth.security import create_access_token
 from domuwa.config import settings
 from domuwa.database import get_db_session
@@ -53,12 +53,12 @@ async def login_for_access_token(
     return Token(access_token=access_token, token_type="bearer")
 
 
-@router.get("/me")
+@router.get("/me", response_model=UserRead)
 async def read_user(current_user: Annotated[User, Depends(auth.get_current_user)]):
     return current_user
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=UserRead)
 async def create_user(
     user_create: UserCreate, session: Annotated[Session, Depends(get_db_session)]
 ):
@@ -74,7 +74,7 @@ async def create_user(
     return user
 
 
-@router.get("/")
+@router.get("/", response_model=list[UserRead])
 async def get_all_users(
     session: Annotated[Session, Depends(get_db_session)],
     _: Annotated[User, Depends(auth.get_current_active_user)],
@@ -82,7 +82,7 @@ async def get_all_users(
     return await services.get_all(session)
 
 
-@router.get("/{user_id}")
+@router.get("/{user_id}", response_model=UserRead)
 async def get_user_by_id(
     user_id: int,
     session: Annotated[Session, Depends(get_db_session)],
@@ -99,7 +99,7 @@ async def get_user_by_id(
     return user
 
 
-@router.patch("/{user_id}")
+@router.patch("/{user_id}", response_model=UserRead)
 async def update_user(
     user_id: int,
     user_update: UserUpdate,

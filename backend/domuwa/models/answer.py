@@ -64,11 +64,7 @@ class AnswerCreate(SQLModel):
 
 
 class AnswerUpdate(SQLModel):
-    text: str | None = Field(
-        default=None,
-        min_length=TEXT_MIN_LEN,
-        max_length=TEXT_MAX_LEN,
-    )
+    text: str | None = Field(None, min_length=TEXT_MIN_LEN, max_length=TEXT_MAX_LEN)
     excluded: bool | None = None
     author_id: int | None = None
     game_type_id: int | None = None

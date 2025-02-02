@@ -54,3 +54,7 @@ class User(UserBase, table=True):
     hashed_password: str
 
     player: Optional["Player"] = Relationship(back_populates="user")
+
+
+class UserRead(UserBase):
+    id: int

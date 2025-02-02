@@ -62,6 +62,7 @@ class QuestionCreate(QuestionBase):
 class QuestionUpdate(SQLModel):
     text: Optional[str] = Field(None, min_length=TEXT_MIN_LEN, max_length=TEXT_MAX_LEN)
     excluded: Optional[bool] = None
+    author_id: Optional[int] = None
     game_type_id: Optional[int] = None
     game_category_id: Optional[int] = None
 
