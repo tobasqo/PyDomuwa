@@ -4,13 +4,13 @@ import warnings
 import pytest
 from factory.alchemy import SQLAlchemyModelFactory
 from httpx import ASGITransport, AsyncClient
-from main import app
 from sqlmodel import SQLModel, Session, create_engine
 from sqlmodel.pool import StaticPool
 
 from domuwa import database as db
 from domuwa.auth.models import UserCreate
 from domuwa.auth.services import create as create_user
+from domuwa.main import app
 from tests.utils import UserData, get_authorization_headers, get_default_user_data
 
 logging.getLogger("faker").setLevel(logging.INFO)
