@@ -2,13 +2,19 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Annotated, Generic, final
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlmodel import SQLModel, Session
 from starlette.responses import Response
 
 from domuwa import auth
 from domuwa.auth import User
 from domuwa.database import get_db_session
+from domuwa.exceptions import (
+    InvalidModelInputError,
+    InvalidRequestBodyHttpException,
+    ModelNotFoundError,
+    ModelNotFoundHttpException,
+)
 from domuwa.services import (
     CommonServices,
     CreateModelT,
@@ -69,12 +75,12 @@ class CommonRouter(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
         model_id: int,
         session: Session = Depends(get_db_session),
     ) -> DbModelT:
-        instance = await self.services.get_by_id(model_id, session)
-        if instance is None:
+        try:
+            return await self.services.get_by_id(model_id, session)
+        except ModelNotFoundError as exc:
             err_msg = f"{self.db_model_type_name}(id={model_id}) not found"
-            self.logger.error(err_msg)
-            raise HTTPException(status.HTTP_404_NOT_FOUND, err_msg)
-        return instance
+            self.logger.warning(err_msg)
+            raise ModelNotFoundHttpException(err_msg) from exc
 
     async def get_by_id(
         self,
@@ -106,7 +112,12 @@ class CommonRouter(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
             self.db_model_type_name,
             model,
         )
-        return await self.services.create(model, session)
+        try:
+            return await self.services.create(model, session)
+        except InvalidModelInputError as exc:
+            err_msg = f"{self.db_model_type_name} cannot be created: {exc}"
+            self.logger.warning(err_msg)
+            raise InvalidRequestBodyHttpException(err_msg) from exc
 
     @abstractmethod
     async def update(
@@ -124,50 +135,25 @@ class CommonRouter(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
             model_id,  # type: ignore
         )
         model = await self.get_instance(model_id, session)
-        return await self.services.update(model, model_update, session)
+        try:
+            return await self.services.update(model, model_update, session)
+        except InvalidModelInputError as exc:
+            err_msg = (
+                f"{self.db_model_type_name}(id={model_id}) cannot be updated: {exc}"
+            )
+            self.logger.warning(err_msg)
+            raise InvalidRequestBodyHttpException(err_msg) from exc
 
     async def delete(
         self,
         model_id: int,
         session: Annotated[Session, Depends(get_db_session)],
-        user: Annotated[User, Depends(auth.get_current_active_user)],
+        _: Annotated[User, Depends(auth.get_current_active_user)],
     ):
         self.logger.debug(
             "got %s(id=%d) to delete",
             self.db_model_type_name,
-            model_id,  # type: ignore
+            model_id,
         )
         model = await self.get_instance(model_id, session)
         return await self.services.delete(model, session)
-
-
-class CommonRouter400OnSaveError(CommonRouter[CreateModelT, UpdateModelT, DbModelT]):
-    @abstractmethod
-    async def create(
-        self,
-        model: CreateModelT,
-        session: Annotated[Session, Depends(get_db_session)],
-        user: Annotated[User, Depends(auth.get_current_active_user)],
-    ):
-        db_model = await super().create(model, session, user)
-        if db_model is None:
-            err_msg = f"{self.db_model_type_name}({model}) cannot be created"
-            self.logger.warning(err_msg)
-            raise HTTPException(status.HTTP_400_BAD_REQUEST, err_msg)
-        return db_model
-
-    @abstractmethod
-    async def update(
-        self,
-        model_id: int,
-        model_update: UpdateModelT,
-        session: Annotated[Session, Depends(get_db_session)],
-        user: Annotated[User, Depends(auth.get_current_active_user)],
-    ):
-        db_model = await self.get_instance(model_id, session)
-        model_updated = await self.services.update(db_model, model_update, session)
-        if model_updated is None:
-            err_msg = f"{self.db_model_type_name}(id={model_id}) cannot be updated with {self.db_model_type_name}({model_update})"
-            self.logger.warning(err_msg)
-            raise HTTPException(status.HTTP_400_BAD_REQUEST, err_msg)
-        return model_updated

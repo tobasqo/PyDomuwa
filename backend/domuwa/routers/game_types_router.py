@@ -15,16 +15,14 @@ from domuwa.models.game_type import (
     GameTypeRead,
     GameTypeUpdate,
 )
-from domuwa.routers import CommonRouter400OnSaveError
+from domuwa.routers import CommonRouter
 from domuwa.services.game_type_services import GameTypeServices
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/game-types", tags=["Game Types"])
 
 
-class GameTypeRouter(
-    CommonRouter400OnSaveError[GameTypeCreate, GameTypeUpdate, GameType]
-):
+class GameTypeRouter(CommonRouter[GameTypeCreate, GameTypeUpdate, GameType]):
     prefix = "/game-types"
     tags = ["Game Type"]
     router = APIRouter(prefix=prefix, tags=tags)  # type: ignore

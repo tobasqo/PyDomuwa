@@ -60,7 +60,9 @@ class TestGameType(CommonTestCase[GameType]):
         **kwargs,
     ):
         return await super().test_create(
-            api_client, admin_authorization_headers, db_session
+            api_client,
+            admin_authorization_headers,
+            db_session,
         )
 
     async def test_create_non_admin(
@@ -97,6 +99,7 @@ class TestGameType(CommonTestCase[GameType]):
         admin_authorization_headers: dict[str, str],
     ):
         game_type: GameType = GameTypeFactory.create()
+
         response = await api_client.post(
             self.path,
             json={"name": game_type.name},

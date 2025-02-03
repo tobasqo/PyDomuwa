@@ -15,12 +15,12 @@ from domuwa.models.qna_category import (
     QnACategoryRead,
     QnACategoryUpdate,
 )
-from domuwa.routers import CommonRouter400OnSaveError
+from domuwa.routers import CommonRouter
 from domuwa.services.qna_categories_services import QnACategoryServices
 
 
 class QnACategoriesRouter(
-    CommonRouter400OnSaveError[QnACategoryCreate, QnACategoryUpdate, QnACategory]
+    CommonRouter[QnACategoryCreate, QnACategoryUpdate, QnACategory]
 ):
     prefix = "/qna-categories"
     tags = ["QnA Category"]

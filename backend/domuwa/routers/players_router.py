@@ -14,11 +14,11 @@ from domuwa.models.player import (
     PlayerRead,
     PlayerUpdate,
 )
-from domuwa.routers import CommonRouter400OnSaveError
+from domuwa.routers import CommonRouter
 from domuwa.services.players_services import PlayerServices
 
 
-class PlayerRouter(CommonRouter400OnSaveError[PlayerCreate, PlayerUpdate, Player]):
+class PlayerRouter(CommonRouter[PlayerCreate, PlayerUpdate, Player]):
     prefix = "/players"
     tags = ["Player"]
     router = APIRouter(prefix=prefix, tags=tags)  # type: ignore

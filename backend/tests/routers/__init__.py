@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
+import pytest
 from fastapi import status
 from httpx import AsyncClient
 from sqlmodel import SQLModel, Session
 
+from domuwa.exceptions import ModelNotFoundError
 from domuwa.services import CommonServices
 
 DbModelT = TypeVar("DbModelT", bound=SQLModel)
@@ -28,7 +30,8 @@ class CommonTestCase(ABC, Generic[DbModelT]):
         pass
 
     async def assert_valid_delete(self, model_id: int, db_session: Session) -> None:
-        assert await self.services.get_by_id(model_id, db_session) is None
+        with pytest.raises(ModelNotFoundError):
+            await self.services.get_by_id(model_id, db_session)
 
     @abstractmethod
     def build_model(self) -> DbModelT:
