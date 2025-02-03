@@ -60,12 +60,11 @@ Then go to http address printed in console
 - [x] update tests for answers
 - [x] add game type
 - [x] add qna category
-- [ ] services return None on error -> raise custom exc
+- [x] services return None on error -> raise custom exc
 - [ ] add game category
 - [ ] add `deleted_by` field
 - [x] [async test client](https://github.com/zhanymkanov/fastapi-best-practices?tab=readme-ov-file#set-tests-client-async-from-day-0)
 - [ ] [async sqlite](https://arunanshub.hashnode.dev/async-database-operations-with-sqlmodel)
-- [ ] aliases for api models' fields
 - permissions tests
   - [x] game type
   - [x] qna category
@@ -93,12 +92,13 @@ Then go to http address printed in console
   - [ ] services
   - [ ] router
   - [ ] tests
+- [ ] aliases for api models' fields
 
 ##### TODO later
 
 - [ ] add alembic
 - [ ] start ui
-- [ ] add pagination
+- [x] add pagination
 - [ ] move to postgres
 - [ ] add auth with fb
 - [ ] lookup previous answer and question versions
