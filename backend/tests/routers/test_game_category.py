@@ -3,40 +3,41 @@ from httpx import AsyncClient
 from sqlmodel import Session
 from typing_extensions import override
 
-from domuwa.models.qna_category import QnACategory, QnACategoryChoices
-from domuwa.services.qna_categories_services import QnACategoryServices
-from tests.factories import QnACategoryFactory
+from domuwa.models import GameCategoryChoices
+from domuwa.models.game_category import GameCategory
+from domuwa.services.game_category_services import GameCategoryServices
+from tests.factories import GameCategoryFactory
 from tests.routers import CommonTestCase
 
 
-class TestQnACategory(CommonTestCase[QnACategory]):
-    path = "/api/qna-categories/"
-    services = QnACategoryServices()
+class TestGameCategory(CommonTestCase[GameCategory]):
+    path = "/api/game-categories/"
+    services = GameCategoryServices()
 
     @override
     def assert_valid_response(self, response_data: dict) -> None:
         assert "id" in response_data, response_data
         assert "name" in response_data, response_data
         assert (
-            response_data["name"] in QnACategoryChoices._value2member_map_
+            response_data["name"] in GameCategoryChoices._value2member_map_
         ), response_data
 
     @override
     def assert_valid_response_values(
         self,
         response_data: dict,
-        model: QnACategory,
+        model: GameCategory,
     ) -> None:
         assert response_data["id"] == model.id
         assert response_data["name"] == model.name
 
     @override
-    def build_model(self) -> QnACategory:
-        return QnACategoryFactory.build()
+    def build_model(self) -> GameCategory:
+        return GameCategoryFactory.build()
 
     @override
-    def create_model(self) -> QnACategory:
-        return QnACategoryFactory.create()
+    def create_model(self) -> GameCategory:
+        return GameCategoryFactory.create()
 
     @override
     async def test_create(  # type: ignore
@@ -86,13 +87,13 @@ class TestQnACategory(CommonTestCase[QnACategory]):
         api_client: AsyncClient,
         admin_authorization_headers: dict[str, str],
     ):
-        qna_category: QnACategory = QnACategoryFactory.create(
-            name=QnACategoryChoices.SFW
+        game_category: GameCategory = GameCategoryFactory.create(
+            name=GameCategoryChoices.NSFW
         )
 
         response = await api_client.post(
             self.path,
-            json={"name": qna_category.name},
+            json={"name": game_category.name},
             headers=admin_authorization_headers,
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
@@ -106,8 +107,8 @@ class TestQnACategory(CommonTestCase[QnACategory]):
         *args,
         **kwargs,
     ):
-        QnACategoryFactory.create(name=QnACategoryChoices.SFW)
-        QnACategoryFactory.create(name=QnACategoryChoices.NSFW)
+        GameCategoryFactory.create(name=GameCategoryChoices.SFW)
+        GameCategoryFactory.create(name=GameCategoryChoices.NSFW)
 
         response = await api_client.get(self.path, headers=authorization_headers)
         assert response.status_code == status.HTTP_200_OK, response.text
@@ -127,38 +128,40 @@ class TestQnACategory(CommonTestCase[QnACategory]):
         *args,
         **kwargs,
     ):
-        qna_category: QnACategory = QnACategoryFactory.create()
-        updated_qna_category_data = {"name": QnACategoryChoices.NSFW}
+        game_category: GameCategory = GameCategoryFactory.create()
+        updated_game_category_data = {"name": GameCategoryChoices.NSFW}
 
         response = await api_client.patch(
-            f"{self.path}{qna_category.id}",
-            json=updated_qna_category_data,
+            f"{self.path}{game_category.id}",
+            json=updated_game_category_data,
             headers=admin_authorization_headers,
         )
         assert response.status_code == status.HTTP_200_OK, response.text
         self.assert_valid_response(response.json())
 
         response = await api_client.get(
-            f"{self.path}{qna_category.id}",
+            f"{self.path}{game_category.id}",
             headers=admin_authorization_headers,
         )
         assert response.status_code == status.HTTP_200_OK, response.text
 
         response_data = response.json()
         self.assert_valid_response(response_data)
-        assert response_data["name"] == updated_qna_category_data["name"], response_data
+        assert (
+            response_data["name"] == updated_game_category_data["name"]
+        ), response_data
 
     async def test_update_non_admin(
         self,
         api_client: AsyncClient,
         authorization_headers: dict[str, str],
     ):
-        qna_category: QnACategory = QnACategoryFactory.create()
-        updated_qna_category_data = {"name": QnACategoryChoices.NSFW}
+        game_category: GameCategory = GameCategoryFactory.create()
+        updated_game_category_data = {"name": GameCategoryChoices.NSFW}
 
         response = await api_client.patch(
-            f"{self.path}{qna_category.id}",
-            json=updated_qna_category_data,
+            f"{self.path}{game_category.id}",
+            json=updated_game_category_data,
             headers=authorization_headers,
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN, response.text
@@ -168,10 +171,10 @@ class TestQnACategory(CommonTestCase[QnACategory]):
         api_client: AsyncClient,
         admin_authorization_headers: dict[str, str],
     ):
-        qna_category: QnACategory = QnACategoryFactory.create()
+        game_category: GameCategory = GameCategoryFactory.create()
 
         response = await api_client.patch(
-            f"{self.path}{qna_category.id}",
+            f"{self.path}{game_category.id}",
             json={"name": "not from enum"},
             headers=admin_authorization_headers,
         )
@@ -184,16 +187,16 @@ class TestQnACategory(CommonTestCase[QnACategory]):
         api_client: AsyncClient,
         admin_authorization_headers: dict[str, str],
     ):
-        qna_category1: QnACategory = QnACategoryFactory.create(
-            name=QnACategoryChoices.SFW
+        game_category1: GameCategory = GameCategoryFactory.create(
+            name=GameCategoryChoices.SFW
         )
-        qna_category2: QnACategory = QnACategoryFactory.create(
-            name=QnACategoryChoices.NSFW
+        game_category2: GameCategory = GameCategoryFactory.create(
+            name=GameCategoryChoices.NSFW
         )
 
         response = await api_client.patch(
-            f"{self.path}{qna_category1.id}",
-            json={"name": qna_category2.name},
+            f"{self.path}{game_category1.id}",
+            json={"name": game_category2.name},
             headers=admin_authorization_headers,
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text

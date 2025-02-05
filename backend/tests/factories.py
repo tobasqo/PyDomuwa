@@ -3,6 +3,7 @@ from factory.alchemy import SQLAlchemyModelFactory
 
 from domuwa.auth.models import User
 from domuwa.models.answer import Answer
+from domuwa.models.game_category import GameCategory, GameCategoryChoices
 from domuwa.models.game_type import GameType, GameTypeChoices
 from domuwa.models.player import Player
 from domuwa.models.qna_category import QnACategory, QnACategoryChoices
@@ -64,3 +65,11 @@ class QuestionFactory(SQLAlchemyModelFactory):
 
     class Meta:
         model = Question
+
+
+class GameCategoryFactory(SQLAlchemyModelFactory):
+    name = GameCategoryChoices.MIXED
+
+    class Meta:
+        model = GameCategory
+        sqlalchemy_get_or_create = ("name",)
