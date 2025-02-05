@@ -76,11 +76,11 @@ Then go to http address printed in console
   - update allowed only by admin
     - [x] game type
     - [x] qna category
-    - [ ] game category
+    - [x] game category
   - delete allowed only by admin
     - [x] game type
     - [x] qna category
-    - [ ] game category
+    - [x] game category
   - update author on update
     - [x] question
     - [x] answer
