@@ -1,19 +1,6 @@
 <script lang="ts">
-	import {onMount} from "svelte";
-	import { api } from "$lib/api";
-
-	let data: any = null;
-	let error: string | null = null;
-
-	onMount(async () => {
-		try {
-			const response = await api.get("/");
-			data = response.data;
-		} catch (err) {
-			error = err instanceof Error ? err.message : 'Unknown error';
-		}
-	});
-
+	export let data: any;
+	export let error: string | null;
 </script>
 
 {#if error}
