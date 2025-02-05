@@ -1,2 +1,25 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+	import {onMount} from "svelte";
+	import { api } from "$lib/api";
+
+	let data: any = null;
+	let error: string | null = null;
+
+	onMount(async () => {
+		try {
+			const response = await api.get("/");
+			data = response.data;
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'Unknown error';
+		}
+	});
+
+</script>
+
+{#if error}
+	<p>Error: {error}</p>
+{:else if data}
+	<pre>{JSON.stringify(data, null, 2)}</pre>
+{:else}
+	<p>Loading...</p>
+{/if}
