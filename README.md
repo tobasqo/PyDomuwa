@@ -62,7 +62,7 @@ Then go to http address printed in console
 - [x] add qna category
 - [x] services return None on error -> raise custom exc
 - [x] add pagination
-- [ ] add game category
+- [x] add game category
 - [x] [async test client](https://github.com/zhanymkanov/fastapi-best-practices?tab=readme-ov-file#set-tests-client-async-from-day-0)
 - [ ] [async sqlite](https://arunanshub.hashnode.dev/async-database-operations-with-sqlmodel)
 - permissions tests
