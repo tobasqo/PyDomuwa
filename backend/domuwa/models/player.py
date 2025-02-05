@@ -39,11 +39,12 @@ class PlayerCreate(PlayerBase):
     pass
 
 
-class PlayerRead(PlayerBase):
-    games_played: int
-    games_won: int
-
-
 class PlayerUpdate(SQLModel):
     games_played: int | None = None
     games_won: int | None = None
+
+
+class PlayerRead(PlayerBase):
+    user: "User"
+    games_played: int
+    games_won: int

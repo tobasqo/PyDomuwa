@@ -61,8 +61,8 @@ Then go to http address printed in console
 - [x] add game type
 - [x] add qna category
 - [x] services return None on error -> raise custom exc
+- [x] add pagination
 - [ ] add game category
-- [ ] add `deleted_by` field
 - [x] [async test client](https://github.com/zhanymkanov/fastapi-best-practices?tab=readme-ov-file#set-tests-client-async-from-day-0)
 - [ ] [async sqlite](https://arunanshub.hashnode.dev/async-database-operations-with-sqlmodel)
 - permissions tests
@@ -97,8 +97,9 @@ Then go to http address printed in console
 ##### TODO later
 
 - [ ] add alembic
+- [ ] player avatars
 - [ ] start ui
-- [x] add pagination
 - [ ] move to postgres
 - [ ] add auth with fb
 - [ ] lookup previous answer and question versions
+- [ ] add `deleted_by` field

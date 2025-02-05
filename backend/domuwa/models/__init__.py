@@ -1,6 +1,7 @@
 # noinspection PyUnresolvedReferences
 from sqlmodel import SQLModel
 
+from domuwa.auth.models import *  # noqa: F401, F403
 from domuwa.models.answer import *  # noqa: F403
 from domuwa.models.game_category import *  # noqa: F403
 from domuwa.models.game_room import *  # noqa: F403
