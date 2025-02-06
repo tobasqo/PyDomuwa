@@ -65,6 +65,7 @@ Then go to http address printed in console
 - [x] add game category
 - [x] [async test client](https://github.com/zhanymkanov/fastapi-best-practices?tab=readme-ov-file#set-tests-client-async-from-day-0)
 - [ ] [async sqlite](https://arunanshub.hashnode.dev/async-database-operations-with-sqlmodel)
+- [ ] update readme description
 - permissions tests
   - [x] game type
   - [x] qna category
