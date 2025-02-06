@@ -11,6 +11,7 @@ class PlayerScore(SQLModel, table=True):
     __tablename__ = "player_score"
 
     id: Optional[int] = Field(None, primary_key=True)
+    points: float = Field(0)
 
     player_id: Optional[int] = Field(None, foreign_key="player.id")
     player: Optional["Player"] = Relationship(back_populates="player_scores")

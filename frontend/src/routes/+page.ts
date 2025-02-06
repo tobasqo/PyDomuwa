@@ -1,9 +1,9 @@
 import type {PageLoad} from "./$types";
-import {api} from "$lib/api";
+import {index} from "$lib/api";
 
 export const load: PageLoad = async () => {
 	try {
-		const response = await api.get('/');
+		const response = await index.get('/');
 		return { props: { data: response.data } };
 	} catch (err) {
 		return { props: { error: (err as Error).message } };
