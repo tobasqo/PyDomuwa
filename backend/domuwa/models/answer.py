@@ -56,7 +56,6 @@ class Answer(SQLModel, table=True):
 
 class AnswerCreate(SQLModel):
     text: str = Field(min_length=TEXT_MIN_LEN, max_length=TEXT_MAX_LEN)
-    excluded: bool = False
     author_id: int | None = None  # updated from `get_current_user` dependency
     game_type_id: int
     game_category_id: int

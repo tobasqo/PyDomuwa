@@ -38,4 +38,5 @@ class GameRoom(SQLModel, table=True):
 
     players: list["Player"] = Relationship(back_populates="game_room")
 
+    # maybe add RoundRanking
     ranking: Optional["Ranking"] = Relationship(back_populates="game_room")
