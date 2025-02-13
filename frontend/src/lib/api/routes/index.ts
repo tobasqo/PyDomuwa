@@ -1,45 +1,17 @@
-import Axios, { type AxiosInstance } from "axios";
-
-type HttpMethod = "get" | "post" | "put" | "delete";
+import { api_client } from "$lib/api";
 
 class BaseApiRoute<TCreate, TUpdate, TResponse> {
-	baseApiUrl = "http://localhost:8000/api/";
 	routeUrl: string;
-	client: AxiosInstance;
 
-	constructor(routePath: string, accessToken: string | null = null) {
-		this.routeUrl = this.baseApiUrl + routePath;
-		this.client = this.createAxiosClient(this.routeUrl, accessToken);
+	constructor(routePath: string) {
+		this.routeUrl = routePath;
 	}
-
-	createAxiosClient(routePath: string, accessToken: string | null) {
-		return Axios.create({
-			baseURL: routePath,
-			responseType: "json" as const,
-			headers: {
-				"Content-Type": "application/json",
-				...(accessToken && { Authorization: `Bearer ${accessToken}` }),
-			},
-		});
-	}
-
-	// makeApiCall = async (
-	// 	endpoint: string,
-	// 	method: HttpMethod,
-	// 	payload: TCreate | TUpdate | null = null,
-	// ) => {
-	// 	try {
-	// 		const response = await this.client[method](endpoint, payload);
-	// 		return response.data;
-	// 	} catch (error) {
-	// 		handleServiceError(error);
-	// 	}
-	// 	return {} as TResponse;
-	// };
 
 	getById = async (modelId: number): Promise<TResponse> => {
 		try {
-			const response = await this.client.get<TResponse>(this.routeUrl + modelId);
+			const response = await api_client.get<TResponse>(this.routeUrl, {
+				params: { model_id: modelId },
+			});
 			return response.data;
 		} catch (error) {
 			handleServiceError(error);
@@ -53,9 +25,9 @@ class BaseApiRoute<TCreate, TUpdate, TResponse> {
 		urlParams.append("page_size", pageSize.toString());
 
 		try {
-			const response = await this.client.get<TResponse[]>(
-				this.routeUrl + "?" + urlParams.toString(),
-			);
+			const response = await api_client.get<TResponse[]>(this.routeUrl, {
+				params: urlParams,
+			});
 			return response.data;
 		} catch (error) {
 			handleServiceError(error);
@@ -65,7 +37,7 @@ class BaseApiRoute<TCreate, TUpdate, TResponse> {
 
 	async create(model: TCreate): Promise<TResponse> {
 		try {
-			const response = await this.client.post<TResponse>(this.routeUrl, model);
+			const response = await api_client.post<TResponse>(this.routeUrl, model);
 			return response.data;
 		} catch (error) {
 			handleServiceError(error);
@@ -75,7 +47,10 @@ class BaseApiRoute<TCreate, TUpdate, TResponse> {
 
 	async update(modelId: number, model: TUpdate): Promise<TResponse> {
 		try {
-			const response = await this.client.patch<TResponse>(this.routeUrl + modelId, model);
+			const response = await api_client.patch<TResponse>(
+				this.routeUrl + modelId,
+				model,
+			);
 			return response.data;
 		} catch (error) {
 			handleServiceError(error);
@@ -85,7 +60,7 @@ class BaseApiRoute<TCreate, TUpdate, TResponse> {
 
 	async delete(modelId: number): Promise<void> {
 		try {
-			await this.client.patch<TResponse>(this.routeUrl + modelId);
+			await api_client.patch<TResponse>(this.routeUrl + modelId);
 		} catch (error) {
 			handleServiceError(error);
 		}
