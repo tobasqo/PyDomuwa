@@ -16,7 +16,6 @@ from domuwa.database import get_db_session
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-
 async def get_user_or_404(user_id: int, session: Session):
     user = await services.get_by_id(user_id, session)
     if not user:
@@ -45,7 +44,7 @@ async def login_for_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(days=settings.ACCESS_TOKEN_EXPIRE_DAYS)
     access_token = create_access_token(
         {"sub": user.username},
         expires_delta=access_token_expires,
@@ -53,6 +52,7 @@ async def login_for_access_token(
     return Token(access_token=access_token, token_type="bearer")
 
 
+# TODO: convert below endpoints to class
 @router.get("/me", response_model=UserRead)
 async def read_user(current_user: Annotated[User, Depends(auth.get_current_user)]):
     return current_user
