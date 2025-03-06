@@ -6,15 +6,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import Response
 
+from domuwa.answers.routes import get_answers_router
 from domuwa.auth.routes import router as auth_router
 from domuwa.config import settings
 from domuwa.database import create_db_and_tables
-from domuwa.routers.answers_router import get_answers_router
-from domuwa.routers.game_category_router import get_game_category_router
-from domuwa.routers.game_types_router import get_game_types_router
-from domuwa.routers.players_router import get_players_router
-from domuwa.routers.qna_categories_router import get_qna_categories_router
-from domuwa.routers.questions_router import get_questions_router
+from domuwa.game_categories.routes import get_game_category_router
+from domuwa.game_types.routes import get_game_types_router
+from domuwa.players.routes import get_players_router
+from domuwa.qna_categories.routes import get_qna_categories_router
+from domuwa.questions.routes import get_questions_router
 
 
 @asynccontextmanager

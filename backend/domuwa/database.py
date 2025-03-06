@@ -8,7 +8,19 @@ engine = create_engine(
 )
 
 
+def link_models():
+    def get_subclasses(kls: type[SQLModel]):
+        for subclass in kls.__subclasses__():
+            yield from get_subclasses(subclass)
+            yield subclass
+
+    models = get_subclasses(SQLModel)
+    for cls in models:
+        cls.model_rebuild()
+
+
 def create_db_and_tables():
+    link_models()
     SQLModel.metadata.create_all(engine)
 
 

@@ -4,8 +4,8 @@ from fastapi import status
 from httpx import AsyncClient
 from sqlmodel import Session
 
-from domuwa.models.question import Question
-from domuwa.services.questions_services import QuestionServices
+from domuwa.questions.models import Question
+from domuwa.questions.services import QuestionServices
 from tests.factories import (
     AnswerFactory,
     GameTypeFactory,
@@ -17,8 +17,10 @@ from tests.factories import (
 from tests.routers import CommonTestCase
 
 if TYPE_CHECKING:
-    from domuwa.auth import User
-    from domuwa.models import GameCategory, GameType, Player, QnACategory
+    from domuwa.game_types.models import GameType
+    from domuwa.players.models import Player
+    from domuwa.qna_categories.models import QnACategory
+    from domuwa.users.models import User
 
 
 class TestQuestion(CommonTestCase[Question]):
@@ -57,7 +59,7 @@ class TestQuestion(CommonTestCase[Question]):
         user: User = UserFactory.create()
         author: Player = PlayerFactory.create(id=user.id)
         game_type: GameType = GameTypeFactory.create()
-        game_category: GameCategory = QnACategoryFactory.create()
+        game_category: QnACategory = QnACategoryFactory.create()
         return QuestionFactory.build(
             author_id=author.id,
             game_type_id=game_type.id,
@@ -68,7 +70,7 @@ class TestQuestion(CommonTestCase[Question]):
         user: User = UserFactory.create()
         author: Player = PlayerFactory.create(id=user.id)
         game_type: GameType = GameTypeFactory.create()
-        game_category: GameCategory = QnACategoryFactory.create()
+        game_category: QnACategory = QnACategoryFactory.create()
         return QuestionFactory.create(
             author_id=author.id,
             game_type_id=game_type.id,

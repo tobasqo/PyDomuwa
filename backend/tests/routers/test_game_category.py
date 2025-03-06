@@ -3,9 +3,9 @@ from httpx import AsyncClient
 from sqlmodel import Session
 from typing_extensions import override
 
-from domuwa.models import GameCategoryChoices
-from domuwa.models.game_category import GameCategory
-from domuwa.services.game_category_services import GameCategoryServices
+from domuwa.game_categories.constants import GameCategoryChoices
+from domuwa.game_categories.models import GameCategory
+from domuwa.game_categories.services import GameCategoryServices
 from tests.factories import GameCategoryFactory
 from tests.routers import CommonTestCase
 

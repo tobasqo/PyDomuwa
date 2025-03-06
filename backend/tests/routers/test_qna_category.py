@@ -3,8 +3,9 @@ from httpx import AsyncClient
 from sqlmodel import Session
 from typing_extensions import override
 
-from domuwa.models.qna_category import QnACategory, QnACategoryChoices
-from domuwa.services.qna_categories_services import QnACategoryServices
+from domuwa.qna_categories.constants import QnACategoryChoices
+from domuwa.qna_categories.models import QnACategory
+from domuwa.qna_categories.services import QnACategoryServices
 from tests.factories import QnACategoryFactory
 from tests.routers import CommonTestCase
 

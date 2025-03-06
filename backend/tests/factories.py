@@ -1,13 +1,14 @@
 import factory
 from factory.alchemy import SQLAlchemyModelFactory
 
-from domuwa.auth.models import User
-from domuwa.models.answer import Answer
-from domuwa.models.game_category import GameCategory, GameCategoryChoices
-from domuwa.models.game_type import GameType, GameTypeChoices
-from domuwa.models.player import Player
-from domuwa.models.qna_category import QnACategory, QnACategoryChoices
-from domuwa.models.question import Question
+from domuwa.answers.models import Answer
+from domuwa.game_categories.models import GameCategory, GameCategoryChoices
+from domuwa.game_types.models import GameType, GameTypeChoices
+from domuwa.players.models import Player
+from domuwa.qna_categories.constants import QnACategoryChoices
+from domuwa.qna_categories.models import QnACategory
+from domuwa.questions.models import Question
+from domuwa.users.models import User
 
 
 class UserFactory(SQLAlchemyModelFactory):

@@ -1,15 +1,15 @@
 from fastapi import status
 from httpx import AsyncClient
 
-from domuwa.auth import services
 from domuwa.auth.security import get_password_hash
+from domuwa.users.services import UserServices
 from tests.factories import UserFactory
 from tests.utils import UserData, get_authorization_headers
 
 
 class TestAuth:
     path = "/auth/"
-    services = services
+    services = UserServices()
 
     async def test_login_for_access_token(
         self,

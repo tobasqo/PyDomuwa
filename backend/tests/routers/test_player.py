@@ -4,13 +4,13 @@ from fastapi import status
 from httpx import AsyncClient
 from typing_extensions import override
 
-from domuwa.models import Player
-from domuwa.services.players_services import PlayerServices
+from domuwa.players.models import Player
+from domuwa.players.services import PlayerServices
 from tests.factories import PlayerFactory, UserFactory
 from tests.routers import CommonTestCase
 
 if TYPE_CHECKING:
-    from domuwa.auth import User
+    from domuwa.users.models import User
 
 
 class TestPlayer(CommonTestCase[Player]):

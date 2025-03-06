@@ -5,8 +5,8 @@ from httpx import AsyncClient
 from sqlmodel import Session
 from typing_extensions import override
 
-from domuwa.models.game_type import GameType, GameTypeChoices
-from domuwa.services.game_type_services import GameTypeServices
+from domuwa.game_types.models import GameType, GameTypeChoices
+from domuwa.game_types.services import GameTypeServices
 from tests.factories import (
     GameTypeFactory,
     PlayerFactory,
@@ -17,8 +17,9 @@ from tests.factories import (
 from tests.routers import CommonTestCase
 
 if TYPE_CHECKING:
-    from domuwa.auth import User
-    from domuwa.models import Player, QnACategory
+    from domuwa.players.models import Player
+    from domuwa.qna_categories.models import QnACategory
+    from domuwa.users.models import User
 
 
 class TestGameType(CommonTestCase[GameType]):

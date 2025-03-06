@@ -6,8 +6,8 @@ from fastapi import status
 from httpx import AsyncClient
 from sqlmodel import SQLModel, Session
 
-from domuwa.exceptions import ModelNotFoundError
-from domuwa.services import CommonServices
+from domuwa.core.exceptions import ModelNotFoundError
+from domuwa.core.services import CommonServices
 
 DbModelT = TypeVar("DbModelT", bound=SQLModel)
 
