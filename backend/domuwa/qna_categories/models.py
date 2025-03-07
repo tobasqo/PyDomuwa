@@ -1,8 +1,7 @@
 from typing import TYPE_CHECKING
 
-from sqlmodel import Field, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
-from domuwa.core.models import BaseDBModel
 from domuwa.qna_categories.constants import QnACategoryChoices
 
 if TYPE_CHECKING:
@@ -10,9 +9,10 @@ if TYPE_CHECKING:
     from domuwa.questions.models import Question
 
 
-class QnACategory(BaseDBModel):
+class QnACategory(SQLModel, table=True):
     __tablename__ = "qna_category"
 
+    id: int | None = Field(None, primary_key=True)
     name: QnACategoryChoices = Field(index=True, unique=True)
 
     questions: list["Question"] = Relationship(back_populates="game_category")

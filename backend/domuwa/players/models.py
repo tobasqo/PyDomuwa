@@ -1,8 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship
-
-from domuwa.core.models import BaseDBModel
+from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from domuwa.answers.models import Answer
@@ -12,7 +10,7 @@ if TYPE_CHECKING:
     from domuwa.users.models import User
 
 
-class Player(BaseDBModel):
+class Player(SQLModel, table=True):
     __tablename__ = "player"
 
     id: int = Field(primary_key=True, foreign_key="user.id")
@@ -27,4 +25,6 @@ class Player(BaseDBModel):
     game_room_id: Optional[int] = Field(None, foreign_key="game_room.id", nullable=True)
     game_room: Optional["GameRoom"] = Relationship(back_populates="players")
 
-    player_scores: list["PlayerScore"] = Relationship(back_populates="player")
+    player_scores: list["PlayerScore"] = Relationship(
+        back_populates="player", sa_relationship_kwargs={"lazy": "selectin"}
+    )

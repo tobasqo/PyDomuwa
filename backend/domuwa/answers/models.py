@@ -1,9 +1,8 @@
 from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
 from domuwa.answers.constants import TEXT_MAX_LEN, TEXT_MIN_LEN
-from domuwa.core.models import BaseDBModel
 
 if TYPE_CHECKING:
     from domuwa.game_types.models import GameType
@@ -12,9 +11,10 @@ if TYPE_CHECKING:
     from domuwa.questions.models import Question
 
 
-class Answer(BaseDBModel):
+class Answer(SQLModel, table=True):
     __tablename__ = "answer"
 
+    id: int | None = Field(None, primary_key=True)
     text: str = Field(min_length=TEXT_MIN_LEN, max_length=TEXT_MAX_LEN)
     excluded: bool = Field(False, index=True)
     deleted: bool = Field(False, index=True)

@@ -1,7 +1,7 @@
 import logging
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlmodel import Session
 from typing_extensions import override
 
@@ -13,7 +13,7 @@ from domuwa.users.schemas import UserCreate, UserRead, UserUpdate
 from domuwa.users.services import UserServices
 
 
-class UserRoutes(CommonRouter[UserCreate, UserUpdate, User]):
+class UserRouter(CommonRouter[UserCreate, UserUpdate, User]):
     prefix = "/users"
     tags = ["User"]
     router = APIRouter(prefix=prefix, tags=tags)  # type: ignore
@@ -46,7 +46,7 @@ class UserRoutes(CommonRouter[UserCreate, UserUpdate, User]):
         user = await self.get_instance(model_id, session)
         if not user.is_active:
             self.logger.warning(
-                "got %s(id=%d%s) to get, but is not active", user.username
+                "got %s(id=%d) to get, but is not active", User.__name__, user.id
             )
             raise HTTPException(
                 status.HTTP_404_NOT_FOUND,
@@ -86,20 +86,21 @@ class UserRoutes(CommonRouter[UserCreate, UserUpdate, User]):
             )
         return await super().update(model_id, model_update, session)
 
-    # noinspection PyMethodMayBeStatic
-    async def get_current_user(
-        self, current_user: Annotated[User, Depends(auth.get_current_user)]
-    ):
-        return current_user
-
     @override
-    def _init_api_routes(self):
-        super()._init_api_routes()
-        self.router.add_api_route(
-            "/me",
-            self.get_current_user,
-            response_model=UserRead,
-        )
+    async def delete(
+        self,
+        model_id: int,
+        session: Annotated[Session, Depends(get_db_session)],
+    ):
+        raise NotImplementedError("Use `delete_as_admin` instead")
+
+    async def delete_as_admin(
+        self,
+        model_id: int,
+        session: Annotated[Session, Depends(get_db_session)],
+        _: Annotated[User, Depends(auth.get_admin_user)],
+    ):
+        return await super()._delete(model_id, session)
 
     @override
     def _add_get_by_id_route(self):
@@ -115,6 +116,17 @@ class UserRoutes(CommonRouter[UserCreate, UserUpdate, User]):
             f"/{self._lookup}",
             self.update_active,
             response_model=UserRead,
+            methods=["PATCH"],
+        )
+
+    @override
+    def _add_delete_route(self):
+        self.router.add_api_route(
+            f"/{self._lookup}",
+            self.delete_as_admin,
+            status_code=status.HTTP_204_NO_CONTENT,
+            response_class=Response,
+            methods=["DELETE"],
         )
 
 
@@ -126,4 +138,4 @@ def check_same_user(user1: User, user2: User):
 
 
 def get_users_router():
-    return UserRoutes().router
+    return UserRouter().router

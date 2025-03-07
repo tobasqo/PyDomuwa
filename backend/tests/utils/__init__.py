@@ -20,7 +20,7 @@ def get_default_user_data() -> UserData:
 
 
 async def get_authorization_headers(api_client: AsyncClient, user_data: UserData):
-    response = await api_client.post("/auth/login", data=user_data)  # type: ignore
+    response = await api_client.post("/auth/token", data=user_data)  # type: ignore
     response_data = response.json()
-    access_token = response_data["access_token"]
+    access_token = response_data["accessToken"]
     return {"Authorization": f"Bearer {access_token}"}

@@ -3,8 +3,6 @@ from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from domuwa.core.models import BaseDBModel
-
 if TYPE_CHECKING:
     from domuwa.game_categories.models import GameCategory
     from domuwa.game_types.models import GameType
@@ -28,9 +26,10 @@ class GameRoomQuestionsLink(SQLModel, table=True):
     )
 
 
-class GameRoom(BaseDBModel):
+class GameRoom(SQLModel, table=True):
     __tablename__ = "game_room"
 
+    id: int | None = Field(None, primary_key=True)
     websocket: Optional[str] = Field(None, index=True)
     created_at: datetime = Field(default_factory=datetime.now)
     rounds: int

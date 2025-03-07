@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from fastapi import status
 from httpx import AsyncClient
+from sqlmodel import Session
 from typing_extensions import override
 
 from domuwa.players.models import Player
@@ -19,6 +20,7 @@ class TestPlayer(CommonTestCase[Player]):
 
     @override
     def assert_valid_response(self, response_data: dict) -> None:
+        response_data = self.response_keys_to_snake_case(response_data)
         assert "id" in response_data, response_data
         assert "games_played" in response_data, response_data
         assert "games_won" in response_data, response_data
@@ -29,6 +31,7 @@ class TestPlayer(CommonTestCase[Player]):
         response_data: dict,
         model: Player,
     ) -> None:
+        response_data = self.response_keys_to_snake_case(response_data)
         assert response_data["id"] == model.id
         assert response_data["games_played"] == model.games_played
         assert response_data["games_won"] == model.games_won
@@ -42,6 +45,32 @@ class TestPlayer(CommonTestCase[Player]):
     def create_model(self) -> Player:
         user: User = UserFactory.create()
         return PlayerFactory.create(id=user.id)
+
+    @override
+    async def test_create(
+        self,
+        api_client: AsyncClient,
+        authorization_headers: dict[str, str],
+        db_session: Session,
+        *args,
+        **kwargs,
+    ):
+        model = self.build_model()
+
+        response = await api_client.post(
+            self.path,
+            json=model.model_dump(),
+            headers=authorization_headers,
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN, response.text
+
+    async def test_create_as_admin(
+        self,
+        api_client: AsyncClient,
+        admin_authorization_headers: dict[str, str],
+        db_session: Session,
+    ):
+        await super().test_create(api_client, admin_authorization_headers, db_session)
 
     @override
     async def test_get_all(
@@ -91,4 +120,4 @@ class TestPlayer(CommonTestCase[Player]):
         assert response.status_code == status.HTTP_200_OK, response.text
         response_data = response.json()
         self.assert_valid_response(response_data)
-        assert response_data["games_won"] == 1
+        assert response_data["gamesWon"] == 1

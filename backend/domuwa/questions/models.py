@@ -1,8 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
-from domuwa.core.models import BaseDBModel
 from domuwa.game_rooms.models import GameRoomQuestionsLink
 from domuwa.questions.constants import TEXT_MAX_LEN, TEXT_MIN_LEN
 
@@ -14,9 +13,10 @@ if TYPE_CHECKING:
     from domuwa.qna_categories.models import QnACategory
 
 
-class Question(BaseDBModel):
+class Question(SQLModel, table=True):
     __tablename__ = "question"
 
+    id: int | None = Field(None, primary_key=True)
     text: str = Field(min_length=TEXT_MIN_LEN, max_length=TEXT_MAX_LEN)
     excluded: bool = Field(False, index=True)
     deleted: bool = Field(False, index=True)

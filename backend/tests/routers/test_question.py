@@ -28,6 +28,7 @@ class TestQuestion(CommonTestCase[Question]):
     services = QuestionServices()
 
     def assert_valid_response(self, response_data: dict) -> None:
+        response_data = self.response_keys_to_snake_case(response_data)
         assert "id" in response_data, response_data
         assert "text" in response_data, response_data
         assert "excluded" in response_data, response_data
@@ -41,6 +42,7 @@ class TestQuestion(CommonTestCase[Question]):
         response_data: dict,
         model: Question,
     ) -> None:
+        response_data = self.response_keys_to_snake_case(response_data)
         assert response_data["id"] == model.id
         assert response_data["text"] == model.text
         assert response_data["excluded"] == model.excluded
@@ -143,7 +145,7 @@ class TestQuestion(CommonTestCase[Question]):
             headers=authorization_headers,
         )
         assert response.status_code == status.HTTP_200_OK, response.text
-        response_data = response.json()
+        response_data = self.response_keys_to_snake_case(response.json())
         self.assert_valid_response(response_data)
 
         assert response_data["id"] >= question.id, response_data

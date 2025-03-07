@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field
 
-from domuwa.core.schemas import APISchemaModel
+from domuwa.core.schemas import APISchemaModel, APISchemaResponseModel
 from domuwa.questions.constants import TEXT_MAX_LEN, TEXT_MIN_LEN
 
 if TYPE_CHECKING:
@@ -31,16 +33,15 @@ class QuestionUpdate(APISchemaModel):
     game_category_id: Optional[int] = None
 
 
-class QuestionRead(APISchemaModel):
-    id: int
+class QuestionRead(APISchemaResponseModel):
     text: str = Field(min_length=TEXT_MIN_LEN, max_length=TEXT_MAX_LEN)
     excluded: bool = False
     deleted: bool = False
-    author: "PlayerRead"
-    game_type: "GameTypeRead"
-    game_category: "QnACategoryRead"
+    author: PlayerRead
+    game_type: GameTypeRead
+    game_category: QnACategoryRead
     prev_version_id: Optional[int] = None
 
 
 class QuestionWithAnswersRead(QuestionRead):
-    answers: list["AnswerRead"]
+    answers: list[AnswerRead]

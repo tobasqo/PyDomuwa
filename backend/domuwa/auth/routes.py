@@ -11,12 +11,13 @@ from domuwa.auth.schemas import Token
 from domuwa.auth.security import create_access_token, decode_token
 from domuwa.config import settings
 from domuwa.database import get_db_session
+from domuwa.users.models import User
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
-@router.post("/login")
+@router.post("/token")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: Annotated[Session, Depends(get_db_session)],
@@ -75,3 +76,10 @@ async def refresh_access_token(refresh_token: str = Cookie(None)):
         refresh_token=refresh_token,
         token_type="bearer",
     )
+
+
+@router.get("/me")
+async def get_current_user(
+    current_user: Annotated[User, Depends(auth.get_current_user)],
+):
+    return current_user

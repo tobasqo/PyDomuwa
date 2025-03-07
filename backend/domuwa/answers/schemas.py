@@ -1,4 +1,6 @@
-from typing import TYPE_CHECKING, Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from sqlmodel import Field
 
@@ -9,19 +11,14 @@ if TYPE_CHECKING:
     from domuwa.game_types.schemas import GameTypeRead
     from domuwa.players.schemas import PlayerRead
     from domuwa.qna_categories.schemas import QnACategoryRead
-    from domuwa.questions.schemas import QuestionRead
 
 
-class AnswerBase(APISchemaModel):
+class AnswerCreate(APISchemaModel):
     text: str = Field(min_length=TEXT_MIN_LEN, max_length=TEXT_MAX_LEN)
-    author_id: int
+    author_id: int | None = None
     game_type_id: int
     game_category_id: int
     question_id: int | None = None
-
-
-class AnswerCreate(AnswerBase):
-    pass
 
 
 class AnswerUpdate(APISchemaModel):
@@ -34,10 +31,11 @@ class AnswerUpdate(APISchemaModel):
 
 
 class AnswerRead(APISchemaResponseModel):
+    text: str | None = Field(None, min_length=TEXT_MIN_LEN, max_length=TEXT_MAX_LEN)
     excluded: bool
     deleted: bool
-    author: "PlayerRead"
-    game_type: "GameTypeRead"
-    game_category: "QnACategoryRead"
-    question: Optional["QuestionRead"] = None
-    prev_version_id: Optional[int] = None
+    author: PlayerRead
+    game_type: GameTypeRead
+    game_category: QnACategoryRead
+    question_id: int | None = None
+    prev_version_id: int | None = None

@@ -31,9 +31,11 @@ class TestAnswer(CommonTestCase[Answer]):
 
     @override
     def assert_valid_response(self, response_data: dict[str, Any]):
+        response_data = self.response_keys_to_snake_case(response_data)
         assert "id" in response_data, response_data
         assert "text" in response_data, response_data
         assert "excluded" in response_data, response_data
+        assert "deleted" in response_data, response_data
         assert "author" in response_data, response_data
         assert "game_type" in response_data, response_data
         assert "game_category" in response_data, response_data
@@ -45,6 +47,7 @@ class TestAnswer(CommonTestCase[Answer]):
         response_data: dict,
         model: Answer,
     ) -> None:
+        response_data = self.response_keys_to_snake_case(response_data)
         assert response_data["id"] == model.id
         assert response_data["text"] == model.text
         assert response_data["excluded"] == model.excluded
@@ -220,7 +223,7 @@ class TestAnswer(CommonTestCase[Answer]):
             headers=authorization_headers,
         )
         assert response.status_code == status.HTTP_200_OK, response.text
-        response_data = response.json()
+        response_data = self.response_keys_to_snake_case(response.json())
         self.assert_valid_response(response_data)
 
         assert response_data["id"] >= answer.id, response_data

@@ -1,8 +1,7 @@
 from typing import TYPE_CHECKING
 
-from sqlmodel import Field, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 
-from domuwa.core.models import BaseDBModel
 from domuwa.game_types.constants import GameTypeChoices
 
 if TYPE_CHECKING:
@@ -11,9 +10,10 @@ if TYPE_CHECKING:
     from domuwa.questions.models import Question
 
 
-class GameType(BaseDBModel):
+class GameType(SQLModel, table=True):
     __tablename__ = "game_type"
 
+    id: int | None = Field(None, primary_key=True)
     name: GameTypeChoices = Field(index=True, unique=True)
 
     questions: list["Question"] = Relationship(back_populates="game_type")

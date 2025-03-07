@@ -8,6 +8,7 @@ from sqlmodel import SQLModel, Session, create_engine
 from sqlmodel.pool import StaticPool
 
 from domuwa import database as db
+from domuwa.database import create_db_and_tables
 from domuwa.main import app
 from domuwa.users.schemas import UserCreate
 from domuwa.users.services import UserServices
@@ -37,7 +38,7 @@ def db_session_fixture():
         poolclass=StaticPool,
     )
     SQLModel.metadata.drop_all(engine)
-    SQLModel.metadata.create_all(engine)
+    create_db_and_tables(engine)
 
     db_sess = Session(engine)
 

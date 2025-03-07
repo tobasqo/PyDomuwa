@@ -7,9 +7,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel import SQLModel, Session, select
 
 from domuwa.core.exceptions import InvalidModelInputError, ModelNotFoundError
+from domuwa.core.schemas import APISchemaModel
 
-CreateModelT = TypeVar("CreateModelT", bound=SQLModel)
-UpdateModelT = TypeVar("UpdateModelT", bound=SQLModel)
+CreateModelT = TypeVar("CreateModelT", bound=APISchemaModel)
+UpdateModelT = TypeVar("UpdateModelT", bound=APISchemaModel)
 DbModelT = TypeVar("DbModelT", bound=SQLModel)
 
 

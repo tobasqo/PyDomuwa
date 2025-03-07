@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Annotated, Generic, final
 
 from fastapi import APIRouter, Depends, status
-from sqlmodel import SQLModel, Session
+from sqlmodel import Session
 from starlette.responses import Response
 from typing_extensions import override
 
@@ -15,6 +15,7 @@ from domuwa.core.exceptions import (
     ModelNotFoundError,
     ModelNotFoundHttpException,
 )
+from domuwa.core.schemas import APISchemaResponseModel
 from domuwa.core.services import (
     CommonServices,
     CreateModelT,
@@ -28,7 +29,7 @@ class BaseRouter(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
     prefix: str
     tags: list[str]
     router: APIRouter
-    response_model: type[SQLModel]
+    response_model: type[APISchemaResponseModel]
     services: CommonServices[CreateModelT, UpdateModelT, DbModelT]
     logger: logging.Logger
     db_model_type_name: str

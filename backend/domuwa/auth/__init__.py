@@ -15,7 +15,7 @@ from domuwa.users.services import UserServices
 
 logger = logging.getLogger(__name__)
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 CredentialsException = HTTPException(
     status.HTTP_401_UNAUTHORIZED,

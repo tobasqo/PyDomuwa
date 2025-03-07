@@ -4,6 +4,7 @@ from typing import Generic, TypeVar
 import pytest
 from fastapi import status
 from httpx import AsyncClient
+from pydantic.alias_generators import to_snake
 from sqlmodel import SQLModel, Session
 
 from domuwa.core.exceptions import ModelNotFoundError
@@ -20,6 +21,15 @@ class CommonTestCase(ABC, Generic[DbModelT]):
     @abstractmethod
     def assert_valid_response(self, response_data: dict) -> None:
         pass
+
+    @staticmethod
+    def response_keys_to_snake_case(response_data: dict) -> dict:
+        snake_case_response_data: dict = {}
+        for key in response_data:
+            value = response_data[key]
+            key_snake_case = to_snake(key)
+            snake_case_response_data[key_snake_case] = value
+        return snake_case_response_data
 
     @abstractmethod
     def assert_valid_response_values(

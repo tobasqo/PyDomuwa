@@ -29,7 +29,8 @@ class GameTypeRoutes(CommonRouterWithAuth[GameTypeCreate, GameTypeUpdate, GameTy
     db_model_type_name = GameType.__name__
 
     @override
-    def _add_get_all_route(self):
+    def _init_api_routes(self):
+        super()._init_api_routes()
         self.router.add_api_route(
             f"/{self._lookup}/questions",  # type: ignore
             self.get_all_questions,

@@ -15,6 +15,7 @@ from domuwa.game_types.routes import get_game_types_router
 from domuwa.players.routes import get_players_router
 from domuwa.qna_categories.routes import get_qna_categories_router
 from domuwa.questions.routes import get_questions_router
+from domuwa.users.routes import get_users_router
 
 
 @asynccontextmanager
@@ -34,6 +35,7 @@ app.include_router(get_qna_categories_router(), prefix=API_PREFIX)
 app.include_router(get_answers_router(), prefix=API_PREFIX)
 app.include_router(get_questions_router(), prefix=API_PREFIX)
 app.include_router(get_game_category_router(), prefix=API_PREFIX)
+app.include_router(get_users_router(), prefix=API_PREFIX)
 # app.include_router(game_rooms_router, prefix=API_PREFIX)
 
 app.add_middleware(SessionMiddleware, secret_key=settings.SESSION_MIDDLEWARE_KEY)
