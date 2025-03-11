@@ -1,7 +1,24 @@
-import { api_client } from "$lib/api/index";
+import { axios_instance } from "$lib/api/index";
 import type { JWTToken } from "$lib/api/types/jwt";
-import type { User, UserCreate, UserUpdate } from "$lib/api/types/user";
+import type { User, UserLogin } from "$lib/api/types/user";
 import axios from "axios";
+
+// no local storage on the server, duh
+class LocalStorage {
+	data = {};
+
+	getItem = (key: string) => {
+		return this.data[key];
+	};
+	setItem = (key: string, value: any) => {
+		return (this.data[key] = value);
+	};
+	removeItem = (key: string) => {
+		delete this.data[key];
+	};
+}
+
+const localStorage = new LocalStorage();
 
 // TODO: add zod validation for all endpoints
 export function getJwtToken() {
@@ -18,10 +35,10 @@ export function removeJwtToken() {
 	localStorage.removeItem("jwtToken");
 }
 
-export async function loginForAccessToken() {
-	const { data } = await api_client.post<JWTToken>("/auth/login");
+export async function loginForAccessToken(userLogin: UserLogin) {
+	const { data } = await axios_instance.post<JWTToken>("/auth/token", userLogin);
 	setJwtToken(data);
-	return data.accessToken;
+	// TODO: redirect to home
 }
 
 export async function refreshAccessToken() {
@@ -45,26 +62,6 @@ export async function refreshAccessToken() {
 	}
 }
 
-export async function readUser() {
-	return await api_client.get<User>("/auth/me");
-}
-
-export async function createUser(userCreate: UserCreate) {
-	return await api_client.post<User>("/auth/", userCreate);
-}
-
-export async function getAllUsers() {
-	return await api_client.get<User[]>("/auth/");
-}
-
-export async function getUser(id: number) {
-	return await api_client.get<User>(`/auth/${id}`);
-}
-
-export async function updateUser(id: number, userUpdate: UserUpdate) {
-	return await api_client.patch(`/auth/${id}`, userUpdate);
-}
-
-export async function deleteUser(id: number) {
-	return await api_client.delete(`/auth/${id}`);
+export async function readCurrentUser() {
+	return await axios_instance.get<User>("/auth/me");
 }

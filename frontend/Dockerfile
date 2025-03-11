@@ -6,4 +6,4 @@ RUN npm install && npm cache clean --force
 COPY . .
 
 EXPOSE 5137
-CMD ["npm", "run", "dev", "--host"]
+ENTRYPOINT npm run dev -- --host

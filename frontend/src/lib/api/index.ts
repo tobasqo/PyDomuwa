@@ -1,7 +1,8 @@
 import axios from "axios";
 import { getJwtToken, refreshAccessToken } from "$lib/api/auth";
+import { UsersApiRoute } from "$lib/api/routes/UserApiRoute";
 
-export const api_client = axios.create({
+export const axios_instance = axios.create({
 	baseURL: "http://localhost:8080",
 	timeout: 5000,
 	headers: {
@@ -10,7 +11,7 @@ export const api_client = axios.create({
 	withCredentials: true,
 });
 
-api_client.interceptors.request.use((config) => {
+axios_instance.interceptors.request.use((config) => {
 	const jwtToken = getJwtToken();
 	if (jwtToken?.accessToken) {
 		config.headers.Authorization = `Bearer ${jwtToken.accessToken}`;
@@ -18,18 +19,18 @@ api_client.interceptors.request.use((config) => {
 	return config;
 });
 
-api_client.interceptors.response.use(
+axios_instance.interceptors.response.use(
 	(response) => response,
 	async (error) => {
 		const originalRequest = error.config;
 
-		if (error.response.status === 401 && !originalRequest?._retry) {
+		if (error.response?.status === 401 && !originalRequest?._retry) {
 			originalRequest._retry = true;
 
 			try {
 				const accessToken = await refreshAccessToken();
 				originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-				return api_client(originalRequest);
+				return axios_instance(originalRequest);
 			} catch (refreshError) {
 				return Promise.reject(refreshError);
 			}
@@ -38,6 +39,16 @@ api_client.interceptors.response.use(
 		return Promise.reject(error);
 	},
 );
+
+export async function getHome() {
+	const response = await axios_instance.get<string>("/");
+	return response.data;
+}
+
+export const api_client = {
+	home: getHome(),
+	users: new UsersApiRoute(),
+};
 
 // TODO: clean up this mess
 // let isRefreshing = false;

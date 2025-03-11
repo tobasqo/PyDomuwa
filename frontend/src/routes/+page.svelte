@@ -1,11 +1,10 @@
 <script lang="ts">
-	export let data: any;
-	export let error: string | null;
+	import type { PageProps } from "./$types";
+
+	let { data }: PageProps = $props();
 </script>
 
-{#if error}
-	<p>Error: {error}</p>
-{:else if data}
+{#if data}
 	<pre>{JSON.stringify(data, null, 2)}</pre>
 {:else}
 	<p>Loading...</p>

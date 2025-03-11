@@ -5,6 +5,12 @@ const MAX_USERNAME_LEN = 32;
 const MIN_PASSWORD_LEN = 8;
 const MAX_PASSWORD_LEN = 40;
 
+export const UserLoginSchema = z.object({
+	username: z.string().min(MIN_USERNAME_LEN).max(MAX_USERNAME_LEN),
+	password: z.string().min(MIN_PASSWORD_LEN).max(MAX_PASSWORD_LEN),
+});
+export type UserLogin = z.infer<typeof UserLoginSchema>;
+
 export const UserCreateSchema = z.object({
 	username: z.string().min(MIN_USERNAME_LEN).max(MAX_USERNAME_LEN),
 	isStaff: z.boolean().default(false),

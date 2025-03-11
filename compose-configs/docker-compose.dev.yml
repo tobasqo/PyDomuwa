@@ -10,17 +10,16 @@ services:
     env_file:
       - ../.env
 
-  # client:
-  #   depends_on:
-  #     - api
-  #   build: ../frontend
-  #   command: npm run start
-  #   volumes:
-  #     - ../frontend:/app
-  #   ports:
-  #     - target: 3000
-  #       published: ${CLIENT_PORT}
-  #       protocol: tcp
-  #   env_file:
-  #     - ../frontend/.env
-
+  client:
+    depends_on:
+      - api
+    build: ../frontend/
+    volumes:
+      - ../frontend:/app
+    ports:
+      - "5173:5173"
+      # - target: 5173
+      #   published: ${CLIENT_PORT}
+      #   protocol: tcp
+    env_file:
+      - ../frontend/.env
