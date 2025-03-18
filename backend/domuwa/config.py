@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     API_PORT: int = 8000
     DATABASE_URL: str = "sqlite:///db.sqlite3"
     # noinspection PyDataclass
-    ALLOWED_ORIGINS: list[str] = ["http://localhost:5173"]
+    ALLOWED_ORIGINS: list[str] = ["*"]
     SECRET_KEY: str = "secret"
     HASH_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15

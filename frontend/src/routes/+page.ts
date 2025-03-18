@@ -2,5 +2,5 @@ import type { PageLoad } from "./$types";
 import { getHome } from "$lib/api";
 
 export const load: PageLoad = async () => {
-	return { props: await getHome() };
+	return { state: await getHome() };
 };
