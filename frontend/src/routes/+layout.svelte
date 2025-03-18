@@ -7,18 +7,20 @@
 </script>
 
 <nav
-	class="top-0 w-full flex justify-between py-4 px-5 text-xl text-white bg-purple-600">
-	<div class="">Logo</div>
+	class="top-0 mb-4 flex w-full items-center justify-between bg-purple-600 px-5 pb-2 pt-1 text-2xl text-white"
+>
+	<div>
+		<img src="/logo.gif" alt="Logo" class="w-32" />
+	</div>
 	<div class="justify-between">
-		<ul
-			class="flex flex-wrap justify-space-between gap-5">
+		<ul class="justify-space-between flex flex-wrap gap-4">
 			<li>
-				<a href="/" class="hover:underline hover:text-sky-200">
+				<a href="/" class="hover:text-sky-200 hover:underline">
 					<Home />
 				</a>
 			</li>
 			<li>
-				<a href="/profile" class="hover:underline hover:text-sky-200">
+				<a href="/profile" class="hover:text-sky-200 hover:underline">
 					<Profile />
 				</a>
 			</li>
