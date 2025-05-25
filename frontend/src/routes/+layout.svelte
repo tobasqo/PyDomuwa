@@ -7,7 +7,7 @@
 </script>
 
 <nav
-	class="top-0 mb-4 flex w-full items-center justify-between bg-purple-600 px-5 pb-2 pt-1 text-2xl text-white"
+	class="top-0 flex w-full items-center justify-between bg-lilac px-5 pb-2 pt-1 text-2xl text-white"
 >
 	<div>
 		<img src="/logo.gif" alt="Logo" class="w-32" />
