@@ -2,10 +2,11 @@
 	import type { PageProps } from "./$types";
 
 	let { data }: PageProps = $props();
+	console.log(data);
 </script>
 
 {#if data}
-	<pre>{JSON.stringify(data, null, 2)}</pre>
+	<pre>{data.data}</pre>
 {:else}
 	<p>Loading...</p>
 {/if}

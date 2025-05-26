@@ -13,15 +13,12 @@ export type UserLogin = z.infer<typeof UserLoginSchema>;
 
 export const UserCreateSchema = z.object({
 	username: z.string().min(MIN_USERNAME_LEN).max(MAX_USERNAME_LEN),
-	isStaff: z.boolean().default(false),
 	password: z.string().min(MIN_PASSWORD_LEN).max(MAX_PASSWORD_LEN),
 });
 export type UserCreate = z.infer<typeof UserCreateSchema>;
 
 export const UserUpdateSchema = z.object({
 	username: z.string().min(MIN_USERNAME_LEN).max(MAX_USERNAME_LEN).optional(),
-	isActive: z.boolean().optional(),
-	isStaff: z.boolean().optional(),
 	password: z.string().min(MIN_PASSWORD_LEN).max(MAX_PASSWORD_LEN).optional(),
 });
 export type UserUpdate = z.infer<typeof UserUpdateSchema>;

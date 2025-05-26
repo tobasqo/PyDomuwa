@@ -6,9 +6,9 @@
 			<div class="p-6 space-y-4 md:space-y-6 sm:p-8">
 				<h1
 					class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
-					Zaloguj się
+					Zarejestruj się
 				</h1>
-				<form class="space-y-4 md:space-y-6" action="/login" method="post">
+				<form class="space-y-4 md:space-y-6" action="/register" method="post">
 					<div>
 						<label for="username"
 									 class="block mb-2 text-sm font-medium text-gray-900">Nazwa
@@ -26,15 +26,9 @@
 					</div>
 					<button type="submit"
 									class="w-full text-white bg-lilac hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-						Zaloguj się
+						Zarejestruj się
 					</button>
 				</form>
-				<p class="text-sm font-light text-gray-600 flex justify-between">
-					<span>Nie masz jeszcze konta?</span>
-					<a href="/register" class="font-medium text-dark hover:underline">
-						Zarejestruj się
-					</a>
-				</p>
 			</div>
 		</div>
 	</div>

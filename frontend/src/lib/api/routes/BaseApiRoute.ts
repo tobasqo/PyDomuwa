@@ -1,73 +1,103 @@
-import { axios_instance } from "$lib/api";
+import { type AxiosInstance } from "axios";
 
-export class BaseApiRoute<TCreate, TUpdate, TResponse> {
+export class ApiError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = "ApiError";
+	}
+}
+
+export type QueryParams = {
+	page?: number;
+	pageSize?: number;
+};
+
+export class BaseApiRoute<
+	TCreate,
+	TUpdate,
+	TResponse,
+	TQueryParams extends QueryParams = QueryParams,
+> {
 	routeUrl: string;
 
 	constructor(routePath: string) {
 		this.routeUrl = routePath;
 	}
 
-	getById = async (modelId: number): Promise<TResponse> => {
+	getById = async (
+		axiosInstance: AxiosInstance,
+		modelId: number,
+	): Promise<TResponse> => {
 		try {
-			const response = await axios_instance.get<TResponse>(this.routeUrl, {
+			const response = await axiosInstance.get<TResponse>(this.routeUrl, {
 				params: { model_id: modelId },
 			});
 			return response.data;
 		} catch (error) {
-			handleServiceError(error);
+			throw handleServiceError(error);
 		}
-		return {} as TResponse;
 	};
 
-	async getAll(page: number, pageSize: number): Promise<TResponse[]> {
+	makeGetAllParams = (
+		params: TQueryParams | undefined = undefined,
+	): URLSearchParams => {
 		const urlParams = new URLSearchParams();
-		urlParams.append("page", page.toString());
-		urlParams.append("page_size", pageSize.toString());
+		urlParams.append("page", (params?.page ?? 1).toString());
+		urlParams.append("page_size", (params?.pageSize ?? 25).toString());
+		return urlParams;
+	};
+
+	getAll = async (
+		axiosInstance: AxiosInstance,
+		params: TQueryParams | undefined = undefined,
+	): Promise<TResponse[]> => {
+		const urlParams = this.makeGetAllParams(params);
 
 		try {
-			const response = await axios_instance.get<TResponse[]>(this.routeUrl, {
+			const response = await axiosInstance.get<TResponse[]>(this.routeUrl, {
 				params: urlParams,
 			});
 			return response.data;
 		} catch (error) {
-			handleServiceError(error);
+			throw handleServiceError(error);
 		}
-		return {} as TResponse[];
-	}
+	};
 
-	async create(model: TCreate): Promise<TResponse> {
+	create = async (axiosInstance: AxiosInstance, model: TCreate): Promise<TResponse> => {
 		try {
-			const response = await axios_instance.post<TResponse>(this.routeUrl, model);
+			const response = await axiosInstance.post<TResponse>(this.routeUrl, model);
 			return response.data;
 		} catch (error) {
-			handleServiceError(error);
+			throw handleServiceError(error);
 		}
-		return {} as TResponse;
-	}
+	};
 
-	async update(modelId: number, model: TUpdate): Promise<TResponse> {
+	update = async (
+		axiosInstance: AxiosInstance,
+		modelId: number,
+		model: TUpdate,
+	): Promise<TResponse> => {
 		try {
-			const response = await axios_instance.patch<TResponse>(
+			const response = await axiosInstance.patch<TResponse>(
 				this.routeUrl + modelId,
 				model,
 			);
 			return response.data;
 		} catch (error) {
-			handleServiceError(error);
+			throw handleServiceError(error);
 		}
-		return {} as TResponse;
-	}
+	};
 
-	async delete(modelId: number): Promise<void> {
+	delete = async (axiosInstance: AxiosInstance, modelId: number): Promise<void> => {
 		try {
-			await axios_instance.patch<TResponse>(this.routeUrl + modelId);
+			await axiosInstance.patch<TResponse>(this.routeUrl + modelId);
 		} catch (error) {
-			handleServiceError(error);
+			throw handleServiceError(error);
 		}
-	}
+	};
 }
 
-function handleServiceError(error: any) {
-	console.error(error);
-	alert(error);
-}
+export const handleServiceError = (error: any): never => {
+	console.error("API Error:", error);
+	throw new ApiError(error?.message ?? "Unknown error");
+};

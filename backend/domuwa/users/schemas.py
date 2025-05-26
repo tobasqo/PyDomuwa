@@ -10,18 +10,19 @@ from domuwa.users.constants import (
 
 
 class UserBase(APISchemaModel):
-    username: str
-    is_active: bool = True
-    is_staff: bool = False
+    username: str = Field(min_length=MIN_USERNAME_LEN, max_length=MAX_USERNAME_LEN)
 
 
 class UserCreate(UserBase):
-    username: str = Field(min_length=MIN_USERNAME_LEN, max_length=MAX_USERNAME_LEN)
     password: str = Field(min_length=MIN_PASSWORD_LEN, max_length=MAX_PASSWORD_LEN)
 
 
 class UserUpdate(APISchemaModel):
-    username: str | None = None
+    username: str | None = Field(
+        None,
+        min_length=MIN_USERNAME_LEN,
+        max_length=MAX_USERNAME_LEN,
+    )
     is_active: bool | None = None
     is_staff: bool | None = None
     password: str | None = Field(

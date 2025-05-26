@@ -2,7 +2,7 @@ import logging
 from datetime import timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Cookie, Depends, HTTPException, status
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 
@@ -19,6 +19,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/token")
 async def login_for_access_token(
+    response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: Annotated[Session, Depends(get_db_session)],
 ):
@@ -30,21 +31,24 @@ async def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    refresh_token_expires = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-
     access_token = create_access_token(
         {"sub": user.username},
-        expires_delta=access_token_expires,
+        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
     )
     refresh_token = create_access_token(
         {"sub": user.username},
-        expires_delta=refresh_token_expires,
+        expires_delta=timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        samesite="lax",
     )
 
     return Token(
         access_token=access_token,
-        refresh_token=refresh_token,
         token_type="bearer",
     )
 
@@ -73,7 +77,6 @@ async def refresh_access_token(refresh_token: str = Cookie(None)):
     )
     return Token(
         access_token=new_access_token,
-        refresh_token=refresh_token,
         token_type="bearer",
     )
 
