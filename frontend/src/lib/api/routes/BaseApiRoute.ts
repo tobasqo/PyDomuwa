@@ -98,6 +98,7 @@ export class BaseApiRoute<
 }
 
 export const handleServiceError = (error: any): never => {
-	console.error("API Error:", error);
+	// TODO: fix handling error
+	console.error("API Error:", JSON.stringify(error.response.data));
 	throw new ApiError(error?.message ?? "Unknown error");
 };

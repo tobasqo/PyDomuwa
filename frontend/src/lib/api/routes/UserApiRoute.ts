@@ -9,13 +9,7 @@ export class UsersApiRoute extends BaseApiRoute<UserCreate, UserUpdate, User> {
 
 	create = async (axiosInstance: AxiosInstance, model: UserCreate): Promise<User> => {
 		try {
-			const response = await axiosInstance.post<User>(
-				this.routeUrl,
-				new URLSearchParams({
-					username: model.username,
-					password: model.password,
-				}),
-			);
+			const response = await axiosInstance.post<User>(this.routeUrl, model);
 			return response.data;
 		} catch (error) {
 			throw handleServiceError(error);
