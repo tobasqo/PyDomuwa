@@ -1,12 +1,5 @@
 <script lang="ts">
-	import type { PageProps } from "./$types";
-
-	let { data }: PageProps = $props();
-	console.log(data);
+	import GamesList from "../components/GamesList.svelte";
 </script>
 
-{#if data}
-	<pre>{data.data}</pre>
-{:else}
-	<p>Loading...</p>
-{/if}
+<GamesList />

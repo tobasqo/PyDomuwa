@@ -2,9 +2,10 @@ import axios, { type AxiosInstance } from "axios";
 import { getJwtToken, refreshAccessToken } from "$lib/api/auth";
 import { UsersApiRoute } from "$lib/api/routes/UserApiRoute";
 import type { Cookies } from "@sveltejs/kit";
+import { GameTypeApiRoute } from "$lib/api/routes/GameTypeApiRoute";
 
 // TODO: we need to create axios instance per request on server side, with new cookies
-export const getAxiosInstance = (cookies: Cookies) => {
+export async function getAxiosInstance(cookies: Cookies) {
 	const axiosInstance = axios.create({
 		baseURL: "http://localhost:8080",
 		timeout: 5000,
@@ -14,11 +15,17 @@ export const getAxiosInstance = (cookies: Cookies) => {
 		withCredentials: true,
 	});
 
+	let accessToken = null;
+	const jwtToken = getJwtToken(cookies);
+	if (jwtToken !== null) {
+		accessToken = jwtToken.accessToken;
+	} else {
+		// NOTE: throws
+		accessToken = await refreshAccessToken(cookies);
+	}
+
 	axiosInstance.interceptors.request.use((config) => {
-		const jwtToken = getJwtToken(cookies);
-		if (jwtToken?.accessToken) {
-			config.headers.Authorization = `Bearer ${jwtToken.accessToken}`;
-		}
+		config.headers.Authorization = `Bearer ${accessToken}`;
 		return config;
 	});
 
@@ -44,7 +51,17 @@ export const getAxiosInstance = (cookies: Cookies) => {
 	);
 
 	return axiosInstance;
-};
+}
+
+export function getFreshAxiosInstance() {
+	return axios.create({
+		baseURL: "http://localhost:8080",
+		timeout: 5000,
+		headers: {
+			"Content-Type": "application/json",
+		},
+	});
+}
 
 export async function getHome(axiosInstance: AxiosInstance) {
 	const response = await axiosInstance.get<string>("/");
@@ -53,4 +70,5 @@ export async function getHome(axiosInstance: AxiosInstance) {
 
 export const apiClient = {
 	users: new UsersApiRoute(),
+	gameTypes: new GameTypeApiRoute(),
 };
