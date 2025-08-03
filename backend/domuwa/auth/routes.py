@@ -40,10 +40,10 @@ async def login_for_access_token(
         expires_delta=timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
     )
     response.set_cookie(
-        key="refresh_token",
+        key="refreshToken",
         value=refresh_token,
         httponly=True,
-        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * timedelta(days=1).seconds,
         samesite="lax",
     )
 

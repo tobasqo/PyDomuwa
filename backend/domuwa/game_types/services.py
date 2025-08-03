@@ -3,7 +3,8 @@ from typing import Sequence
 
 from sqlmodel import Session, select
 
-from domuwa.core.services import CommonServices
+from domuwa import GameTypeChoices
+from domuwa.core.services import CommonServicesForEnumModels
 from domuwa.game_types.models import GameType
 from domuwa.game_types.schemas import GameTypeCreate, GameTypeUpdate
 from domuwa.players.models import Player
@@ -11,8 +12,10 @@ from domuwa.qna_categories.models import QnACategory
 from domuwa.questions.models import Question
 
 
-class GameTypeServices(CommonServices[GameTypeCreate, GameTypeUpdate, GameType]):
+class GameTypeServices(CommonServicesForEnumModels[GameTypeCreate, GameTypeUpdate, GameType]):
     db_model_type = GameType
+    model_create_type = GameTypeCreate
+    choices = GameTypeChoices
     logger = logging.getLogger(__name__)
 
     @staticmethod

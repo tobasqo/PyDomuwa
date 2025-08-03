@@ -1,6 +1,7 @@
 import logging
 
-from domuwa.core.services import CommonServices
+from domuwa import GameCategoryChoices
+from domuwa.core.services import CommonServicesForEnumModels
 from domuwa.game_categories.models import GameCategory
 from domuwa.game_categories.schemas import (
     GameCategoryCreate,
@@ -9,7 +10,9 @@ from domuwa.game_categories.schemas import (
 
 
 class GameCategoryServices(
-    CommonServices[GameCategoryCreate, GameCategoryUpdate, GameCategory]
+    CommonServicesForEnumModels[GameCategoryCreate, GameCategoryUpdate, GameCategory]
 ):
     db_model_type = GameCategory
+    model_create_type = GameCategoryCreate
+    choices = GameCategoryChoices
     logger = logging.getLogger(__name__)

@@ -1,9 +1,10 @@
 import logging
 from abc import ABC
 from collections.abc import Sequence
+from enum import Enum
 from typing import Generic, TypeVar
 
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, PendingRollbackError
 from sqlmodel import SQLModel, Session, select
 
 from domuwa.core.exceptions import InvalidModelInputError, ModelNotFoundError
@@ -59,7 +60,7 @@ class CommonServices(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
         try:
             session.add(model)
             session.commit()
-        except IntegrityError as exc:
+        except (IntegrityError, PendingRollbackError) as exc:
             err_msg = str(exc)
             self.logger.error(err_msg)
             raise InvalidModelInputError(err_msg) from exc
@@ -71,3 +72,17 @@ class CommonServices(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
         session.delete(model)
         session.commit()
         self.logger.debug("removed %s(id=%d)", model.__class__.__name__, model.id)  # type: ignore
+
+
+class CommonServicesForEnumModels(CommonServices[CreateModelT, UpdateModelT, DbModelT]):
+    choices: type[Enum]
+    choice_attr: str = "name"
+    model_create_type: type[CreateModelT]
+
+    async def populate(self, session: Session):
+        self.logger.info("populating %s", self.db_model_type.__name__.lower())
+        already_populated = {getattr(model, self.choice_attr) for model in await self.get_all(session)}
+        for choice in self.choices:
+            if choice not in already_populated:
+                model = self.model_create_type(**{self.choice_attr: choice})
+                await self.create(model, session)
