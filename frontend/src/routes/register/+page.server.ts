@@ -1,21 +1,24 @@
-import { type Actions, error, redirect } from "@sveltejs/kit";
+import { type Actions, error, fail, redirect } from "@sveltejs/kit";
 import { apiClient, getFreshAxiosInstance } from "$lib/api";
-import { UnprocessableDataError } from "$lib/api/routes/BaseApiRoute";
 
 export const actions = {
 	default: async ({ request }) => {
-		const data = await request.formData();
+		const formData = await request.formData();
 		const axiosInstance = getFreshAxiosInstance();
-		const apiResult = await apiClient.users.create(axiosInstance, {
-			username: data.get("username")!.toString(),
-			password: data.get("password")!.toString(),
+		const { error: err } = await apiClient.users.create(axiosInstance, {
+			username: formData.get("username")!.toString(),
+			password: formData.get("password")!.toString(),
 		});
-		if (apiResult.error !== null && apiResult.error instanceof UnprocessableDataError) {
-			// TODO: custom page for error
-			error(422, JSON.stringify(apiResult.error.details()));
-		} else {
-			console.error(apiResult.error);
+		if (err !== null) {
+			console.log("register api error:", err.message);
+			console.log("register api details:", err.details());
+			console.log(JSON.stringify(err.details()));
+			if (err.status === 422 || err.status === 400) {
+				return fail(err.status, { error: err.message, details: err.details() });
+			} else {
+				throw error(err.status, err);
+			}
 		}
-		redirect(303, "/login");
+		throw redirect(303, "/login");
 	},
 } satisfies Actions;
