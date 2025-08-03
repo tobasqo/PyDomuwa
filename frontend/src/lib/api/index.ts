@@ -1,10 +1,10 @@
-import axios, { type AxiosInstance } from "axios";
+import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from "axios";
 import { getJwtToken, refreshAccessToken } from "$lib/api/auth";
 import { UsersApiRoute } from "$lib/api/routes/UserApiRoute";
 import type { Cookies } from "@sveltejs/kit";
 import { GameTypeApiRoute } from "$lib/api/routes/GameTypeApiRoute";
+import { newApiError, newApiResponse } from "$lib/api/responses";
 
-// TODO: we need to create axios instance per request on server side, with new cookies
 export async function getAxiosInstance(cookies: Cookies) {
 	const axiosInstance = axios.create({
 		baseURL: "http://localhost:8080",
@@ -63,12 +63,34 @@ export function getFreshAxiosInstance() {
 	});
 }
 
-export async function getHome(axiosInstance: AxiosInstance) {
-	const response = await axiosInstance.get<string>("/");
-	return response.data;
+export async function makeApiRequest<TResponse>(
+	axiosInstance: AxiosInstance,
+	config: AxiosRequestConfig = {},
+) {
+	return await axiosInstance
+		.request<TResponse>(config)
+		.then((res) => {
+			return newApiResponse<TResponse>(res.data);
+		})
+		.catch((err) => {
+			if (err instanceof AxiosError) {
+				return newApiError<TResponse>(err);
+			}
+			console.error(err);
+			throw err;
+		});
+}
+
+export async function getHome(cookies: Cookies) {
+	const axiosInstance = await getAxiosInstance(cookies);
+	return await makeApiRequest<string>(axiosInstance, {
+		method: "GET",
+		url: "/",
+	});
 }
 
 export const apiClient = {
+	home: getHome,
 	users: new UsersApiRoute(),
 	gameTypes: new GameTypeApiRoute(),
 };

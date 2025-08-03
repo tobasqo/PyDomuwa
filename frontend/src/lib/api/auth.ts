@@ -1,7 +1,11 @@
 import type { JWTToken } from "$lib/api/types/jwt";
 import type { User, UserLogin } from "$lib/api/types/user";
-import type { Cookies } from "@sveltejs/kit";
-import { getAxiosInstance, getFreshAxiosInstance } from "$lib/api/index";
+import { type Cookies } from "@sveltejs/kit";
+import {
+	getAxiosInstance,
+	getFreshAxiosInstance,
+	makeApiRequest,
+} from "$lib/api/index";
 
 export function getJwtToken(cookies: Cookies) {
 	const jwtToken = cookies.get("jwtToken");
@@ -22,31 +26,36 @@ export function removeJwtToken(cookies: Cookies) {
 
 export async function loginForAccessToken(userLogin: UserLogin, cookies: Cookies) {
 	const axiosInstance = getFreshAxiosInstance();
-	const { data } = await axiosInstance.post<JWTToken>("/auth/token", userLogin, {
+	const { data, error } = await makeApiRequest<JWTToken>(axiosInstance, {
+		method: "POST",
+		url: "/auth/token",
+		data: userLogin,
 		headers: {
 			"Content-Type": "application/x-www-form-urlencoded",
 		},
 	});
-	// TODO: handle invalid data passed
-	console.log("jwt data:", data);
+	if (error !== null) {
+		return error;
+	}
 	setJwtToken(data, cookies);
 }
 
 export async function refreshAccessToken(cookies: Cookies) {
-	try {
-		const axiosInstance = getFreshAxiosInstance();
-		const { data } = await axiosInstance.post<JWTToken>("/auth/refresh", cookies, {
-			withCredentials: true,
-		});
-		setJwtToken(data, cookies);
-		return data.accessToken;
-	} catch (error) {
+	const axiosInstance = getFreshAxiosInstance();
+	const { data, error } = await makeApiRequest<JWTToken>(axiosInstance, {
+		method: "POST",
+		url: "/auth/refresh",
+		withCredentials: true,
+	});
+	if (error !== null) {
 		removeJwtToken(cookies);
-		throw error;
+		return error;
 	}
+	setJwtToken(data, cookies);
+	return data.accessToken;
 }
 
 export async function readCurrentUser(cookies: Cookies) {
-	const apiClient = await getAxiosInstance(cookies);
-	return await apiClient.get<User>("/auth/me");
+	const axiosInstance = await getAxiosInstance(cookies);
+	return await makeApiRequest<User>(axiosInstance, { method: "GET", url: "/auth/me" });
 }
