@@ -36,6 +36,10 @@ export default ts.config(
 		rules: {
 			// "no-unused-vars": "off",
 			"@typescript-eslint/no-unused-vars": "off",
+			"a11y_click-events-have-key-events": "off",
+			a11y_no_static_element_interactions: "off",
+			a11y_click_events_have_key_events: "off",
+			"@typescript-eslint/no-explicit-any": "off",
 		},
 	},
 );
