@@ -13,10 +13,7 @@ export const actions = {
 		);
 		if (err !== undefined) {
 			if (err.status === 400 || err.status === 401 || err.status === 422) {
-				return fail(err.status, {
-					error: err.message,
-					details: err.details(),
-				});
+				return fail(err.status, { error: err.message, details: err.details() });
 			}
 			throw error(err.status, err);
 		}
