@@ -4,10 +4,13 @@ import { UsersApiRoute } from "$lib/api/routes/UserApiRoute";
 import type { Cookies } from "@sveltejs/kit";
 import { GameTypeApiRoute } from "$lib/api/routes/GameTypeApiRoute";
 import { newApiError, newApiResponse } from "$lib/api/responses";
+import { QuestionApiRoute } from "$lib/api/routes/QuestionApiRoute";
+import { GameCategoryApiRoute } from "$lib/api/routes/GameCategoryApiRoute";
+import { QnACategoryApiRoute } from "$lib/api/routes/QnACategoryApiRoute";
 
 export async function getAxiosInstance(cookies: Cookies) {
 	const axiosInstance = axios.create({
-		baseURL: "http://localhost:8080",
+		baseURL: "http://api:8000",
 		timeout: 5000,
 		headers: {
 			"Content-Type": "application/json",
@@ -55,7 +58,7 @@ export async function getAxiosInstance(cookies: Cookies) {
 
 export function getFreshAxiosInstance() {
 	return axios.create({
-		baseURL: "http://localhost:8080",
+		baseURL: "http://api:8000",
 		timeout: 5000,
 		headers: {
 			"Content-Type": "application/json",
@@ -93,4 +96,7 @@ export const apiClient = {
 	home: getHome,
 	users: new UsersApiRoute(),
 	gameTypes: new GameTypeApiRoute(),
+	gameCategories: new GameCategoryApiRoute(),
+	qnaCategories: new QnACategoryApiRoute(),
+	questions: new QuestionApiRoute(),
 };

@@ -1,10 +1,11 @@
 services:
   api:
+    container_name: api
     build:
-      context: ../backend/
+      context: ../backend
       target: development
     volumes:
-      - ../backend/:/home/app/
+      - ../backend:/app
       - /app/.venv
     ports:
       - "8000:8000"
@@ -12,9 +13,10 @@ services:
       - ../.env
 
   client:
+    container_name: client
     depends_on:
       - api
-    build: ../frontend/
+    build: ../frontend
     volumes:
       - ../frontend:/app
     ports:

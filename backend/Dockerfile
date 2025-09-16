@@ -20,8 +20,8 @@ ENV PATH="/root/.local/bin/:$PATH"
 
 WORKDIR /app
 RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=pyproject.toml,target=/pyproject.toml \
     --mount=type=bind,source=uv.lock,target=/uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=/pyproject.toml \
     uv sync --locked --no-install-project --no-dev
 COPY . /app
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -32,6 +32,7 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 FROM builder AS testing
 
+WORKDIR /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --group test --no-group dev
 
@@ -40,12 +41,14 @@ ENTRYPOINT ["pytest", "-s", "-x", "--ff", "-vv", "--log-cli-level=DEBUG", "tests
 
 FROM builder AS development
 
+WORKDIR /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --group dev --no-group test
 
-ENTRYPOINT ["fastapi", "dev", "--host", "0.0.0.0", "--port", "8000", "main.py"]
+ENTRYPOINT ["fastapi", "dev", "--host", "0.0.0.0", "--port", "8000", "domuwa/main.py"]
 
 
 FROM builder AS production
 
-ENTRYPOINT ["fastapi", "run", "--host", "0.0.0.0", "--port", "8000", "main.py"]
+WORKDIR /app
+ENTRYPOINT ["fastapi", "run", "--host", "0.0.0.0", "--port", "8000", "domuwa/main.py"]
