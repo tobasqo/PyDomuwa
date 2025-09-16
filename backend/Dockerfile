@@ -1,49 +1,50 @@
-FROM python:3.11.10-slim-bookworm AS builder
+FROM python:3.13-slim-trixie AS builder
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ARG APP_HOME=/home/app
-ARG USER=app
-ENV PATH="${PATH}:${APP_HOME}.local/bin"
+ENV UV_COMPILE_BYTECODE=1
+ENV UC_LINK_MODE=copy
 
-RUN pip install --no-cache-dir --upgrade pip
+RUN apt-get update && apt-get install -y \
+    --no-install-recommends \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p $APP_HOME
-WORKDIR $APP_HOME
+# Download the latest installer
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
 
+# Run the installer then remove it
+RUN sh /uv-installer.sh && rm /uv-installer.sh
 
-COPY ./pyproject.toml ./poetry.lock $APP_HOME
-RUN pip install --no-cache-dir --upgrade poetry poetry-plugin-export
-RUN poetry export --without-hashes --without-urls --output requirements.txt
-RUN poetry export --without-hashes --without-urls --only dev --output requirements.dev.txt
-RUN poetry export --without-hashes --without-urls --only test --output requirements.test.txt
-RUN pip uninstall poetry -y
+# Ensure the installed binary is on the `PATH`
+ENV PATH="/root/.local/bin/:$PATH"
 
-RUN pip install --no-cache-dir -r requirements.txt
+WORKDIR /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=pyproject.toml,target=/pyproject.toml \
+    uv sync --locked --no-install-project --no-dev
+COPY . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked --no-dev
 
-COPY . $APP_HOME
+ENV PATH="/app/.venv/bin:$PATH"
+
 
 FROM builder AS testing
 
-RUN pip install --no-cache-dir -r requirements.test.txt
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked --group test --no-group dev
 
-ENTRYPOINT ["pytest", "-x", "-s", "tests"]
+ENTRYPOINT ["pytest", "-s", "-x", "--ff", "-vv", "--log-cli-level=DEBUG", "tests"]
 
 
 FROM builder AS development
 
-RUN pip install --no-cache-dir -r requirements.dev.txt
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked --group dev --no-group test
 
-ENTRYPOINT ["sh", "/home/app/docker/entrypoint.dev.sh"]
+ENTRYPOINT ["fastapi", "dev", "--host", "0.0.0.0", "--port", "8000", "main.py"]
 
 
 FROM builder AS production
 
-RUN adduser $USER
-RUN chown -R $USER $APP_HOME
-
-RUN chmod +x $APP_HOME/docker/entrypoint.prod.sh
-
-USER $USER
-
-ENTRYPOINT ["sh", "/home/app/docker/entrypoint.prod.sh"]
+ENTRYPOINT ["fastapi", "run", "--host", "0.0.0.0", "--port", "8000", "main.py"]

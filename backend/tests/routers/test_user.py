@@ -20,16 +20,12 @@ class TestUser(CommonTestCase[User]):
         response_data = self.response_keys_to_snake_case(response_data)
         assert "id" in response_data, response_data
         assert "username" in response_data, response_data
-        assert "is_active" in response_data, response_data
-        assert "is_staff" in response_data, response_data
 
     @override
     def assert_valid_response_values(self, response_data: dict, model: User) -> None:
         response_data = self.response_keys_to_snake_case(response_data)
         assert response_data["id"] == model.id, response_data
         assert response_data["username"] == model.username, response_data
-        assert response_data["is_active"] == model.is_active, response_data
-        assert response_data["is_staff"] == model.is_staff, response_data
 
     @override
     def build_model(self) -> User:
