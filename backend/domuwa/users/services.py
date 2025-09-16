@@ -35,6 +35,7 @@ class UserServices(CommonServices[UserCreate, UserUpdate, User]):
             update={"hashed_password": get_password_hash(model.password)},
         )
         user = await self.save(user, session)
+        assert user.id is not None
         await PlayerServices().create(PlayerCreate(id=user.id), session)
         return user
 

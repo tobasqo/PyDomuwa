@@ -10,7 +10,7 @@ from sqlmodel.pool import StaticPool
 from domuwa import database as db
 from domuwa.database import create_db_and_tables
 from domuwa.main import app
-from domuwa.users.schemas import UserCreate, UserUpdate
+from domuwa.users.schemas import UserCreate
 from domuwa.users.services import UserServices
 from tests.utils import UserData, get_authorization_headers, get_default_user_data
 
@@ -79,15 +79,16 @@ async def user_data_fixture(db_session: Session):
 @pytest.fixture(name="inactive_user_data")
 async def inactive_user_data_fixture(db_session: Session):
     user_data = get_default_user_data()
-    user_data["is_active"] = False
-    await user_services.create(UserCreate(**user_data), db_session)
+    inactive_user = await user_services.create(UserCreate(**user_data), db_session)
+    inactive_user.is_active = False
+    db_session.add(inactive_user)
+    db_session.commit()
     return user_data
 
 
 @pytest.fixture(name="admin_user_data")
 async def admin_user_data_fixture(db_session: Session):
     user_data = get_default_user_data()
-    user_data["is_staff"] = True
     admin_user = await user_services.create(UserCreate(**user_data), db_session)
     admin_user.is_staff = True
     db_session.add(admin_user)

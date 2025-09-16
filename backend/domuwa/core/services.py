@@ -81,7 +81,9 @@ class CommonServicesForEnumModels(CommonServices[CreateModelT, UpdateModelT, DbM
 
     async def populate(self, session: Session):
         self.logger.info("populating %s", self.db_model_type.__name__.lower())
-        already_populated = {getattr(model, self.choice_attr) for model in await self.get_all(session)}
+        already_populated = {
+            getattr(model, self.choice_attr) for model in await self.get_all(session)
+        }
         for choice in self.choices:
             if choice not in already_populated:
                 model = self.model_create_type(**{self.choice_attr: choice})

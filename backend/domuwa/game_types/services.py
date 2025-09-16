@@ -12,7 +12,9 @@ from domuwa.qna_categories.models import QnACategory
 from domuwa.questions.models import Question
 
 
-class GameTypeServices(CommonServicesForEnumModels[GameTypeCreate, GameTypeUpdate, GameType]):
+class GameTypeServices(
+    CommonServicesForEnumModels[GameTypeCreate, GameTypeUpdate, GameType]
+):
     db_model_type = GameType
     model_create_type = GameTypeCreate
     choices = GameTypeChoices

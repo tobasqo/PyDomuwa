@@ -1,4 +1,4 @@
-from typing import NotRequired, TypedDict
+from typing import TypedDict
 
 from httpx import AsyncClient
 
@@ -6,16 +6,12 @@ from httpx import AsyncClient
 class UserData(TypedDict):
     username: str
     password: str
-    is_active: NotRequired[bool]
-    is_staff: NotRequired[bool]
 
 
 def get_default_user_data() -> UserData:
     return UserData(
         username="user",
         password="<PASSWORD>",
-        is_active=True,
-        is_staff=False,
     )
 
 
