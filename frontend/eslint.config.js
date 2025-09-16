@@ -39,6 +39,7 @@ export default ts.config(
 			"a11y_click-events-have-key-events": "off",
 			a11y_no_static_element_interactions: "off",
 			a11y_click_events_have_key_events: "off",
+			a11y_consider_explicit_label: "off",
 			"@typescript-eslint/no-explicit-any": "off",
 		},
 	},

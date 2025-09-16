@@ -21,6 +21,7 @@ const config = {
 			const ignore = [
 				"a11y_click_events_have_key_events",
 				"a11y_no_static_element_interactions",
+				"a11y_consider_explicit_label",
 			];
 			return !ignore.includes(warning.code);
 		},

@@ -23,3 +23,10 @@ export default {
 
 	plugins: [forms],
 } satisfies Config;
+
+/* TODO: custom styles for
+ - section
+ - button
+ - input
+ - header
+ */
