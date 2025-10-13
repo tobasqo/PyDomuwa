@@ -7,7 +7,7 @@ class APISchemaModel(BaseModel):
         # from_attributes=True,
         populate_by_name=True,
         alias_generator=AliasGenerator(
-            validation_alias=to_snake, serialization_alias=to_camel
+            alias=to_snake, validation_alias=to_snake, serialization_alias=to_camel
         ),
     )
 
