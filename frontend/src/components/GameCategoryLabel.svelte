@@ -2,8 +2,8 @@
 	import { type GameCategory, GameCategoryChoice } from "$lib/api/types/game_category";
 	import { type QnACategory, QnACategoryChoice } from "$lib/api/types/qna_category";
 
-	const gameCategory: GameCategory | QnACategory = $props();
-	// eslint-disable-next-line svelte/valid-compile
+	export let gameCategory: GameCategory | QnACategory;
+
 	let labelColor = "";
 	// TODO: create label colors
 	switch (gameCategory.name) {

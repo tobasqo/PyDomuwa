@@ -1,11 +1,14 @@
 <script lang="ts">
-	// export let gameRooms = [];
+	export const title = "";
+	export const subTitle = "";
 </script>
 
 <article class="rounded-xl bg-orange p-6 shadow-xl">
-	<h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900">Pokoje gier</h2>
+	<h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900">
+		{title}
+	</h2>
 	<p class="mb-2 text-gray-700">
-		Tu będzie lista obecnie rozgrywających się gier. Serwer tego jeszcze nie wspiera
+		{subTitle}
 	</p>
 	<div class="flex items-center justify-between">
 		<a

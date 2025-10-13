@@ -25,8 +25,7 @@ export class BaseApiRoute<
 	): Promise<ApiResult<TResponse>> => {
 		return await makeApiRequest<TResponse>(axiosInstance, {
 			method: "GET",
-			url: this.routeUrl,
-			params: { model_id: modelId },
+			url: this.routeUrl + modelId,
 		});
 	};
 

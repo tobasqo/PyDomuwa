@@ -3,29 +3,29 @@
 @import "tailwindcss/utilities";
 
 .btn {
-    @apply rounded-xl px-6 py-3 text-base font-medium shadow-md transition-transform;
+	@apply rounded-xl px-6 py-3 text-base font-medium shadow-md transition-transform;
 }
 
 .btn-primary {
-    @apply bg-orange text-dark;
+	@apply bg-orange text-dark;
 }
 
 .btn-secondary {
-    @apply bg-lilac text-white;
+	@apply bg-lilac text-white;
 }
 
 .card {
-    @apply rounded-2xl bg-pink p-6 text-dark shadow-pastel;
+	@apply rounded-2xl bg-pink p-6 text-dark shadow-pastel;
 }
 
 .highlight {
-    @apply rounded-md bg-yellow px-3 py-1 font-bold text-dark;
+	@apply rounded-md bg-yellow px-3 py-1 font-bold text-dark;
 }
 
 .header {
-    @apply bg-lilac p-4 text-center text-xl font-semibold text-white;
+	@apply bg-lilac p-4 text-center text-xl font-semibold text-white;
 }
 
 .footer {
-    @apply mt-8 border-t-4 border-lilac bg-mint p-4 text-center text-dark;
+	@apply mt-8 border-t-4 border-lilac bg-mint p-4 text-center text-dark;
 }

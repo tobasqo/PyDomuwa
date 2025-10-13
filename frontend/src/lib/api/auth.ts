@@ -1,11 +1,8 @@
 import type { JWTToken } from "$lib/api/types/jwt";
 import type { User, UserLogin } from "$lib/api/types/user";
 import { type Cookies } from "@sveltejs/kit";
-import {
-	getAxiosInstance,
-	getFreshAxiosInstance,
-	makeApiRequest,
-} from "$lib/api/index";
+import { makeApiRequest } from "$lib/api/index";
+import type { AxiosInstance } from "axios";
 
 export function getJwtToken(cookies: Cookies) {
 	const jwtToken = cookies.get("jwtToken");
@@ -24,8 +21,11 @@ export function removeJwtToken(cookies: Cookies) {
 	cookies.delete("jwtToken", { path: "/" });
 }
 
-export async function loginForAccessToken(userLogin: UserLogin, cookies: Cookies) {
-	const axiosInstance = getFreshAxiosInstance();
+export async function loginForAccessToken(
+	axiosInstance: AxiosInstance,
+	userLogin: UserLogin,
+	cookies: Cookies,
+) {
 	const { data, error } = await makeApiRequest<JWTToken>(axiosInstance, {
 		method: "POST",
 		url: "/auth/token",
@@ -38,10 +38,13 @@ export async function loginForAccessToken(userLogin: UserLogin, cookies: Cookies
 		return error;
 	}
 	setJwtToken(data, cookies);
+	return null;
 }
 
-export async function refreshAccessToken(cookies: Cookies) {
-	const axiosInstance = getFreshAxiosInstance();
+export async function refreshAccessToken(
+	axiosInstance: AxiosInstance,
+	cookies: Cookies,
+) {
 	const { data, error } = await makeApiRequest<JWTToken>(axiosInstance, {
 		method: "POST",
 		url: "/auth/refresh",
@@ -49,13 +52,13 @@ export async function refreshAccessToken(cookies: Cookies) {
 	});
 	if (error !== null) {
 		removeJwtToken(cookies);
-		return error;
+		console.error("Failed to refresh access token:", error);
+		return null;
 	}
 	setJwtToken(data, cookies);
 	return data.accessToken;
 }
 
-export async function readCurrentUser(cookies: Cookies) {
-	const axiosInstance = await getAxiosInstance(cookies);
+export async function readCurrentUser(axiosInstance: AxiosInstance) {
 	return await makeApiRequest<User>(axiosInstance, { method: "GET", url: "/auth/me" });
 }

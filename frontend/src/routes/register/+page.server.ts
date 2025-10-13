@@ -10,9 +10,6 @@ export const actions = {
 			password: formData.get("password")!.toString(),
 		});
 		if (err !== null) {
-			console.log("register api error:", err.message);
-			console.log("register api details:", err.details());
-			console.log(JSON.stringify(err.details()));
 			if (err.status === 422 || err.status === 400) {
 				return fail(err.status, { error: err.message, details: err.details() });
 			} else {

@@ -8,23 +8,24 @@
 	}
 </script>
 
-
 <section>
-	<div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
+	<div class="mx-auto max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16">
 		<div class="mx-auto max-w-screen-sm text-center text-slate-700">
 			<h1
-				class="mb-4 text-7xl tracking-tight font-extrabold lg:text-9xl text-slate-800">
+				class="mb-4 text-7xl font-extrabold tracking-tight text-slate-800 lg:text-9xl"
+			>
 				{page.status}
 			</h1>
-			<p
-				class="mb-4 text-3xl tracking-tight font-bold md:text-4xl">
+			<p class="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
 				Wystąpił błąd - pokaż Szantiemu
 			</p>
 			<p class="mb-4 text-lg font-light text-gray-700">
 				{details}
 			</p>
-			<a href="/"
-				 class="inline-flex bg-orange hover:bg-yellow border-2 border-gray-500 shadow-xl font-medium rounded-lg text-sm px-5 py-2.5 text-center my-4">
+			<a
+				href="/"
+				class="my-4 inline-flex rounded-lg border-2 border-gray-500 bg-orange px-5 py-2.5 text-center text-sm font-medium shadow-xl hover:bg-yellow"
+			>
 				Powrót na stronę główną
 			</a>
 		</div>

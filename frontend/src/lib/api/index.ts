@@ -1,12 +1,33 @@
 import axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from "axios";
+import type { Cookies } from "@sveltejs/kit";
+import { error, redirect } from "@sveltejs/kit";
 import { getJwtToken, refreshAccessToken } from "$lib/api/auth";
 import { UsersApiRoute } from "$lib/api/routes/UserApiRoute";
-import type { Cookies } from "@sveltejs/kit";
 import { GameTypeApiRoute } from "$lib/api/routes/GameTypeApiRoute";
-import { newApiError, newApiResponse } from "$lib/api/responses";
+import { newApiError, newApiResponse, type ApiResult } from "$lib/api/responses";
 import { QuestionApiRoute } from "$lib/api/routes/QuestionApiRoute";
 import { GameCategoryApiRoute } from "$lib/api/routes/GameCategoryApiRoute";
 import { QnACategoryApiRoute } from "$lib/api/routes/QnACategoryApiRoute";
+
+const BASE_URL = "http://api:8000";
+
+const requestRefresh = async(axiosInstance: AxiosInstance, refreshToken: string) => {
+	const { data, error } = await makeApiRequest<JWTToken>(axiosInstance, {
+		method: "POST",
+		url: "/auth/refresh",
+		withCredentials: true,
+	});
+}
+export async function getAxiosInstance(cookies: Cookies) {
+	return axios.create({
+		baseURL: BASE_URL,
+		timeout: 5000,
+		headers: {
+			"Content-Type": "application/json",
+		},
+		withCredentials: true,
+	});
+}
 
 export async function getAxiosInstance(cookies: Cookies) {
 	const axiosInstance = axios.create({
@@ -24,11 +45,13 @@ export async function getAxiosInstance(cookies: Cookies) {
 		accessToken = jwtToken.accessToken;
 	} else {
 		// NOTE: throws
-		accessToken = await refreshAccessToken(cookies);
+		accessToken = await refreshAccessToken(axiosInstance, cookies);
 	}
 
 	axiosInstance.interceptors.request.use((config) => {
-		config.headers.Authorization = `Bearer ${accessToken}`;
+		if (accessToken !== null) {
+			config.headers.Authorization = `Bearer ${accessToken}`;
+		}
 		return config;
 	});
 
@@ -41,9 +64,14 @@ export async function getAxiosInstance(cookies: Cookies) {
 				originalRequest._retry = true;
 
 				try {
-					const accessToken = await refreshAccessToken(cookies);
+					const freshAxiosInstance = getFreshAxiosInstance();
+					const accessToken = await refreshAccessToken(freshAxiosInstance, cookies);
+					console.log("Refreshed access token:", accessToken);
+					if (accessToken === null) {
+						throw error(401, "Failed to refresh access token");
+					}
 					originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-					return axiosInstance(originalRequest);
+					return freshAxiosInstance(originalRequest);
 				} catch (refreshError) {
 					return Promise.reject(refreshError);
 				}
@@ -66,6 +94,7 @@ export function getFreshAxiosInstance() {
 	});
 }
 
+// axios-jwt or manually handle 401 and try refreshing token
 export async function makeApiRequest<TResponse>(
 	axiosInstance: AxiosInstance,
 	config: AxiosRequestConfig = {},
@@ -84,8 +113,18 @@ export async function makeApiRequest<TResponse>(
 		});
 }
 
-export async function getHome(cookies: Cookies) {
-	const axiosInstance = await getAxiosInstance(cookies);
+export function handleApiResult<TResponse>(apiResult: ApiResult<TResponse>) {
+	const { data, error: err } = apiResult;
+	if (err !== null) {
+		if (err.status === 401) {
+			throw redirect(303, "/login");
+		}
+		throw error(err.status, err.message);
+	}
+	return data;
+}
+
+export async function getHome(axiosInstance: AxiosInstance) {
 	return await makeApiRequest<string>(axiosInstance, {
 		method: "GET",
 		url: "/",

@@ -127,7 +127,9 @@ export function newApiError<TResponse>(error: AxiosError): ApiResult<TResponse> 
 export function getTypeOfApiError(error: AxiosError): ApiError {
 	const status = error.status;
 	const data = error.message;
-	console.log(`api error: method=${error.request?.method} path=${error.request?.path} status=${status}`);
+	console.log(
+		`api error: method=${error.request?.method} path=${error.request?.path} status=${status}`,
+	);
 
 	const errorMap = new Map([
 		[400, BadRequestError],
