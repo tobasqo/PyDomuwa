@@ -1,12 +1,19 @@
 <script lang="ts">
 	import GamesList from "../components/GamesList.svelte";
-	import { gameTypesStore } from "$lib/stores/global";
+	import { gameTypesStore, initStores, areStoresEmpty } from "$lib/stores/global";
 
-	// Use $derived for computed values from stores
-	let gameTypes = $derived($gameTypesStore);
+	const data = $props();
+	const initialData = data?.initialData;
+
 	$effect(() => {
-		console.log("Game types in +page.svelte:", gameTypes);
+		if (!initialData) return;
+		if (areStoresEmpty()) {
+			initStores(initialData.gameTypes, initialData.gameCategories, initialData.qnaCategories);
+		}
 	});
+
+	// Now we can safely use the store
+	let gameTypes = $derived($gameTypesStore);
 </script>
 
 <main class="mx-auto justify-center">
