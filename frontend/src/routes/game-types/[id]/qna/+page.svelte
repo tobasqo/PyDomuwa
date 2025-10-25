@@ -4,6 +4,7 @@
 
 	const { data }: PageProps = $props();
 	const { gameType, qnaCategories, questions } = data;
+	$inspect(data);
 </script>
 
 <main class="mx-auto justify-center">
@@ -27,6 +28,7 @@
 						class="flex items-center justify-between rounded-t border-b-2 border-pink p-4"
 					>
 						<h3 class="text-lg font-semibold text-gray-900">Stwórz pytanie</h3>
+						<!-- TODO: add onclick to close accordeon -->
 						<button
 							type="button"
 							class="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-700 hover:bg-gray-200 hover:text-gray-900"

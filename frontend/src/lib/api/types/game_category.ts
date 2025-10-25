@@ -21,3 +21,6 @@ export const GameCategorySchema = z.object({
 	name: z.nativeEnum(GameCategoryChoice),
 });
 export type GameCategory = z.infer<typeof GameCategorySchema>;
+
+export const GameCategoriesSchema = z.array(GameCategorySchema);
+export type GameCategories = z.infer<typeof GameCategoriesSchema>;

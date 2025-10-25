@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { PlayerSchema } from "$lib/api/types/player";
 import { GameTypeSchema } from "$lib/api/types/game_type";
-import { QnaCategorySchema } from "$lib/api/types/qna_category";
-import { QuestionSchema } from "$lib/api/types/question";
+import { QnACategorySchema } from "$lib/api/types/qna_category";
 
 export const AnswerCreateSchema = z.object({
 	text: z.string(),
@@ -29,8 +28,8 @@ export const AnswerSchema = z.object({
 	deleted: z.boolean(),
 	author: PlayerSchema,
 	gameType: GameTypeSchema,
-	gameCategory: QnaCategorySchema,
-	question: QuestionSchema.optional(),
+	gameCategory: QnACategorySchema,
+	questionId: z.number().min(1).optional(),
 	prevVersionId: z.number().min(1).optional(),
 });
 export type Answer = z.infer<typeof AnswerSchema>;

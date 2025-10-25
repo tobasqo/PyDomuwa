@@ -26,7 +26,5 @@ export type UserUpdate = z.infer<typeof UserUpdateSchema>;
 export const UserSchema = z.object({
 	id: z.number().min(1),
 	username: z.string().min(MIN_USERNAME_LEN).max(MAX_USERNAME_LEN),
-	isActive: z.boolean(),
-	isStaff: z.boolean(),
 });
 export type User = z.infer<typeof UserSchema>;

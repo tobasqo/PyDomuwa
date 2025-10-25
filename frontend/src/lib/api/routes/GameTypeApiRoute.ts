@@ -4,16 +4,11 @@ import type {
 	GameTypeCreate,
 	GameTypeUpdate,
 } from "$lib/api/types/game_type";
-import type { ApiResult } from "$lib/api/responses";
 import type { QuestionWithAnswers } from "$lib/api/types/question";
 import { makeApiRequest, type Fetch } from "$lib/api";
 import type { Cookies } from "@sveltejs/kit";
 
-export class GameTypeApiRoute extends BaseApiRoute<
-	GameTypeCreate,
-	GameTypeUpdate,
-	GameType
-> {
+export class GameTypeApiRoute extends BaseApiRoute<GameTypeCreate, GameTypeUpdate, GameType> {
 	constructor() {
 		super("/api/game-types/");
 	}
@@ -23,7 +18,7 @@ export class GameTypeApiRoute extends BaseApiRoute<
 		cookies: Cookies,
 		modelId: number,
 		params: QueryParams | undefined = undefined,
-	): Promise<ApiResult<QuestionWithAnswers[]>> => {
+	): Promise<QuestionWithAnswers[]> => {
 		const urlParams = this.makeGetAllParams(params);
 		const url = this.routeUrl + modelId + "/questions" + "?" + urlParams.toString();
 		return await makeApiRequest<QuestionWithAnswers[]>(fetch, cookies, url, {

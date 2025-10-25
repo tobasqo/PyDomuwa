@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { PlayerSchema } from "$lib/api/types/player";
 import { GameTypeSchema } from "$lib/api/types/game_type";
-import { QnaCategorySchema } from "$lib/api/types/qna_category";
+import { QnACategorySchema } from "$lib/api/types/qna_category";
 import { AnswerSchema } from "$lib/api/types/answer";
 
 export const QuestionCreateSchema = z.object({
@@ -26,8 +26,8 @@ export const QuestionSchema = z.object({
 	deleted: z.boolean(),
 	author: PlayerSchema,
 	gameType: GameTypeSchema,
-	gameCategory: QnaCategorySchema,
-	prevVersionId: z.number().min(1).optional(),
+	gameCategory: QnACategorySchema,
+	prevVersionId: z.number().min(1).optional(), // TODO: this is still required in validation for some reason
 });
 export type Question = z.infer<typeof QuestionSchema>;
 
@@ -37,3 +37,9 @@ export const QuestionWithAnswersSchema = QuestionSchema.merge(
 	}),
 );
 export type QuestionWithAnswers = z.infer<typeof QuestionWithAnswersSchema>;
+
+export const QuestionsSchema = z.array(QuestionSchema);
+export type Questions = z.infer<typeof QuestionsSchema>;
+
+export const QuestionsWithAnswersSchema = z.array(QuestionWithAnswersSchema);
+export type QuestionsWithAnswers = z.infer<typeof QuestionsWithAnswersSchema>;

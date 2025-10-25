@@ -3,6 +3,7 @@
 	import QuestionCard from "./QuestionCard.svelte";
 
 	export let questions: Question[];
+	console.log("QuestionsList received questions:", questions);
 </script>
 
 <ul>

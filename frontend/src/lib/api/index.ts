@@ -6,11 +6,6 @@ import {
 	removeJwtToken,
 	setJwtToken,
 } from "$lib/api/auth";
-import { UsersApiRoute } from "$lib/api/routes/UserApiRoute";
-import { GameTypeApiRoute } from "$lib/api/routes/GameTypeApiRoute";
-import { QuestionApiRoute } from "$lib/api/routes/QuestionApiRoute";
-import { GameCategoryApiRoute } from "$lib/api/routes/GameCategoryApiRoute";
-import { QnACategoryApiRoute } from "$lib/api/routes/QnACategoryApiRoute";
 
 const BASE_URL = "http://api:8000";
 
@@ -33,6 +28,7 @@ export async function makeApiRequestUnauthorized<TResponse>(
 		// credentials: "include",
 	});
 	if (!response.ok) {
+		console.error("API request failed:", response.status, response.statusText);
 		throw error(response.status, response.statusText);
 	}
 
@@ -65,6 +61,7 @@ export async function makeApiRequest<TResponse>(
 		removeJwtToken(cookies);
 		const accessToken = await refreshAccessToken(fetch, cookies);
 		if (accessToken === null) {
+			console.error("API request failed:", response.status, response.statusText);
 			removeJwtToken(cookies);
 			throw error(401, "Unauthorized: Failed to refresh token");
 		}
@@ -79,6 +76,16 @@ export async function makeApiRequest<TResponse>(
 	}
 	if (!response.ok) {
 		// TODO: add more details from response body
+		// TODO: instead of throwing error, forward error to zod validation
+		if (response.status === 422) {
+			console.error(
+				"API request validation error:",
+				response.status,
+				response.statusText,
+			);
+			return await response.json();
+		}
+		console.error("API request failed:", response.status, response.statusText);
 		throw error(response.status, response.statusText);
 	}
 
@@ -91,11 +98,3 @@ export async function getHome(fetch: Fetch, cookies: Cookies) {
 	});
 }
 
-export const apiClient = {
-	home: getHome,
-	users: new UsersApiRoute(),
-	gameTypes: new GameTypeApiRoute(),
-	gameCategories: new GameCategoryApiRoute(),
-	qnaCategories: new QnACategoryApiRoute(),
-	questions: new QuestionApiRoute(),
-};

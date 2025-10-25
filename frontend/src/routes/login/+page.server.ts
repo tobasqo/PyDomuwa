@@ -1,6 +1,6 @@
 import { type Actions, fail, redirect } from "@sveltejs/kit";
-import { loginForAccessToken } from "$lib/api/auth";
 import type { UserLogin } from "$lib/api/types/user";
+import { apiClient } from "$lib/api/client";
 
 export const actions = {
 	default: async ({ fetch, cookies, request }) => {
@@ -10,7 +10,7 @@ export const actions = {
 			password: formData.get("password") as string,
 		};
 		try {
-			await loginForAccessToken(fetch, cookies, loginData);
+			await apiClient.login(fetch, cookies, loginData);
 		} catch (e) {
 			console.error("Login failed:", e);
 			return fail(400, {
