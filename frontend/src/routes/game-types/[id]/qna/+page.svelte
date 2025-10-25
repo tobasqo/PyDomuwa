@@ -1,8 +1,8 @@
 <script lang="ts">
 	import QuestionsList from "$components/QuestionsList.svelte";
-	import type { PageData } from "./$types";
+	import type { PageProps } from "./$types";
 
-	const data: PageData = $props();
+	const { data }: PageProps = $props();
 	const { gameType, qnaCategories, questions } = data;
 </script>
 
