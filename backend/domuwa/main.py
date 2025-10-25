@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
+from typing import TYPE_CHECKING
 
 from fastapi import FastAPI
-from fastapi.exceptions import RequestValidationError
 from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from starlette.requests import Request
 from starlette.responses import Response
 
 from domuwa.answers.routes import get_answers_router
@@ -24,6 +24,9 @@ from domuwa.qna_categories.routes import get_qna_categories_router
 from domuwa.qna_categories.services import QnACategoryServices
 from domuwa.questions.routes import get_questions_router
 from domuwa.users.routes import get_users_router
+
+if TYPE_CHECKING:
+    from starlette.requests import Request
 
 
 @asynccontextmanager

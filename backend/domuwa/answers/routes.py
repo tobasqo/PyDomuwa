@@ -14,7 +14,9 @@ from domuwa.core.routes import CommonRouterWithAuth
 from domuwa.database import get_db_session
 
 
-class AnswerRouter(CommonRouterWithAuth[AnswerCreate, AnswerUpdate, Answer]):
+class AnswerRouter(
+    CommonRouterWithAuth[AnswerServices, AnswerCreate, AnswerUpdate, Answer]
+):
     prefix = "/answers"
     tags = ["Answer"]
     response_model = AnswerRead

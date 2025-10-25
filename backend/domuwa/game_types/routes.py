@@ -19,7 +19,9 @@ from domuwa.game_types.services import GameTypeServices
 from domuwa.questions.schemas import QuestionWithAnswersRead
 
 
-class GameTypeRoutes(CommonRouterWithAuth[GameTypeCreate, GameTypeUpdate, GameType]):
+class GameTypeRoutes(
+    CommonRouterWithAuth[GameTypeServices, GameTypeCreate, GameTypeUpdate, GameType]
+):
     prefix = "/game-types"
     tags = ["Game Type"]
     router = APIRouter(prefix=prefix, tags=tags)  # type: ignore
@@ -43,9 +45,9 @@ class GameTypeRoutes(CommonRouterWithAuth[GameTypeCreate, GameTypeUpdate, GameTy
         self,
         model: GameTypeCreate,
         session: Annotated[Session, Depends(get_db_session)],
-        admin_user: Annotated[User, Depends(auth.get_admin_user)],
+        user: Annotated[User, Depends(auth.get_admin_user)],
     ):
-        return await super().create(model, session, admin_user)
+        return await super().create(model, session, user)
 
     async def get_all_questions(
         self,
@@ -67,18 +69,18 @@ class GameTypeRoutes(CommonRouterWithAuth[GameTypeCreate, GameTypeUpdate, GameTy
         model_id: int,
         model_update: GameTypeUpdate,
         session: Annotated[Session, Depends(get_db_session)],
-        admin_user: Annotated[User, Depends(auth.get_admin_user)],
+        user: Annotated[User, Depends(auth.get_admin_user)],
     ):
-        return await super().update(model_id, model_update, session, admin_user)
+        return await super().update(model_id, model_update, session, user)
 
     @override
     async def delete(
         self,
         model_id: int,
         session: Annotated[Session, Depends(get_db_session)],
-        admin_user: Annotated[User, Depends(auth.get_admin_user)],
+        user: Annotated[User, Depends(auth.get_admin_user)],
     ):
-        return await super().delete(model_id, session, admin_user)
+        return await super().delete(model_id, session, user)
 
 
 def get_game_types_router():

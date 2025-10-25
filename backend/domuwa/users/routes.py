@@ -13,7 +13,7 @@ from domuwa.users.schemas import UserCreate, UserRead, UserUpdate
 from domuwa.users.services import UserServices
 
 
-class UserRouter(CommonRouter[UserCreate, UserUpdate, User]):
+class UserRouter(CommonRouter[UserServices, UserCreate, UserUpdate, User]):
     prefix = "/users"
     tags = ["User"]
     router = APIRouter(prefix=prefix, tags=tags)  # type: ignore
@@ -34,6 +34,8 @@ class UserRouter(CommonRouter[UserCreate, UserUpdate, User]):
         model_id: int,
         session: Annotated[Session, Depends(get_db_session)],
     ):
+        del model_id
+        del session
         raise NotImplementedError("Use `get_active_by_id` instead")
 
     async def get_active_by_id(
@@ -61,6 +63,9 @@ class UserRouter(CommonRouter[UserCreate, UserUpdate, User]):
         model_update: UserUpdate,
         session: Annotated[Session, Depends(get_db_session)],
     ):
+        del model_id
+        del model_update
+        del session
         raise NotImplementedError("Use `update_active` instead")
 
     async def update_active(
@@ -92,6 +97,8 @@ class UserRouter(CommonRouter[UserCreate, UserUpdate, User]):
         model_id: int,
         session: Annotated[Session, Depends(get_db_session)],
     ):
+        del model_id
+        del session
         raise NotImplementedError("Use `delete_as_admin` instead")
 
     async def delete_as_admin(

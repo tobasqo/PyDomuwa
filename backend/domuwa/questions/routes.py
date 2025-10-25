@@ -19,7 +19,9 @@ from domuwa.questions.schemas import (
 from domuwa.questions.services import QuestionServices
 
 
-class QuestionRouter(CommonRouterWithAuth[QuestionCreate, QuestionUpdate, Question]):
+class QuestionRouter(
+    CommonRouterWithAuth[QuestionServices, QuestionCreate, QuestionUpdate, Question]
+):
     prefix = "/questions"
     tags = ["Question"]
     router = APIRouter(prefix=prefix, tags=tags)  # type: ignore

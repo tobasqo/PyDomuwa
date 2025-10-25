@@ -19,7 +19,9 @@ from domuwa.game_categories.services import GameCategoryServices
 
 
 class GameCategoryRouter(
-    CommonRouterWithAuth[GameCategoryCreate, GameCategoryUpdate, GameCategory]
+    CommonRouterWithAuth[
+        GameCategoryServices, GameCategoryCreate, GameCategoryUpdate, GameCategory
+    ]
 ):
     prefix = "/game-categories"
     tags = ["Game Category"]
@@ -34,9 +36,9 @@ class GameCategoryRouter(
         self,
         model: GameCategoryCreate,
         session: Annotated[Session, Depends(get_db_session)],
-        admin_user: Annotated[User, Depends(auth.get_admin_user)],
+        user: Annotated[User, Depends(auth.get_admin_user)],
     ):
-        return await super().create(model, session, admin_user)
+        return await super().create(model, session, user)
 
     @override
     async def update(
@@ -44,18 +46,18 @@ class GameCategoryRouter(
         model_id: int,
         model_update: GameCategoryUpdate,
         session: Annotated[Session, Depends(get_db_session)],
-        admin_user: Annotated[User, Depends(auth.get_admin_user)],
+        user: Annotated[User, Depends(auth.get_admin_user)],
     ):
-        return await super().update(model_id, model_update, session, admin_user)
+        return await super().update(model_id, model_update, session, user)
 
     @override
     async def delete(
         self,
         model_id: int,
         session: Annotated[Session, Depends(get_db_session)],
-        admin_user: Annotated[User, Depends(auth.get_admin_user)],
+        user: Annotated[User, Depends(auth.get_admin_user)],
     ):
-        return await super().delete(model_id, session, admin_user)
+        return await super().delete(model_id, session, user)
 
 
 def get_game_category_router():

@@ -20,7 +20,9 @@ from domuwa.qna_categories.services import QnACategoryServices
 
 
 class QnACategoriesRouter(
-    CommonRouterWithAuth[QnACategoryCreate, QnACategoryUpdate, QnACategory]
+    CommonRouterWithAuth[
+        QnACategoryServices, QnACategoryCreate, QnACategoryUpdate, QnACategory
+    ]
 ):
     prefix = "/qna-categories"
     tags = ["QnA Category"]
@@ -35,9 +37,9 @@ class QnACategoriesRouter(
         self,
         model: QnACategoryCreate,
         session: Annotated[Session, Depends(get_db_session)],
-        admin_user: Annotated[User, Depends(auth.get_admin_user)],
+        user: Annotated[User, Depends(auth.get_admin_user)],
     ):
-        return await super().create(model, session, admin_user)
+        return await super().create(model, session, user)
 
     @override
     async def update(
@@ -45,18 +47,18 @@ class QnACategoriesRouter(
         model_id: int,
         model_update: QnACategoryUpdate,
         session: Annotated[Session, Depends(get_db_session)],
-        admin_user: Annotated[User, Depends(auth.get_admin_user)],
+        user: Annotated[User, Depends(auth.get_admin_user)],
     ):
-        return await super().update(model_id, model_update, session, admin_user)
+        return await super().update(model_id, model_update, session, user)
 
     @override
     async def delete(
         self,
         model_id: int,
         session: Annotated[Session, Depends(get_db_session)],
-        admin_user: Annotated[User, Depends(auth.get_admin_user)],
+        user: Annotated[User, Depends(auth.get_admin_user)],
     ):
-        return await super().delete(model_id, session, admin_user)
+        return await super().delete(model_id, session, user)
 
 
 def get_qna_categories_router():

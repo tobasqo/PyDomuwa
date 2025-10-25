@@ -18,7 +18,9 @@ from domuwa.players.schemas import (
 from domuwa.players.services import PlayerServices
 
 
-class PlayerRouter(CommonRouterWithAuth[PlayerCreate, PlayerUpdate, Player]):
+class PlayerRouter(
+    CommonRouterWithAuth[PlayerServices, PlayerCreate, PlayerUpdate, Player]
+):
     prefix = "/players"
     tags = ["Player"]
     router = APIRouter(prefix=prefix, tags=tags)  # type: ignore
@@ -32,9 +34,9 @@ class PlayerRouter(CommonRouterWithAuth[PlayerCreate, PlayerUpdate, Player]):
         self,
         model: PlayerCreate,
         session: Annotated[Session, Depends(get_db_session)],
-        admin: Annotated[User, Depends(auth.get_admin_user)],
+        user: Annotated[User, Depends(auth.get_admin_user)],
     ):
-        return await super().create(model, session, admin)
+        return await super().create(model, session, user)
 
     @override
     async def update(

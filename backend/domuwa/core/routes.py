@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Annotated, Generic, final
+from typing import Annotated, Generic, TypeVar, final
 
 from fastapi import APIRouter, Depends, status
 from sqlmodel import Session
@@ -24,13 +24,15 @@ from domuwa.core.services import (
 )
 from domuwa.database import get_db_session
 
+ServicesT = TypeVar("ServicesT", bound=CommonServices, contravariant=True)
 
-class BaseRouter(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
+
+class BaseRouter(ABC, Generic[ServicesT, CreateModelT, UpdateModelT, DbModelT]):
     prefix: str
     tags: list[str]
     router: APIRouter
     response_model: type[APISchemaResponseModel]
-    services: CommonServices[CreateModelT, UpdateModelT, DbModelT]
+    services: ServicesT
     logger: logging.Logger
     db_model_type_name: str
     _lookup = "{model_id}"
@@ -191,7 +193,7 @@ class BaseRouter(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
         )
 
 
-class CommonRouter(BaseRouter[CreateModelT, UpdateModelT, DbModelT]):
+class CommonRouter(BaseRouter[ServicesT, CreateModelT, UpdateModelT, DbModelT]):
     @override
     async def get_by_id(
         self,
@@ -232,22 +234,24 @@ class CommonRouter(BaseRouter[CreateModelT, UpdateModelT, DbModelT]):
         return await self._delete(model_id, session)
 
 
-class CommonRouterWithAuth(BaseRouter[CreateModelT, UpdateModelT, DbModelT]):
+class CommonRouterWithAuth(BaseRouter[ServicesT, CreateModelT, UpdateModelT, DbModelT]):
     @override
     async def get_by_id(
         self,
         model_id: int,
         session: Annotated[Session, Depends(get_db_session)],
-        _: Annotated[User, Depends(auth.get_current_active_user)],
+        user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
+        del user
         return await self._get_by_id(model_id, session)
 
     @override
     async def get_all(
         self,
         session: Annotated[Session, Depends(get_db_session)],
-        _: Annotated[User, Depends(auth.get_current_active_user)],
+        user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
+        del user
         return await self._get_all(session)
 
     @abstractmethod
@@ -255,8 +259,9 @@ class CommonRouterWithAuth(BaseRouter[CreateModelT, UpdateModelT, DbModelT]):
         self,
         model: CreateModelT,
         session: Annotated[Session, Depends(get_db_session)],
-        _: Annotated[User, Depends(auth.get_current_active_user)],
+        user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
+        del user
         return await self._create(model, session)
 
     @abstractmethod
@@ -265,14 +270,16 @@ class CommonRouterWithAuth(BaseRouter[CreateModelT, UpdateModelT, DbModelT]):
         model_id: int,
         model_update: UpdateModelT,
         session: Annotated[Session, Depends(get_db_session)],
-        _: Annotated[User, Depends(auth.get_current_active_user)],
+        user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
+        del user
         return await self._update(model_id, model_update, session)
 
     async def delete(
         self,
         model_id: int,
         session: Annotated[Session, Depends(get_db_session)],
-        _: Annotated[User, Depends(auth.get_current_active_user)],
+        user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
+        del user
         return await self._delete(model_id, session)
