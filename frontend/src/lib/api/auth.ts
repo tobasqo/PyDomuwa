@@ -1,8 +1,7 @@
 import type { JWTToken } from "$lib/api/types/jwt";
 import type { User, UserLogin } from "$lib/api/types/user";
 import { type Cookies } from "@sveltejs/kit";
-import { makeApiRequest } from "$lib/api/index";
-import type { AxiosInstance } from "axios";
+import { makeApiRequest, makeApiRequestUnauthorized, type Fetch } from "$lib/api/index";
 
 export function getJwtToken(cookies: Cookies) {
 	const jwtToken = cookies.get("jwtToken");
@@ -22,43 +21,32 @@ export function removeJwtToken(cookies: Cookies) {
 }
 
 export async function loginForAccessToken(
-	axiosInstance: AxiosInstance,
-	userLogin: UserLogin,
+	fetch: Fetch,
 	cookies: Cookies,
+	userLogin: UserLogin,
 ) {
-	const { data, error } = await makeApiRequest<JWTToken>(axiosInstance, {
+	const params = new URLSearchParams();
+	params.append("username", userLogin.username);
+	params.append("password", userLogin.password);
+
+	const jwtToken = await makeApiRequestUnauthorized<JWTToken>(fetch, "/auth/token", {
 		method: "POST",
-		url: "/auth/token",
-		data: userLogin,
+		body: params.toString(),
 		headers: {
 			"Content-Type": "application/x-www-form-urlencoded",
 		},
 	});
-	if (error !== null) {
-		return error;
-	}
-	setJwtToken(data, cookies);
-	return null;
+	setJwtToken(jwtToken, cookies);
 }
 
-export async function refreshAccessToken(
-	axiosInstance: AxiosInstance,
-	cookies: Cookies,
-) {
-	const { data, error } = await makeApiRequest<JWTToken>(axiosInstance, {
+export async function refreshAccessToken(fetch: Fetch, cookies: Cookies) {
+	const jwtToken = await makeApiRequest<JWTToken>(fetch, cookies, "/auth/refresh", {
 		method: "POST",
-		url: "/auth/refresh",
-		withCredentials: true,
 	});
-	if (error !== null) {
-		removeJwtToken(cookies);
-		console.error("Failed to refresh access token:", error);
-		return null;
-	}
-	setJwtToken(data, cookies);
-	return data.accessToken;
+	setJwtToken(jwtToken, cookies);
+	return jwtToken.accessToken;
 }
 
-export async function readCurrentUser(axiosInstance: AxiosInstance) {
-	return await makeApiRequest<User>(axiosInstance, { method: "GET", url: "/auth/me" });
+export async function readCurrentUser(fetch: Fetch, cookies: Cookies) {
+	return await makeApiRequest<User>(fetch, cookies, "/auth/me", { method: "GET" });
 }

@@ -1,19 +1,21 @@
-import { getJwtToken } from "$lib/api/auth";
-import { error, redirect } from "@sveltejs/kit";
-import { apiClient, getAxiosInstance } from "$lib/api";
+import { readCurrentUser } from "$lib/api/auth";
+import { apiClient } from "$lib/api";
+import { initStores, areStoresEmpty } from "$lib/stores/global";
 
-export const load = async ({ cookies }) => {
-	const axiosInstance = await getAxiosInstance(cookies);
-	const homeApiResult = await apiClient.home(axiosInstance);
-	const { error: homeError } = homeApiResult;
-	if (homeError !== null) {
-		console.error(homeError);
-		throw error(homeError.status, homeError.message);
-	}
+export const load = async ({ fetch, cookies }) => {
+	await readCurrentUser(fetch, cookies);
 
-	const jwtToken = getJwtToken(cookies);
-	if (!jwtToken) {
-		throw redirect(303, `/login`);
+	// Only fetch and initialize stores if they're empty
+	if (areStoresEmpty()) {
+		// Parallelize the requests
+		const [gameTypes, gameCategories, qnaCategories] = await Promise.all([
+			apiClient.gameTypes.getAll(fetch, cookies),
+			apiClient.gameCategories.getAll(fetch, cookies),
+			apiClient.qnaCategories.getAll(fetch, cookies)
+		]);
+		
+		initStores(gameTypes, gameCategories, qnaCategories);
 	}
+	
 	return { gameRooms: [] };
 };

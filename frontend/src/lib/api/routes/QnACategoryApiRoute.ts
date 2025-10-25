@@ -11,6 +11,6 @@ export class QnACategoryApiRoute extends BaseApiRoute<
 	QnACategory
 > {
 	constructor() {
-		super("api/qna-categories/");
+		super("/api/qna-categories/");
 	}
 }

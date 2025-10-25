@@ -1,9 +1,12 @@
 <script lang="ts">
-	import { get } from "svelte/store";
 	import GamesList from "../components/GamesList.svelte";
 	import { gameTypesStore } from "$lib/stores/global";
 
-	const gameTypes = get(gameTypesStore);
+	// Use $derived for computed values from stores
+	let gameTypes = $derived($gameTypesStore);
+	$effect(() => {
+		console.log("Game types in +page.svelte:", gameTypes);
+	});
 </script>
 
 <main class="mx-auto justify-center">
@@ -16,6 +19,7 @@
 					Pytania i odpowiedzi
 				</h2>
 				<p class="mb-2 text-gray-700">Tu możesz edytować pytania i&nbsp;odpowiedzi</p>
+				<!-- TODO: they disappear after a while - first they load, then disappear? -->
 				{#each gameTypes as gameType (gameType.id)}
 					<div class="flex items-center justify-between">
 						<a

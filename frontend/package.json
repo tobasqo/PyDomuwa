@@ -40,8 +40,6 @@
 		"vitest": "^3.0.0"
 	},
 	"dependencies": {
-		"axios": "^1.7.9",
-		"axios-jwt": "^4.0.3",
 		"zod": "^3.24.1"
 	}
 }

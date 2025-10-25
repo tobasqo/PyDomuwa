@@ -4,10 +4,10 @@ import type {
 	GameTypeCreate,
 	GameTypeUpdate,
 } from "$lib/api/types/game_type";
-import type { AxiosInstance } from "axios";
 import type { ApiResult } from "$lib/api/responses";
 import type { QuestionWithAnswers } from "$lib/api/types/question";
-import { makeApiRequest } from "$lib/api";
+import { makeApiRequest, type Fetch } from "$lib/api";
+import type { Cookies } from "@sveltejs/kit";
 
 export class GameTypeApiRoute extends BaseApiRoute<
 	GameTypeCreate,
@@ -19,15 +19,15 @@ export class GameTypeApiRoute extends BaseApiRoute<
 	}
 
 	getAllQuestions = async (
-		axiosInstance: AxiosInstance,
+		fetch: Fetch,
+		cookies: Cookies,
 		modelId: number,
 		params: QueryParams | undefined = undefined,
 	): Promise<ApiResult<QuestionWithAnswers[]>> => {
 		const urlParams = this.makeGetAllParams(params);
-		return await makeApiRequest<QuestionWithAnswers[]>(axiosInstance, {
+		const url = this.routeUrl + modelId + "/questions" + "?" + urlParams.toString();
+		return await makeApiRequest<QuestionWithAnswers[]>(fetch, cookies, url, {
 			method: "GET",
-			url: this.routeUrl + modelId + "/questions",
-			params: urlParams,
 		});
 	};
 }

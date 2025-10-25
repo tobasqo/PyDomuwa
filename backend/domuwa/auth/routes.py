@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
-@router.post("/token")
+@router.post("/token", response_model=Token)
 async def login_for_access_token(
     response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -40,7 +40,7 @@ async def login_for_access_token(
         expires_delta=timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
     )
     response.set_cookie(
-        key="refreshToken",
+        key="refresh_token",
         value=refresh_token,
         httponly=True,
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * timedelta(days=1).seconds,
@@ -54,7 +54,7 @@ async def login_for_access_token(
 
 
 # TODO: add tests
-@router.post("/refresh")
+@router.post("/refresh", response_model=Token)
 async def refresh_access_token(refresh_token: str = Cookie(None)):
     if not refresh_token:
         raise HTTPException(
@@ -81,7 +81,7 @@ async def refresh_access_token(refresh_token: str = Cookie(None)):
     )
 
 
-@router.get("/me")
+@router.get("/me", response_model=User)
 async def get_current_user(
     current_user: Annotated[User, Depends(auth.get_current_user)],
 ):

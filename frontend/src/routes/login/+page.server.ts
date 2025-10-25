@@ -1,25 +1,24 @@
-import { type Actions, error, fail, redirect } from "@sveltejs/kit";
+import { type Actions, fail, redirect } from "@sveltejs/kit";
 import { loginForAccessToken } from "$lib/api/auth";
-import { getFreshAxiosInstance } from "$lib/api";
+import type { UserLogin } from "$lib/api/types/user";
 
 export const actions = {
-	default: async ({ cookies, request }) => {
-		const data = await request.formData();
-		const axiosInstance = getFreshAxiosInstance();
-		const err = await loginForAccessToken(
-			axiosInstance,
-			{
-				username: data.get("username")!.toString(),
-				password: data.get("password")!.toString(),
-			},
-			cookies,
-		);
-		if (err !== null) {
-			if (err.status === 400 || err.status === 401 || err.status === 422) {
-				return fail(err.status, { error: err.message, details: err.details() });
-			}
-			throw error(err.status, err);
+	default: async ({ fetch, cookies, request }) => {
+		const formData = await request.formData();
+		const loginData: UserLogin = {
+			username: formData.get("username") as string,
+			password: formData.get("password") as string,
+		};
+		try {
+			await loginForAccessToken(fetch, cookies, loginData);
+		} catch (e) {
+			console.error("Login failed:", e);
+			return fail(400, {
+				error: "Invalid username or password",
+				details: { TODO: "fill this" },
+			});
 		}
+		console.log("Login successful, redirecting...");
 		throw redirect(303, "/");
 	},
 } satisfies Actions;

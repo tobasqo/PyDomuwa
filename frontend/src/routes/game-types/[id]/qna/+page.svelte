@@ -4,7 +4,7 @@
 	import { get } from "svelte/store";
 	import { qnaCategoriesStore } from "$lib/stores/global";
 
-	const { data, form }: PageProps = $props();
+	const { data }: PageProps = $props();
 	const { gameType, questions } = data;
 	const qnaCategories = get(qnaCategoriesStore);
 </script>
@@ -83,7 +83,8 @@
 							</select>
 						</div>
 						<input type="hidden" id="game-type" name="game-type" value={gameType.id} />
-						{#if form && form.details}
+						<!-- TODO: display errors -->
+						<!-- {#if form && form.details}
 							<div class="mt-4 space-y-2">
 								{#each Object.entries(form.details) as [field, fieldError]}
 									<div class="rounded-lg bg-rose-500 p-2 text-white shadow-lg">
@@ -92,7 +93,7 @@
 									</div>
 								{/each}
 							</div>
-						{/if}
+						{/if} -->
 						<div class="mx-auto mt-4 flex max-w-full justify-center">
 							<button
 								type="submit"

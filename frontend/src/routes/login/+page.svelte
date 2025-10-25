@@ -1,5 +1,7 @@
 <script lang="ts">
-	const { form } = $props();
+	import type { PageProps } from "../$types";
+
+	const { form }: PageProps = $props();
 </script>
 
 <main class="mt-6 bg-skyblue">
@@ -16,6 +18,7 @@
 
 				{#if form}
 					<div class="space-y-0">
+						<!-- TODO: why details cannot be found? -->
 						{#each Object.entries(form.details) as [field, fieldError]}
 							<div class="rounded-lg bg-rose-500 p-2 text-white shadow-lg">
 								<h4 class="font-bold">{field}</h4>

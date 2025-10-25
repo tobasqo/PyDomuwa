@@ -1,6 +1,5 @@
-import type { AxiosInstance } from "axios";
-import { type ApiError, type ApiResult } from "$lib/api/responses";
-import { makeApiRequest } from "$lib/api";
+import { makeApiRequest, type Fetch } from "$lib/api";
+import type { Cookies } from "@sveltejs/kit";
 
 export type QueryParams = {
 	page?: number;
@@ -20,12 +19,12 @@ export class BaseApiRoute<
 	}
 
 	getById = async (
-		axiosInstance: AxiosInstance,
+		fetch: Fetch,
+		cookies: Cookies,
 		modelId: number,
-	): Promise<ApiResult<TResponse>> => {
-		return await makeApiRequest<TResponse>(axiosInstance, {
+	): Promise<TResponse> => {
+		return await makeApiRequest<TResponse>(fetch, cookies, this.routeUrl + modelId, {
 			method: "GET",
-			url: this.routeUrl + modelId,
 		});
 	};
 
@@ -39,48 +38,43 @@ export class BaseApiRoute<
 	};
 
 	getAll = async (
-		axiosInstance: AxiosInstance,
+		fetch: Fetch,
+		cookies: Cookies,
 		params: TQueryParams | undefined = undefined,
-	): Promise<ApiResult<TResponse[]>> => {
+	): Promise<TResponse[]> => {
 		const urlParams = this.makeGetAllParams(params);
-		return await makeApiRequest<TResponse[]>(axiosInstance, {
+		const url = this.routeUrl + "?" + urlParams.toString();
+		return await makeApiRequest<TResponse[]>(fetch, cookies, url, {
 			method: "GET",
-			url: this.routeUrl,
-			params: urlParams,
 		});
 	};
 
 	create = async (
-		axiosInstance: AxiosInstance,
+		fetch: Fetch,
+		cookies: Cookies,
 		model: TCreate,
-	): Promise<ApiResult<TResponse>> => {
-		return await makeApiRequest<TResponse>(axiosInstance, {
+	): Promise<TResponse> => {
+		return await makeApiRequest<TResponse>(fetch, cookies, this.routeUrl, {
 			method: "POST",
-			url: this.routeUrl,
-			data: model,
+			body: JSON.stringify(model),
 		});
 	};
 
 	update = async (
-		axiosInstance: AxiosInstance,
+		fetch: Fetch,
+		cookies: Cookies,
 		modelId: number,
 		model: TUpdate,
-	): Promise<ApiResult<TResponse>> => {
-		return await makeApiRequest<TResponse>(axiosInstance, {
+	): Promise<TResponse> => {
+		return await makeApiRequest<TResponse>(fetch, cookies, this.routeUrl + modelId, {
 			method: "PATCH",
-			url: this.routeUrl + modelId,
-			data: model,
+			body: JSON.stringify(model),
 		});
 	};
 
-	delete = async (
-		axiosInstance: AxiosInstance,
-		modelId: number,
-	): Promise<ApiError | null> => {
-		const { error } = await makeApiRequest(axiosInstance, {
+	delete = async (fetch: Fetch, cookies: Cookies, modelId: number): Promise<void> => {
+		await makeApiRequest(fetch, cookies, this.routeUrl + modelId, {
 			method: "DELETE",
-			url: this.routeUrl + modelId,
 		});
-		return error;
 	};
 }
