@@ -45,33 +45,9 @@ export function initStores(
 	gameCategories: GameCategory[],
 	qnaCategories: QnACategory[],
 ) {
-	console.debug("[stores] initStores called. areStoresEmpty=", areStoresEmpty());
 	if (areStoresEmpty()) {
-		console.debug(
-			"[stores] setting gameTypes (%d), gameCategories (%d), qnaCategories (%d)",
-			gameTypes.length,
-			gameCategories.length,
-			qnaCategories.length,
-		);
 		setGameTypes(gameTypes);
 		setGameCategories(gameCategories);
 		setQnaCategories(qnaCategories);
 	}
-	console.debug("[stores] initStores skipped because stores are not empty");
-}
-
-// Add small hooks to help debug accidental clears
-export function _debug_getCurrentValues() {
-	let values = {
-		gameTypes: [] as GameType[],
-		gameCategories: [] as GameCategory[],
-		qnaCategories: [] as QnACategory[],
-	};
-	const u1 = gameTypesStore.subscribe((v) => (values.gameTypes = v));
-	u1();
-	const u2 = gameCategoriesStore.subscribe((v) => (values.gameCategories = v));
-	u2();
-	const u3 = qnaCategoriesStore.subscribe((v) => (values.qnaCategories = v));
-	u3();
-	return values;
 }
