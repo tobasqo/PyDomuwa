@@ -3,14 +3,13 @@ import { apiClient } from "$lib/api";
 
 export const load = async ({ fetch, params, cookies }) => {
 	const gameTypeId = parseInt(params.id!);
-	const gameType = await apiClient.gameTypes.getById(fetch, cookies, gameTypeId);
-	const questions = await apiClient.gameTypes.getAllQuestions(
-		fetch,
-		cookies,
-		gameTypeId,
-	);
-	return { gameType, questions: questions };
-};
+	const [gameType, qnaCategories, questions] = await Promise.all([
+		apiClient.gameTypes.getById(fetch, cookies, gameTypeId),
+		apiClient.qnaCategories.getAll(fetch, cookies),
+		apiClient.gameTypes.getAllQuestions(fetch, cookies, gameTypeId),
+	]);
+	return { gameType, qnaCategories, questions };
+}
 
 export const actions = {
 	default: async ({ fetch, cookies, request }) => {

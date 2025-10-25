@@ -1,12 +1,9 @@
 <script lang="ts">
-	import type { PageProps } from "./$types";
-	import QuestionsList from "../../../../components/QuestionsList.svelte";
-	import { get } from "svelte/store";
-	import { qnaCategoriesStore } from "$lib/stores/global";
+	import QuestionsList from "$components/QuestionsList.svelte";
+	import type { PageData } from "./$types";
 
-	const { data }: PageProps = $props();
-	const { gameType, questions } = data;
-	const qnaCategories = get(qnaCategoriesStore);
+	const data: PageData = $props();
+	const { gameType, qnaCategories, questions } = data;
 </script>
 
 <main class="mx-auto justify-center">

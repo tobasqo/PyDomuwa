@@ -1,20 +1,19 @@
-import { type Actions, error, fail, redirect } from "@sveltejs/kit";
-import { apiClient, getFreshAxiosInstance } from "$lib/api";
+import { type Actions, fail, redirect } from "@sveltejs/kit";
+import { apiClient } from "$lib/api";
 
 export const actions = {
-	default: async ({ request }) => {
+	default: async ({ fetch, cookies, request }) => {
 		const formData = await request.formData();
-		const axiosInstance = getFreshAxiosInstance();
-		const { error: err } = await apiClient.users.create(axiosInstance, {
-			username: formData.get("username")!.toString(),
-			password: formData.get("password")!.toString(),
-		});
-		if (err !== null) {
-			if (err.status === 422 || err.status === 400) {
-				return fail(err.status, { error: err.message, details: err.details() });
-			} else {
-				throw error(err.status, err);
-			}
+		try {
+			await apiClient.users.create(fetch, cookies, {
+				username: formData.get("username")!.toString(),
+				password: formData.get("password")!.toString(),
+			});
+		} catch (err: any) {
+			return fail(500, {
+				error: "Registration failed. Please try again.",
+				details: err,
+			});
 		}
 		throw redirect(303, "/login");
 	},

@@ -1,19 +1,8 @@
 <script lang="ts">
-	import GamesList from "../components/GamesList.svelte";
-	import { gameTypesStore, initStores, areStoresEmpty } from "$lib/stores/global";
+	import GamesList from "$components/GamesList.svelte";
+	import { type PageProps } from "./$types";
 
-	const data = $props();
-	const initialData = data?.initialData;
-
-	$effect(() => {
-		if (!initialData) return;
-		if (areStoresEmpty()) {
-			initStores(initialData.gameTypes, initialData.gameCategories, initialData.qnaCategories);
-		}
-	});
-
-	// Now we can safely use the store
-	let gameTypes = $derived($gameTypesStore);
+	const { data }: PageProps = $props();
 </script>
 
 <main class="mx-auto justify-center">
@@ -26,8 +15,7 @@
 					Pytania i odpowiedzi
 				</h2>
 				<p class="mb-2 text-gray-700">Tu możesz edytować pytania i&nbsp;odpowiedzi</p>
-				<!-- TODO: they disappear after a while - first they load, then disappear? -->
-				{#each gameTypes as gameType (gameType.id)}
+				{#each data.gameTypes as gameType (gameType.id)}
 					<div class="flex items-center justify-between">
 						<a
 							href="/game-types/{gameType.id}/qna"
