@@ -27,7 +27,7 @@ export const QuestionSchema = z.object({
 	author: PlayerSchema,
 	gameType: GameTypeSchema,
 	gameCategory: QnACategorySchema,
-	prevVersionId: z.number().min(1).optional(), // TODO: this is still required in validation for some reason
+	prevVersionId: z.number().min(1).nullable(),
 });
 export type Question = z.infer<typeof QuestionSchema>;
 

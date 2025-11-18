@@ -29,7 +29,7 @@ export const AnswerSchema = z.object({
 	author: PlayerSchema,
 	gameType: GameTypeSchema,
 	gameCategory: QnACategorySchema,
-	questionId: z.number().min(1).optional(),
-	prevVersionId: z.number().min(1).optional(),
+	questionId: z.number().min(1).nullable(),
+	prevVersionId: z.number().min(1).nullable(),
 });
 export type Answer = z.infer<typeof AnswerSchema>;
