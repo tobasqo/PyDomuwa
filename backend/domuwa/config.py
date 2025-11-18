@@ -3,7 +3,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     SESSION_MIDDLEWARE_KEY: str = "gucci"
-    API_PORT: int = 8000
     DATABASE_URL: str = "sqlite:///db.sqlite3"
     # noinspection PyDataclass
     ALLOWED_ORIGINS: list[str] = ["*"]
@@ -11,6 +10,7 @@ class Settings(BaseSettings):
     HASH_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    DEBUG: bool = False
 
     model_config = SettingsConfigDict(
         env_file=".env",

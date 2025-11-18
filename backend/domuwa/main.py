@@ -4,10 +4,10 @@ import logging
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING
 
-from fastapi import FastAPI
-from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi import FastAPI, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import Response
 
@@ -31,13 +31,14 @@ if TYPE_CHECKING:
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    logging.basicConfig(level=logging.DEBUG if settings.DEBUG else logging.INFO)
     logging.getLogger("asyncio").setLevel(logging.INFO)
     create_db_and_tables()
     await populate_db()
     yield
 
 
-app = FastAPI(debug=True, lifespan=lifespan)
+app = FastAPI(debug=settings.DEBUG, lifespan=lifespan)
 
 API_PREFIX = "/api"
 app.include_router(auth_router)
@@ -65,7 +66,14 @@ logger = logging.getLogger(__name__)
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     logger.debug("%s", exc)
-    return await request_validation_exception_handler(request, exc)
+    errors = exc.errors()
+    logger.debug("Validation errors: %s", errors)
+    # TODO: do parsing here
+    parsed_errors = errors
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content=parsed_errors,
+    )
 
 
 async def populate_db():

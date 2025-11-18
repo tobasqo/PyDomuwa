@@ -72,10 +72,10 @@ class BaseRouter(ABC, Generic[ServicesT, CreateModelT, UpdateModelT, DbModelT]):
     async def _get_all(
         self,
         session: Annotated[Session, Depends(get_db_session)],
-        page: int = 0,
+        page: int = 1,  # TODO: validate to be gt 0
         page_size: int = 25,
     ):
-        offset = page * page_size
+        offset = (page - 1) * page_size
         return await self.services.get_all(session, offset, page_size)
 
     @abstractmethod

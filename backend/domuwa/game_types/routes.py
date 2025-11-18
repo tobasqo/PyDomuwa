@@ -54,10 +54,10 @@ class GameTypeRoutes(
         model_id: int,
         session: Annotated[Session, Depends(get_db_session)],
         user: Annotated[User, Depends(auth.get_current_active_user)],
-        page: int = 0,
+        page: int = 1,  # TODO: validate to be gt 0
         page_size: int = 25,
     ):
-        offset = page * page_size
+        offset = (page - 1) * page_size
         include_deleted = user.is_staff
         return await self.services.get_all_questions(
             session, model_id, offset, page_size, include_deleted
