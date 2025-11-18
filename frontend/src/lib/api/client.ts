@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type Cookies } from "@sveltejs/kit";
+import { error, type Cookies } from "@sveltejs/kit";
 import { getHome, type Fetch } from ".";
 import { GameCategoryApiRoute } from "./routes/GameCategoryApiRoute";
 import { GameTypeApiRoute } from "./routes/GameTypeApiRoute";
@@ -7,11 +7,24 @@ import { QnACategoryApiRoute } from "./routes/QnACategoryApiRoute";
 import { QuestionApiRoute } from "./routes/QuestionApiRoute";
 import { UsersApiRoute } from "./routes/UserApiRoute";
 import { UserCreateSchema, UserSchema, type UserCreate, type User } from "./types/user";
-import { QuestionCreateSchema, QuestionSchema, QuestionsSchema, type QuestionCreate, type Question, type Questions } from "./types/question";
-import { GameTypeSchema, GameTypesSchema, type GameType, type GameTypes } from "./types/game_type";
+import {
+	QuestionCreateSchema,
+	QuestionSchema,
+	QuestionsSchema,
+	type QuestionCreate,
+	type Question,
+	type Questions,
+} from "./types/question";
+import {
+	GameTypeSchema,
+	GameTypesSchema,
+	type GameType,
+	type GameTypes,
+} from "./types/game_type";
 import { GameCategoriesSchema, type GameCategories } from "./types/game_category";
 import { QnACategoriesSchema, type QnACategories } from "./types/qna_category";
 import { loginForAccessToken, readCurrentUser, refreshAccessToken } from "./auth";
+import { ApiErrorSchema } from "./types/error";
 
 const usersRoute = new UsersApiRoute();
 const gameTypesRoute = new GameTypeApiRoute();
@@ -19,7 +32,11 @@ const gameCategoriesRoute = new GameCategoryApiRoute();
 const qnaCategoriesRoute = new QnACategoryApiRoute();
 const questionsRoute = new QuestionApiRoute();
 
-function validateData<T>(schema: z.ZodType<T>, data: unknown, type: "request" | "response" | "error") {
+function validateData<T>(
+	schema: z.ZodType<T>,
+	data: unknown,
+	type: "request" | "response" | "error",
+) {
 	// TODO: make `data` typed
 	const validationResult = schema.safeParse(data);
 	if (!validationResult.success) {
@@ -31,11 +48,30 @@ function validateData<T>(schema: z.ZodType<T>, data: unknown, type: "request" | 
 	return validationResult.data;
 }
 
-const validateRequestData = <T>(schema: z.ZodType<T>, data: unknown) => validateData<T>(schema, data, "request");
+const validateRequestData = <T>(schema: z.ZodType<T>, data: unknown) =>
+	validateData<T>(schema, data, "request");
 
 // TODO: make a helper for validating error response
 
-const validateResponseData = <T>(schema: z.ZodType<T>, data: unknown) => validateData<T>(schema, data, "response");
+// TODO: this probably should throw svelte error when not validated
+const validateResponseData = <T>(schema: z.ZodType<T>, data: unknown) => {
+	const validationResult = schema.safeParse(data);
+	if (!validationResult.success) {
+		console.log(
+			`Malformed api response data: ${JSON.stringify(validationResult.error.flatten().fieldErrors)} from ${JSON.stringify(data)}`,
+		);
+		const errorValidationResult = ApiErrorSchema.safeParse(data);
+		if (errorValidationResult.success) {
+			throw errorValidationResult.error;
+		}
+		console.error(
+			"Response data is not valid and could not be parsed as ApiError either:",
+			JSON.stringify(data),
+		);
+		throw error(500, validationResult.error); // TODO: probably shouild parse error properly
+	}
+	return validationResult.data;
+};
 
 export const apiClient = {
     home: getHome,
