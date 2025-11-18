@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Sequence
 
 from fastapi import FastAPI, status
 from fastapi.exceptions import RequestValidationError
@@ -63,16 +63,20 @@ app.add_middleware(
 logger = logging.getLogger(__name__)
 
 
+def parse_request_validation_errors(errors: Sequence[Any]):
+    # TODO: implement
+    # NOTE: use `fastapi.encoders.jsonable_encoder`
+    return errors
+
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     logger.debug("%s", exc)
     errors = exc.errors()
     logger.debug("Validation errors: %s", errors)
-    # TODO: do parsing here
-    parsed_errors = errors
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content=parsed_errors,
+        content={'errors': parse_request_validation_errors(errors)},
     )
 
 
