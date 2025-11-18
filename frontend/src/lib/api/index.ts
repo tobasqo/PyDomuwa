@@ -83,6 +83,7 @@ export async function makeApiRequest<TResponse>(
 				response.status,
 				response.statusText,
 			);
+			// TODO: status should be included in output data
 			return await response.json();
 		}
 		console.error("API request failed:", response.status, response.statusText);

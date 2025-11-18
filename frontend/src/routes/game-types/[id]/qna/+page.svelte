@@ -2,7 +2,7 @@
 	import QuestionsList from "$components/QuestionsList.svelte";
 	import type { PageProps } from "./$types";
 
-	const { data }: PageProps = $props();
+	const { data, form }: PageProps = $props();
 	const { gameType, qnaCategories, questions } = data;
 	$inspect(data);
 </script>
@@ -63,6 +63,8 @@
 									rows="4"
 									class="block w-full rounded-lg border border-rose-300 bg-slate-100 p-2.5 text-sm text-gray-900"
 									placeholder="Kto z Gucci jest w stanie najwięcej wypić?"
+									value={form?.text ?? ""}
+									required
 								></textarea>
 							</div>
 						</div>
@@ -74,8 +76,9 @@
 								id="game-category"
 								name="game-category"
 								class="block w-full rounded-lg border border-rose-300 bg-slate-100 p-2.5 text-sm text-gray-500"
+								value={form?.gameCategoryId ?? ""}
+								required
 							>
-								<option selected value="0">Wybierz kategorię</option>
 								{#each qnaCategories as qnaCategory (qnaCategory.id)}
 									<option value={qnaCategory.id}>{qnaCategory.name}</option>
 								{/each}
@@ -83,16 +86,16 @@
 						</div>
 						<input type="hidden" id="game-type" name="game-type" value={gameType.id} />
 						<!-- TODO: display errors -->
-						<!-- {#if form && form.details}
+						{#if form?.errors }
 							<div class="mt-4 space-y-2">
-								{#each Object.entries(form.details) as [field, fieldError]}
+								{#each Object.entries(form.errors) as [field, fieldError]}
 									<div class="rounded-lg bg-rose-500 p-2 text-white shadow-lg">
 										<h4 class="font-bold">{field}</h4>
 										<p class="text-sm">{fieldError}</p>
 									</div>
 								{/each}
 							</div>
-						{/if} -->
+						{/if}
 						<div class="mx-auto mt-4 flex max-w-full justify-center">
 							<button
 								type="submit"

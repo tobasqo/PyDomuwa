@@ -20,12 +20,15 @@ const qnaCategoriesRoute = new QnACategoryApiRoute();
 const questionsRoute = new QuestionApiRoute();
 
 function validateData<T>(schema: z.ZodType<T>, data: unknown, type: "request" | "response" | "error") {
-    const validationResult = schema.safeParse(data);
-    if (!validationResult.success) {
-        console.log(`Malformed api ${type} data: ${JSON.stringify(validationResult.error.flatten().fieldErrors)} from ${JSON.stringify(data)}`);
-        throw validationResult.error;
-    }
-    return validationResult.data;
+	// TODO: make `data` typed
+	const validationResult = schema.safeParse(data);
+	if (!validationResult.success) {
+		console.log(
+			`Malformed api ${type} data: ${JSON.stringify(validationResult.error.flatten().fieldErrors)} from ${JSON.stringify(data)}`,
+		);
+		throw validationResult.error;
+	}
+	return validationResult.data;
 }
 
 const validateRequestData = <T>(schema: z.ZodType<T>, data: unknown) => validateData<T>(schema, data, "request");
@@ -50,7 +53,6 @@ export const apiClient = {
     createQuestion: async (fetch: Fetch, cookies: Cookies, model: QuestionCreate) => {
         validateRequestData(QuestionCreateSchema, model);
         const responseData = await questionsRoute.create(fetch, cookies, model);
-        // TODO: prevVersionId is required in response validation for some reason
         return validateResponseData<Question>(QuestionSchema, responseData);
     },
     getAllQuestionsForGameType: async (fetch: Fetch, cookies: Cookies, gameTypeId: number) => {
