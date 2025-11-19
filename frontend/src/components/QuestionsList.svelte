@@ -8,10 +8,10 @@
 
 <ul>
 	{#each questions as question (question.id)}
-		<li>
+		<li class="border-xl border-t-2 border-pink">
 			<QuestionCard {question} />
 		</li>
 	{:else}
-		<p class="text-xl font-bold text-center mt-6">Nie mam pytań</p>
+		<p class="text-xl font-bold text-center py-4 border-t-2 border-pink">Nie mam pytań</p>
 	{/each}
 </ul>

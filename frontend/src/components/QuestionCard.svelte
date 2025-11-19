@@ -5,8 +5,10 @@
 	export let question: Question;
 </script>
 
-<li>
-	{question.text}
-	Autor: {question.author.user.username}
-	<GameCategoryLabel gameCategory={question.gameCategory} />
-</li>
+<div class="justify-center my-2 px-4 py-2">
+  <h3 class="text-l font-bold text-gray-900">
+    {question.text}
+  </h3>
+  Autor: {question.author.user.username}
+  <GameCategoryLabel gameCategory={question.gameCategory} />
+</div>
