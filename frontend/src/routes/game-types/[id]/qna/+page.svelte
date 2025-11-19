@@ -85,7 +85,6 @@
 							</select>
 						</div>
 						<input type="hidden" id="game-type" name="game-type" value={gameType.id} />
-						<!-- TODO: display errors -->
 						{#if form?.errors }
 							<div class="mt-4 space-y-2">
 								{#each Object.entries(form.errors) as [field, fieldError]}

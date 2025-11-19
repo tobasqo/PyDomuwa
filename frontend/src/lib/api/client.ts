@@ -1,117 +1,123 @@
-import { z } from "zod";
-import { error, type Cookies } from "@sveltejs/kit";
-import { getHome, type Fetch } from ".";
-import { GameCategoryApiRoute } from "./routes/GameCategoryApiRoute";
-import { GameTypeApiRoute } from "./routes/GameTypeApiRoute";
-import { QnACategoryApiRoute } from "./routes/QnACategoryApiRoute";
-import { QuestionApiRoute } from "./routes/QuestionApiRoute";
-import { UsersApiRoute } from "./routes/UserApiRoute";
-import { UserCreateSchema, UserSchema, type UserCreate, type User } from "./types/user";
+import { GameCategoryApiRoute } from "$lib/api/routes/GameCategoryApiRoute";
+import { GameTypeApiRoute } from "$lib/api/routes/GameTypeApiRoute";
+import { QnACategoryApiRoute } from "$lib/api/routes/QnACategoryApiRoute";
+import { UsersApiRoute } from "$lib/api/routes/UserApiRoute";
+import { getHome, type Fetch } from "$lib/api";
+import { error, fail, type Cookies } from "@sveltejs/kit";
+import { GameTypeSchema, GameTypesSchema } from "$lib/api/types/game_type";
+import { QnACategoriesSchema } from "$lib/api/types/qna_category";
 import {
 	QuestionCreateSchema,
 	QuestionSchema,
-	QuestionsSchema,
+	QuestionsWithAnswersSchema,
 	type QuestionCreate,
-	type Question,
-	type Questions,
-} from "./types/question";
-import {
-	GameTypeSchema,
-	GameTypesSchema,
-	type GameType,
-	type GameTypes,
-} from "./types/game_type";
-import { GameCategoriesSchema, type GameCategories } from "./types/game_category";
-import { QnACategoriesSchema, type QnACategories } from "./types/qna_category";
+} from "$lib/api/types/question";
+import { QuestionApiRoute } from "$lib/api/routes/QuestionApiRoute";
 import { loginForAccessToken, readCurrentUser, refreshAccessToken } from "./auth";
-import { ApiErrorSchema } from "./types/error";
+import { UserCreateSchema, UserSchema, type UserCreate } from "./types/user";
 
-const usersRoute = new UsersApiRoute();
-const gameTypesRoute = new GameTypeApiRoute();
 const gameCategoriesRoute = new GameCategoryApiRoute();
+const gameTypesRoute = new GameTypeApiRoute();
 const qnaCategoriesRoute = new QnACategoryApiRoute();
 const questionsRoute = new QuestionApiRoute();
+const usersRoute = new UsersApiRoute();
 
-function validateData<T>(
-	schema: z.ZodType<T>,
-	data: unknown,
-	type: "request" | "response" | "error",
-) {
-	// TODO: make `data` typed
-	const validationResult = schema.safeParse(data);
-	if (!validationResult.success) {
-		console.log(
-			`Malformed api ${type} data: ${JSON.stringify(validationResult.error.flatten().fieldErrors)} from ${JSON.stringify(data)}`,
-		);
-		throw validationResult.error;
+async function getGameType(fetch: Fetch, cookies: Cookies, gameTypeId: number) {
+	const response = await gameTypesRoute.getById(fetch, cookies, gameTypeId);
+	const responseData = await response.json();
+	const gameType = GameTypeSchema.safeParse(responseData);
+	if (!gameType.success) {
+		throw error(500, "Received malformed game type data from server.");
 	}
-	return validationResult.data;
+	return gameType.data;
 }
 
-const validateRequestData = <T>(schema: z.ZodType<T>, data: unknown) =>
-	validateData<T>(schema, data, "request");
-
-// TODO: make a helper for validating error response
-
-// TODO: this probably should throw svelte error when not validated
-const validateResponseData = <T>(schema: z.ZodType<T>, data: unknown) => {
-	const validationResult = schema.safeParse(data);
-	if (!validationResult.success) {
-		console.log(
-			`Malformed api response data: ${JSON.stringify(validationResult.error.flatten().fieldErrors)} from ${JSON.stringify(data)}`,
-		);
-		const errorValidationResult = ApiErrorSchema.safeParse(data);
-		if (errorValidationResult.success) {
-			throw errorValidationResult.error;
-		}
-		console.error(
-			"Response data is not valid and could not be parsed as ApiError either:",
-			JSON.stringify(data),
-		);
-		throw error(500, validationResult.error); // TODO: probably shouild parse error properly
+async function getAllGameTypes(fetch: Fetch, cookies: Cookies) {
+	const response = await gameTypesRoute.getAll(fetch, cookies);
+	const responseData = await response.json();
+	const gameTypes = GameTypesSchema.safeParse(responseData);
+	if (!gameTypes.success) {
+		throw error(500, "Received malformed game types data from server.");
 	}
-	return validationResult.data;
-};
+	return gameTypes.data;
+}
+
+async function getAllQnACategories(fetch: Fetch, cookies: Cookies) {
+	const response = await qnaCategoriesRoute.getAll(fetch, cookies);
+	const responseData = await response.json();
+	const qnaCategories = QnACategoriesSchema.safeParse(responseData);
+	if (!qnaCategories.success) {
+		throw error(500, "Received malformed QnA categories data from server.");
+	}
+	return qnaCategories.data;
+}
+
+async function getAllQuestionsForGameType(
+	fetch: Fetch,
+	cookies: Cookies,
+	gameTypeId: number,
+) {
+	const response = await gameTypesRoute.getAllQuestions(fetch, cookies, gameTypeId);
+	const responseData = await response.json();
+	const questions = QuestionsWithAnswersSchema.safeParse(responseData);
+	if (!questions.success) {
+		throw error(500, "Received malformed questions for game type data from server.");
+	}
+	return questions.data;
+}
+
+async function createQuestion(
+	fetch: Fetch,
+	cookies: Cookies,
+	questionData: QuestionCreate,
+) {
+	const questionCreate = QuestionCreateSchema.safeParse(questionData);
+	if (!questionCreate.success) {
+		throw questionCreate.error;
+	}
+	const response = await questionsRoute.create(fetch, cookies, questionCreate.data);
+	const responseData = await response.json();
+	if (!response.ok) {
+		return fail(response.status, { errors: responseData, ...questionData });
+	}
+	const createdQuestion = QuestionSchema.safeParse(responseData);
+	if (!createdQuestion.success) {
+		throw error(500, "Received malformed question data from server.");
+	}
+	return createdQuestion.data;
+}
+
+async function createUser(fetch: Fetch, cookies: Cookies, userData: UserCreate) {
+	const userCreate = UserCreateSchema.safeParse(userData);
+	if (!userCreate.success) {
+		return fail(422, { errors: userCreate.error, ...userData });
+	}
+	const response = await usersRoute.create(fetch, cookies, userCreate.data);
+	const responseData = await response.json();
+	if (!response.ok) {
+		return fail(response.status, { errors: responseData, ...userData });
+	}
+	const user = UserSchema.safeParse(responseData);
+	if (!user.success) {
+		throw error(500, "Received malformed user data from server.");
+	}
+	return user.data;
+}
 
 export const apiClient = {
-    home: getHome,
+	getHome,
 
-    login: loginForAccessToken,
-    refreshToken: refreshAccessToken,
-    readMe: readCurrentUser,
+	login: loginForAccessToken,
+	refreshAccessToken,
+	readCurrentUser,
 
-    createUser: async (fetch: Fetch, cookies: Cookies, model: UserCreate) => {
-        validateRequestData(UserCreateSchema, model);
-        const responseData = await usersRoute.create(fetch, cookies, model);
-        return validateResponseData<User>(UserSchema, responseData);
-    },
+	createUser,
 
-    createQuestion: async (fetch: Fetch, cookies: Cookies, model: QuestionCreate) => {
-        validateRequestData(QuestionCreateSchema, model);
-        const responseData = await questionsRoute.create(fetch, cookies, model);
-        return validateResponseData<Question>(QuestionSchema, responseData);
-    },
-    getAllQuestionsForGameType: async (fetch: Fetch, cookies: Cookies, gameTypeId: number) => {
-        const responseData = await gameTypesRoute.getAllQuestions(fetch, cookies, gameTypeId);
-        return validateResponseData<Questions>(QuestionsSchema, responseData);
-    },
+	getGameType,
+	getAllGameTypes,
 
-    getGameType: async (fetch: Fetch, cookies: Cookies, gameTypeId: number) => {
-        const responseData = await gameTypesRoute.getById(fetch, cookies, gameTypeId);
-        return validateResponseData<GameType>(GameTypeSchema, responseData);
-    },
-    getAllGameTypes: async (fetch: Fetch, cookies: Cookies) => {
-        const responseData = await gameTypesRoute.getAll(fetch, cookies);
-        return validateResponseData<GameTypes>(GameTypesSchema, responseData);
-    },
+	getAllQnACategories,
 
-    getAllGameCategories: async (fetch: Fetch, cookies: Cookies) => {
-        const responseData = await gameCategoriesRoute.getAll(fetch, cookies);
-        return validateResponseData<GameCategories>(GameCategoriesSchema, responseData);
-    },
-
-    getAllQnACategories: async (fetch: Fetch, cookies: Cookies) => {
-        const responseData = await qnaCategoriesRoute.getAll(fetch, cookies);
-        return validateResponseData<QnACategories>(QnACategoriesSchema, responseData);
-    },
+	createQuestion,
+	getAllQuestionsForGameType,
 };

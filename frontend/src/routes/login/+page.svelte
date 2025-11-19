@@ -16,18 +16,6 @@
 					Zaloguj się
 				</h1>
 
-				{#if form}
-					<div class="space-y-0">
-						<!-- TODO: why details cannot be found? -->
-						{#each Object.entries(form.details) as [field, fieldError]}
-							<div class="rounded-lg bg-rose-500 p-2 text-white shadow-lg">
-								<h4 class="font-bold">{field}</h4>
-								<p class="text-sm">{fieldError}</p>
-							</div>
-						{/each}
-					</div>
-				{/if}
-
 				<form class="space-y-4 md:space-y-6" action="/login" method="post">
 					<div>
 						<label for="username" class="mb-2 block text-sm font-medium text-gray-900">
@@ -55,6 +43,18 @@
 							required
 						/>
 					</div>
+
+					{#if form}
+						<div class="space-y-0">
+							<!-- TODO: why details cannot be found? -->
+							{#each Object.values(form?.details) as fieldError}
+								<div class="rounded-lg bg-rose-500 p-2 text-white shadow-lg">
+									<h4 class="font-bold">{fieldError}</h4>
+								</div>
+							{/each}
+						</div>
+					{/if}
+
 					<button
 						type="submit"
 						class="focus:ring-primary-300 w-full rounded-lg bg-lilac px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"

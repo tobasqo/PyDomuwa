@@ -1,4 +1,4 @@
-import { type Actions, fail, isHttpError, redirect } from "@sveltejs/kit";
+import { type Actions, redirect } from "@sveltejs/kit";
 import { apiClient } from "$lib/api/client";
 
 export const actions = {
@@ -8,17 +8,10 @@ export const actions = {
 			username: formData.get("username") as string,
 			password: formData.get("password") as string,
 		};
-		try {
-			await apiClient.login(fetch, cookies, loginData);
-		} catch (e) {
-			console.error("Login failed:", e);
-			if (isHttpError(e)) {
-				return fail(400, {
-					error: "Invalid username or password",
-					details: e.body,
-				});
-			}
-			throw e;
+		const fail = await apiClient.login(fetch, cookies, loginData);
+		if (fail !== null) {
+			console.log("Login failed:", fail);
+			return fail;
 		}
 		console.log("Login successful, redirecting...");
 		throw redirect(303, "/");

@@ -9,7 +9,6 @@ export type QueryParams = {
 export class BaseApiRoute<
 	TCreate,
 	TUpdate,
-	TResponse,
 	TQueryParams extends QueryParams = QueryParams,
 > {
 	routeUrl: string;
@@ -18,12 +17,8 @@ export class BaseApiRoute<
 		this.routeUrl = routePath;
 	}
 
-	getById = async (
-		fetch: Fetch,
-		cookies: Cookies,
-		modelId: number,
-	): Promise<TResponse> => {
-		return await makeApiRequest<TResponse>(fetch, cookies, this.routeUrl + modelId, {
+	getById = async (fetch: Fetch, cookies: Cookies, modelId: number) => {
+		return await makeApiRequest(fetch, cookies, this.routeUrl + modelId, {
 			method: "GET",
 		});
 	};
@@ -41,32 +36,23 @@ export class BaseApiRoute<
 		fetch: Fetch,
 		cookies: Cookies,
 		params: TQueryParams | undefined = undefined,
-	): Promise<TResponse[]> => {
+	) => {
 		const urlParams = this.makeGetAllParams(params);
 		const url = this.routeUrl + "?" + urlParams.toString();
-		return await makeApiRequest<TResponse[]>(fetch, cookies, url, {
+		return await makeApiRequest(fetch, cookies, url, {
 			method: "GET",
 		});
 	};
 
-	create = async (
-		fetch: Fetch,
-		cookies: Cookies,
-		model: TCreate,
-	): Promise<TResponse> => {
-		return await makeApiRequest<TResponse>(fetch, cookies, this.routeUrl, {
+	create = async (fetch: Fetch, cookies: Cookies, model: TCreate) => {
+		return await makeApiRequest(fetch, cookies, this.routeUrl, {
 			method: "POST",
 			body: JSON.stringify(model),
 		});
 	};
 
-	update = async (
-		fetch: Fetch,
-		cookies: Cookies,
-		modelId: number,
-		model: TUpdate,
-	): Promise<TResponse> => {
-		return await makeApiRequest<TResponse>(fetch, cookies, this.routeUrl + modelId, {
+	update = async (fetch: Fetch, cookies: Cookies, modelId: number, model: TUpdate) => {
+		return await makeApiRequest(fetch, cookies, this.routeUrl + modelId, {
 			method: "PATCH",
 			body: JSON.stringify(model),
 		});

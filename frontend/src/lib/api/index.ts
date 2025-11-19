@@ -11,36 +11,31 @@ const BASE_URL = "http://api:8000";
 
 export type Fetch = typeof globalThis.fetch;
 
-export async function makeApiRequestUnauthorized<TResponse>(
+export async function makeApiRequestUnauthorized(
 	fetch: Fetch,
 	path: string,
 	options: RequestInit = {},
-): Promise<TResponse> {
+): Promise<Response> {
 	const url = BASE_URL + path;
 	const headers = new Headers(options.headers as HeadersInit);
 	if (!headers.has("Content-Type")) {
 		headers.set("Content-Type", "application/json");
 	}
 
-	let response = await fetch(url, {
+	const response = await fetch(url, {
 		...options,
 		headers,
 		// credentials: "include",
 	});
-	if (!response.ok) {
-		console.error("API request failed:", response.status, response.statusText);
-		throw error(response.status, response.statusText);
-	}
-
-	return await response.json();
+	return response;
 }
 
-export async function makeApiRequest<TResponse>(
+export async function makeApiRequest(
 	fetch: Fetch,
 	cookies: Cookies,
 	path: string,
 	options: RequestInit = {},
-): Promise<TResponse> {
+): Promise<Response> {
 	const url = BASE_URL + path;
 	const jwtToken = getJwtToken(cookies);
 	const headers = new Headers(options.headers as HeadersInit);
@@ -74,27 +69,11 @@ export async function makeApiRequest<TResponse>(
 			credentials: "include",
 		});
 	}
-	if (!response.ok) {
-		// TODO: add more details from response body
-		// TODO: instead of throwing error, forward error to zod validation
-		if (response.status === 422) {
-			console.error(
-				"API request validation error:",
-				response.status,
-				response.statusText,
-			);
-			// TODO: status should be included in output data
-			return await response.json();
-		}
-		console.error("API request failed:", response.status, response.statusText);
-		throw error(response.status, response.statusText);
-	}
-
-	return await response.json();
+	return response;
 }
 
 export async function getHome(fetch: Fetch, cookies: Cookies) {
-	return await makeApiRequest<string>(fetch, cookies, "/", {
+	await makeApiRequest(fetch, cookies, "/", {
 		method: "GET",
 	});
 }

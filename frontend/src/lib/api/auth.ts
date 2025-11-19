@@ -1,6 +1,6 @@
-import type { JWTToken } from "$lib/api/types/jwt";
-import type { User, UserLogin } from "$lib/api/types/user";
-import { type Cookies } from "@sveltejs/kit";
+import { JWTTokenSchema, type JWTToken } from "$lib/api/types/jwt";
+import { UserSchema, type UserLogin } from "$lib/api/types/user";
+import { error, fail, type Cookies } from "@sveltejs/kit";
 import { makeApiRequest, makeApiRequestUnauthorized, type Fetch } from "$lib/api/index";
 
 export function getJwtToken(cookies: Cookies) {
@@ -29,24 +29,44 @@ export async function loginForAccessToken(
 	params.append("username", userLogin.username);
 	params.append("password", userLogin.password);
 
-	const jwtToken = await makeApiRequestUnauthorized<JWTToken>(fetch, "/auth/token", {
+	const response = await makeApiRequestUnauthorized(fetch, "/auth/token", {
 		method: "POST",
 		body: params.toString(),
 		headers: {
 			"Content-Type": "application/x-www-form-urlencoded",
 		},
 	});
-	setJwtToken(jwtToken, cookies);
+	const responseData = await response.json();
+	if (!response.ok) {
+		return fail(401, { details: responseData as string });
+	}
+	const jwtToken = JWTTokenSchema.safeParse(responseData);
+	if (!jwtToken.success) {
+		throw error(500, "Received malformed JWT token data from server.");
+	}
+	setJwtToken(jwtToken.data, cookies);
+	return null;
 }
 
 export async function refreshAccessToken(fetch: Fetch, cookies: Cookies) {
-	const jwtToken = await makeApiRequest<JWTToken>(fetch, cookies, "/auth/refresh", {
+	const response = await makeApiRequest(fetch, cookies, "/auth/refresh", {
 		method: "POST",
 	});
-	setJwtToken(jwtToken, cookies);
-	return jwtToken.accessToken;
+	const responseData = await response.json();
+	const jwtToken = JWTTokenSchema.safeParse(responseData);
+	if (!jwtToken.success) {
+		throw error(500, "Received malformed JWT token data from server during refresh.");
+	}
+	setJwtToken(jwtToken.data, cookies);
+	return jwtToken.data.accessToken;
 }
 
 export async function readCurrentUser(fetch: Fetch, cookies: Cookies) {
-	return await makeApiRequest<User>(fetch, cookies, "/auth/me", { method: "GET" });
+	const response = await makeApiRequest(fetch, cookies, "/auth/me", { method: "GET" });
+	const responseData = await response.json();
+	const user = UserSchema.safeParse(responseData);
+	if (!user.success) {
+		throw error(500, "Received malformed user data from server.");
+	}
+	return user.data;
 }
