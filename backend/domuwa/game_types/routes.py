@@ -59,9 +59,11 @@ class GameTypeRoutes(
     ):
         offset = (page - 1) * page_size
         include_deleted = user.is_staff
-        return await self.services.get_all_questions(
+        questions = await self.services.get_all_questions(
             session, model_id, offset, page_size, include_deleted
         )
+        self.logger.debug("questions: %s", questions)
+        return questions
 
     @override
     async def update(
