@@ -1,22 +1,21 @@
 <script lang="ts">
-	import QuestionsList from "$components/QuestionsList.svelte";
-	import type { PageProps } from "./$types";
+  import QuestionsList from "$components/QuestionsList.svelte";
+  import type { PageProps } from "./$types";
 
-	const { data }: PageProps = $props();
-	const { gameType, questions } = data;
-	$inspect(data);
+  const { data }: PageProps = $props();
+  const { gameType, questions } = data;
 </script>
 
 <main class="mx-auto justify-center">
-	<div class="max-w-screen-xl px-4 lg:px-6 py-6">
-		<div class="rounded-lg bg-orange shadow-xl pb-1">
-      <div class="flex justify-between p-4">
+  <div class="max-w-screen-xl px-4 lg:px-6 py-4">
+    <div class="rounded-lg bg-orange shadow-xl pb-1">
+      <div class="flex justify-between p-3">
         <h2 class="flex justify-between text-2xl mt-1 font-bold tracking-tight text-gray-900">
           {gameType.name}
         </h2>
         <div class="flex justify-end">
           <a
-            href="/game-types/{gameType.id}/qna/create"
+            href="/questions?gameTypeId={gameType.id}"
             class="inline-flex items-center rounded-lg bg-lilac px-5 py-2.5 text-center text-sm font-medium text-white hover:text-mint"
           >
             <svg
@@ -37,6 +36,6 @@
       </div>
 
       <QuestionsList {questions} />
-		</div>
-	</div>
+    </div>
+  </div>
 </main>

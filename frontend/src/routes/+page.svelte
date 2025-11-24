@@ -6,8 +6,8 @@
 </script>
 
 <main class="mx-auto justify-center">
-	<div class="mx-auto max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16">
-		<div class="grid gap-8 lg:grid-cols-2">
+	<div class="mx-auto max-w-screen-xl p-4 lg:px-6 lg:py-16">
+		<div class="grid gap-4 lg:grid-cols-2">
 			<!-- <GamesList {gameRooms} /> -->
 			<GamesList />
 			<article class="rounded-xl bg-orange p-6 shadow-xl">
@@ -18,7 +18,7 @@
 				{#each data.gameTypes as gameType (gameType.id)}
 					<div class="flex items-center justify-between">
 						<a
-							href="/game-types/{gameType.id}/qna"
+							href="/game-types/{gameType.id}"
 							class="inline-flex items-center font-medium text-dark hover:text-mint hover:underline"
 						>
 							{gameType.name}
