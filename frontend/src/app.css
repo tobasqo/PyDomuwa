@@ -29,3 +29,19 @@
 .footer {
 	@apply mt-8 border-t-4 border-lilac bg-mint p-4 text-center text-dark;
 }
+
+.label {
+    @apply text-white text-xs px-4 py-1 rounded-3xl border-2 border-gray-700 font-bold;
+}
+
+.game-category-nsfw {
+    @apply bg-red-500;
+}
+
+.game-category-sfw {
+    @apply bg-skyblue;
+}
+
+.game-category-mixed {
+    @apply bg-purple-500;
+}

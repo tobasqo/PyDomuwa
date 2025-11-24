@@ -5,7 +5,6 @@
 	export let gameCategory: GameCategory | QnACategory;
 
 	let labelColor = "";
-	// TODO: create label colors
 	switch (gameCategory.name) {
 		case GameCategoryChoice.SFW || QnACategoryChoice.SFW:
 			labelColor = "game-category-sfw";
@@ -16,9 +15,10 @@
 		case GameCategoryChoice.MIXED:
 			labelColor = "game-category-mixed";
 			break;
+    default:
+      throw new Error("Unknown game category");
 	}
 
-	// TODO: create label style
 </script>
 
 <div class="label {labelColor}">
