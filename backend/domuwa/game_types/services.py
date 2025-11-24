@@ -3,8 +3,8 @@ from typing import Sequence
 
 from sqlmodel import Session, select
 
-from domuwa import GameTypeChoices
 from domuwa.core.services import CommonServicesForEnumModels
+from domuwa.game_types.constants import GameTypeChoices
 from domuwa.game_types.models import GameType
 from domuwa.game_types.schemas import GameTypeCreate, GameTypeUpdate
 from domuwa.players.models import Player

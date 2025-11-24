@@ -14,6 +14,8 @@ from domuwa.core.exceptions import (
     InvalidRequestBodyHttpException,
     ModelNotFoundError,
     ModelNotFoundHttpException,
+    RelationModelNotFoundError,
+    RelationModelNotFoundHttpException,
 )
 from domuwa.core.schemas import APISchemaResponseModel
 from domuwa.core.services import (
@@ -98,6 +100,8 @@ class BaseRouter(ABC, Generic[ServicesT, CreateModelT, UpdateModelT, DbModelT]):
             err_msg = f"{self.db_model_type_name} cannot be created: {exc}"
             self.logger.warning(err_msg)
             raise InvalidRequestBodyHttpException(err_msg) from exc
+        except RelationModelNotFoundError as exc:
+            raise RelationModelNotFoundHttpException(exc.message) from exc
 
     @abstractmethod
     async def update(self, *args, **kwargs):
@@ -114,7 +118,7 @@ class BaseRouter(ABC, Generic[ServicesT, CreateModelT, UpdateModelT, DbModelT]):
             self.db_model_type_name,
             model_update,
             self.db_model_type_name,
-            model_id,  # type: ignore
+            model_id,
         )
         model = await self.get_instance(model_id, session)
         try:
@@ -125,6 +129,9 @@ class BaseRouter(ABC, Generic[ServicesT, CreateModelT, UpdateModelT, DbModelT]):
             )
             self.logger.warning(err_msg)
             raise InvalidRequestBodyHttpException(err_msg) from exc
+        except RelationModelNotFoundError as exc:
+            self.logger.warning(exc.message)
+            raise RelationModelNotFoundHttpException(exc.message) from exc
 
     @abstractmethod
     async def delete(self, *args, **kwargs):

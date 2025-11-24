@@ -70,13 +70,13 @@ def parse_request_validation_errors(errors: Sequence[Any]):
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
+async def validation_exception_handler(_: Request, exc: RequestValidationError):
     logger.debug("%s", exc)
     errors = exc.errors()
     logger.debug("Validation errors: %s", errors)
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={'errors': parse_request_validation_errors(errors)},
+        content={"errors": parse_request_validation_errors(errors)},
     )
 
 

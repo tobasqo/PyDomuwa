@@ -7,7 +7,11 @@ from typing import Generic, TypeVar
 from sqlalchemy.exc import IntegrityError, PendingRollbackError
 from sqlmodel import SQLModel, Session, select
 
-from domuwa.core.exceptions import InvalidModelInputError, ModelNotFoundError
+from domuwa.core.exceptions import (
+    InvalidModelInputError,
+    ModelNotFoundError,
+    RelationModelNotFoundError,
+)
 from domuwa.core.schemas import APISchemaModel
 
 CreateModelT = TypeVar("CreateModelT", bound=APISchemaModel)
@@ -72,6 +76,21 @@ class CommonServices(ABC, Generic[CreateModelT, UpdateModelT, DbModelT]):
         session.delete(model)
         session.commit()
         self.logger.debug("removed %s(id=%d)", model.__class__.__name__, model.id)  # type: ignore
+
+    async def find_related_model(
+        self,
+        model_id: int,
+        model_services: "CommonServices",
+        session: Session,
+    ) -> SQLModel:
+        try:
+            return await model_services.get_by_id(model_id, session)
+        except ModelNotFoundError as exc:
+            err_msg = (
+                f"{model_services.db_model_type.__name__}(id={model_id}) not found"
+            )
+            self.logger.warning(err_msg)
+            raise RelationModelNotFoundError(err_msg) from exc
 
 
 class CommonServicesForEnumModels(CommonServices[CreateModelT, UpdateModelT, DbModelT]):

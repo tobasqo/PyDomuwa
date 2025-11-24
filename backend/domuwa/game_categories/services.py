@@ -1,7 +1,7 @@
 import logging
 
-from domuwa import GameCategoryChoices
 from domuwa.core.services import CommonServicesForEnumModels
+from domuwa.game_categories.constants import GameCategoryChoices
 from domuwa.game_categories.models import GameCategory
 from domuwa.game_categories.schemas import (
     GameCategoryCreate,

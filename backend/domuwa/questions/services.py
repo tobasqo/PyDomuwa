@@ -54,6 +54,23 @@ class QuestionServices(CommonServices[QuestionCreate, QuestionUpdate, Question])
         return updated_model
 
     @override
+    async def save(
+        self,
+        model: QuestionCreate | Question,
+        session: Session,
+    ) -> Question:
+        from domuwa.game_types.services import GameTypeServices
+        from domuwa.qna_categories.services import QnACategoryServices
+
+        assert model.game_category_id is not None
+        await self.find_related_model(
+            model.game_category_id, QnACategoryServices(), session
+        )
+        assert model.game_type_id is not None
+        await self.find_related_model(model.game_type_id, GameTypeServices(), session)
+        return await super().save(model, session)
+
+    @override
     async def delete(self, model: Question, session: Session):
         model.deleted = True
 
