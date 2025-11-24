@@ -40,7 +40,7 @@ class GameTypeServices(
             stmt = stmt.where(Question.deleted == False)  # noqa: E712
 
         stmt = (
-            stmt.offset(offset).limit(page_size).order_by(Question.game_category_id)  # type: ignore
+            stmt.offset(offset).limit(page_size).order_by(Question.id.desc(), Question.excluded)  # type: ignore
         )
 
         return session.exec(stmt).all()
