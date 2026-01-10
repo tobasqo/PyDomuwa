@@ -21,11 +21,12 @@ class QuestionServices(CommonServices[QuestionCreate, QuestionUpdate, Question])
         limit: int = 25,
         include_deleted: bool = False,
     ) -> Sequence[Question]:
-        stmt = select(self.db_model_type)
+        stmt = select(self.db_model_type).where(Question.next_versions)
 
         if not include_deleted:
             stmt = stmt.where(Question.deleted == False)  # noqa: E712
 
+        # TODO: add grouping by excluded
         stmt = stmt.offset(offset).limit(limit).order_by(Question.excluded)  # type: ignore
         return session.exec(stmt).all()
 
@@ -35,7 +36,16 @@ class QuestionServices(CommonServices[QuestionCreate, QuestionUpdate, Question])
         model: Question,
         model_update: QuestionUpdate,
         session: Session,
-    ):
+    ) -> Question:
+        if model.excluded != model_update.excluded:
+            model.excluded = model_update.excluded
+            session.add(model)
+            session.commit()
+            session.refresh(model)
+            return model
+
+        session.autoflush = False
+
         update_data = model_update.model_dump(exclude_unset=True)
         model_data = model.model_dump(exclude={"id"}) | update_data
         updated_model = Question(**model_data)
@@ -51,6 +61,7 @@ class QuestionServices(CommonServices[QuestionCreate, QuestionUpdate, Question])
         session.add(model)
         session.commit()
         session.refresh(updated_model)
+        session.autoflush = True
         return updated_model
 
     @override
@@ -74,9 +85,10 @@ class QuestionServices(CommonServices[QuestionCreate, QuestionUpdate, Question])
     async def delete(self, model: Question, session: Session):
         model.deleted = True
 
-        for answer in model.answers:
-            answer.deleted = True
-            session.add(answer)
+        # TODO: rethink if answers should also be deleted - they could be shared
+        # for answer in model.answers:
+        #     answer.deleted = True
+        #     session.add(answer)
 
         session.add(model)
         session.commit()

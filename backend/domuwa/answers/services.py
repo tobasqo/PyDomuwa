@@ -26,6 +26,7 @@ class AnswerServices(CommonServices[AnswerCreate, AnswerUpdate, Answer]):
         if not include_deleted:
             stmt = stmt.where(Answer.deleted == False)  # noqa: E712
 
+        # TODO: add grouping by excluded
         stmt = stmt.offset(offset).limit(limit).order_by(Answer.excluded)  # type: ignore
         return session.exec(stmt).all()
 
@@ -36,6 +37,14 @@ class AnswerServices(CommonServices[AnswerCreate, AnswerUpdate, Answer]):
         model_update: AnswerUpdate,
         session: Session,
     ):
+        if model.excluded != model_update.excluded:
+            model.excluded = model_update.excluded
+            session.add(model)
+            session.refresh(model)
+            return model
+
+        session.autoflush = False
+
         update_data = model_update.model_dump(exclude_unset=True)
         model_data = model.model_dump(exclude={"id"}) | update_data
         updated_model = Answer(**model_data)
@@ -53,6 +62,7 @@ class AnswerServices(CommonServices[AnswerCreate, AnswerUpdate, Answer]):
         session.add(model)
         session.commit()
         session.refresh(updated_model)
+        session.autoflush = True
         return updated_model
 
     @override
