@@ -1,19 +1,19 @@
-import {type Actions, isActionFailure, redirect} from "@sveltejs/kit";
-import {apiClient} from "$lib/api/client";
+import { type Actions, isActionFailure, redirect } from "@sveltejs/kit";
+import { apiClient } from "$lib/api/client";
 
-export const load = async ({ fetch, cookies, url }) => {
-  const gameTypeId = parseInt(url.searchParams.get("gameTypeId")!);
+export const load = async ({ fetch, cookies, params }) => {
+  const gameTypeId = parseInt(params.gameTypeId);
   const [gameType, qnaCategories] = await Promise.all([
     apiClient.getGameType(fetch, cookies, gameTypeId),
     apiClient.getAllQnACategories(fetch, cookies),
   ]);
   return { gameType, qnaCategories };
-}
+};
 
 export const actions = {
-  default: async({fetch, cookies, request, url}) => {
+  default: async ({ fetch, cookies, request, params }) => {
     const formData = await request.formData();
-    const gameTypeId = parseInt(url.searchParams.get("gameTypeId")!);
+    const gameTypeId = parseInt(params.gameTypeId!);
     const questionData = {
       text: formData.get("text")!.toString(),
       gameTypeId: gameTypeId,
@@ -23,6 +23,6 @@ export const actions = {
     if (isActionFailure(result)) {
       return result;
     }
-    throw redirect(303, `/game-types/${gameTypeId}`);
-  }
+    throw redirect(303, `/game-types/${gameTypeId}/questions`);
+  },
 } satisfies Actions;
