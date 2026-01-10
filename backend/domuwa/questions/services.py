@@ -37,7 +37,7 @@ class QuestionServices(CommonServices[QuestionCreate, QuestionUpdate, Question])
         model_update: QuestionUpdate,
         session: Session,
     ) -> Question:
-        if model.excluded != model_update.excluded:
+        if model_update.excluded is not None and model.excluded != model_update.excluded:
             model.excluded = model_update.excluded
             session.add(model)
             session.commit()

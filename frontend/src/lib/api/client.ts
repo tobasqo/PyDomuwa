@@ -24,12 +24,19 @@ const qnaCategoriesRoute = new QnACategoryApiRoute();
 const questionsRoute = new QuestionApiRoute();
 const usersRoute = new UsersApiRoute();
 
+function throwMalformedDataError(resourceName: string, responseData: any): never {
+  throw error(
+    500,
+    `Received malformed ${resourceName} data from the server: ${JSON.stringify(responseData)}`,
+  );
+}
+
 async function getGameType(fetch: Fetch, cookies: Cookies, gameTypeId: number) {
   const response = await gameTypesRoute.getById(fetch, cookies, gameTypeId);
   const responseData = await response.json();
   const gameType = GameTypeSchema.safeParse(responseData);
   if (!gameType.success) {
-    throw error(500, "Received malformed game type data from server.");
+    throwMalformedDataError("game type", responseData);
   }
   return gameType.data;
 }
@@ -39,7 +46,7 @@ async function getAllGameTypes(fetch: Fetch, cookies: Cookies) {
   const responseData = await response.json();
   const gameTypes = GameTypesSchema.safeParse(responseData);
   if (!gameTypes.success) {
-    throw error(500, "Received malformed game types data from server.");
+    throwMalformedDataError("game types", responseData);
   }
   return gameTypes.data;
 }
@@ -49,7 +56,7 @@ async function getAllQnACategories(fetch: Fetch, cookies: Cookies) {
   const responseData = await response.json();
   const qnaCategories = QnACategoriesSchema.safeParse(responseData);
   if (!qnaCategories.success) {
-    throw error(500, "Received malformed QnA categories data from server.");
+    throwMalformedDataError("QnA categories", responseData);
   }
   return qnaCategories.data;
 }
@@ -63,9 +70,19 @@ async function getAllQuestionsForGameType(
   const responseData = await response.json();
   const questions = QuestionsWithAnswersSchema.safeParse(responseData);
   if (!questions.success) {
-    throw error(500, "Received malformed questions for game type data from server.");
+    throwMalformedDataError("questions", responseData);
   }
   return questions.data;
+}
+
+async function getQuestion(fetch: Fetch, cookies: Cookies, questionId: number) {
+  const response = await questionsRoute.getById(fetch, cookies, questionId);
+  const responseData = await response.json();
+  const question = QuestionSchema.safeParse(responseData);
+  if (!question.success) {
+    throwMalformedDataError("question", responseData);
+  }
+  return question.data;
 }
 
 async function createQuestion(
@@ -84,7 +101,7 @@ async function createQuestion(
   }
   const createdQuestion = QuestionSchema.safeParse(responseData);
   if (!createdQuestion.success) {
-    throw error(500, "Received malformed question data from server.");
+    throwMalformedDataError("question", responseData);
   }
   return createdQuestion.data;
 }
@@ -111,7 +128,7 @@ async function updateQuestion(
   }
   const updatedQuestion = QuestionSchema.safeParse(responseData);
   if (!updatedQuestion.success) {
-    throw error(500, "Received malformed question data from server.");
+    throwMalformedDataError("question", responseData);
   }
   return updatedQuestion.data;
 }
@@ -128,7 +145,7 @@ async function createUser(fetch: Fetch, cookies: Cookies, userData: UserCreate) 
   }
   const user = UserSchema.safeParse(responseData);
   if (!user.success) {
-    throw error(500, "Received malformed user data from server.");
+    throwMalformedDataError("user", responseData);
   }
   return user.data;
 }
@@ -147,6 +164,7 @@ export const apiClient = {
 
   getAllQnACategories,
 
+  getQuestion,
   createQuestion,
   updateQuestion,
   getAllQuestionsForGameType,

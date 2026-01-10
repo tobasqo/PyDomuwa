@@ -52,14 +52,14 @@ export class BaseApiRoute<
   };
 
   update = async (fetch: Fetch, cookies: Cookies, modelId: number, model: TUpdate) => {
-    return await makeApiRequest(fetch, cookies, `${this.routeUrl}/${modelId}`, {
+    return await makeApiRequest(fetch, cookies, this.routeUrl + modelId, {
       method: "PATCH",
       body: JSON.stringify(model),
     });
   };
 
   delete = async (fetch: Fetch, cookies: Cookies, modelId: number): Promise<void> => {
-    await makeApiRequest(fetch, cookies, `${this.routeUrl}/${modelId}`, {
+    await makeApiRequest(fetch, cookies, this.routeUrl + modelId, {
       method: "DELETE",
     });
   };

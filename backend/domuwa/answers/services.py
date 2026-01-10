@@ -37,7 +37,7 @@ class AnswerServices(CommonServices[AnswerCreate, AnswerUpdate, Answer]):
         model_update: AnswerUpdate,
         session: Session,
     ):
-        if model.excluded != model_update.excluded:
+        if model_update.excluded is not None and model.excluded != model_update.excluded:
             model.excluded = model_update.excluded
             session.add(model)
             session.refresh(model)

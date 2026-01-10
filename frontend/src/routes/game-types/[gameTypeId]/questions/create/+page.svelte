@@ -2,7 +2,6 @@
   import type {PageProps} from "./$types";
 
   const {data, form}: PageProps = $props();
-  $inspect(data);
   const {gameType, qnaCategories} = data;
 </script>
 
