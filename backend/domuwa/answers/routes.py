@@ -45,7 +45,7 @@ class AnswerRouter(
         self,
         session: Annotated[Session, Depends(get_db_session)],
         user: Annotated[User, Depends(auth.get_current_active_user)],
-        page: Annotated[int, Query(ge=1)],
+        page: Annotated[int, Query(ge=1)] = 1,
         page_size: Annotated[int, Query(ge=1)] = 25,
     ):
         offset = (page - 1) * page_size

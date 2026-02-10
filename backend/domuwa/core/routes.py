@@ -74,7 +74,7 @@ class BaseRouter(ABC, Generic[ServicesT, CreateModelT, UpdateModelT, DbModelT]):
     async def _get_all(
         self,
         session: Annotated[Session, Depends(get_db_session)],
-        page: Annotated[int, Query(ge=1)],
+        page: Annotated[int, Query(ge=1)] = 1,
         page_size: Annotated[int, Query(ge=1)] = 25,
     ):
         offset = (page - 1) * page_size
@@ -213,7 +213,7 @@ class CommonRouter(BaseRouter[ServicesT, CreateModelT, UpdateModelT, DbModelT]):
     async def get_all(
         self,
         session: Annotated[Session, Depends(get_db_session)],
-        page: Annotated[int, Query(ge=1)],
+        page: Annotated[int, Query(ge=1)] = 1,
         page_size: Annotated[int, Query(ge=1)] = 25,
     ):
         return await self._get_all(session, page, page_size)
@@ -259,7 +259,7 @@ class CommonRouterWithAuth(BaseRouter[ServicesT, CreateModelT, UpdateModelT, DbM
         self,
         session: Annotated[Session, Depends(get_db_session)],
         user: Annotated[User, Depends(auth.get_current_active_user)],
-        page: Annotated[int, Query(ge=1)],
+        page: Annotated[int, Query(ge=1)] = 1,
         page_size: Annotated[int, Query(ge=1)] = 25,
     ):
         del user
