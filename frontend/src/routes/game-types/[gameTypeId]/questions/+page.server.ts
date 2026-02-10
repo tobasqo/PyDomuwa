@@ -6,5 +6,10 @@ export const load = async ({ fetch, params, cookies }) => {
     apiClient.getGameType(fetch, cookies, gameTypeId),
     apiClient.getAllQuestionsForGameType(fetch, cookies, gameTypeId),
   ]);
-  return { gameType, questions };
+
+  return {
+    gameType,
+    questions: questions.filter((q) => q.excluded === false),
+    excludedQuestions: questions.filter((q) => q.excluded === true),
+  };
 };

@@ -3,7 +3,7 @@
   import type { PageProps } from "./$types";
 
   const { data }: PageProps = $props();
-  const { gameType, questions } = data;
+  const { gameType, questions, excludedQuestions } = data;
 </script>
 
 <main class="mx-auto justify-center">
@@ -37,8 +37,7 @@
         </div>
       </div>
 
-      <!-- TODO: add separate tab for excluded questions -->
-      <QuestionsList {questions} />
+      <QuestionsList {questions} {excludedQuestions} />
     </div>
   </div>
 </main>
