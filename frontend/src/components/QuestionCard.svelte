@@ -9,7 +9,7 @@
   <div class="flex flex-wrap justify-start">
     <h3 class="mr-2 text-lg text-gray-900">
       <span class="font-bold">Q:</span>
-      <span class="italic">{question.text}</span>
+      <span class={"italic" + (question.excluded ? " line-through text-slate-600" : "")}>{question.text}</span>
     </h3>
 
     <GameCategoryLabel gameCategory={question.gameCategory} />
