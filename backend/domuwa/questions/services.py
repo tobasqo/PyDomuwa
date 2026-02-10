@@ -37,6 +37,8 @@ class QuestionServices(CommonServices[QuestionCreate, QuestionUpdate, Question])
         model_update: QuestionUpdate,
         session: Session,
     ) -> Question:
+        await self.validate_related_models_exist(model, session)
+
         if model_update.excluded is not None and model.excluded != model_update.excluded:
             model.excluded = model_update.excluded
             session.add(model)
@@ -70,6 +72,14 @@ class QuestionServices(CommonServices[QuestionCreate, QuestionUpdate, Question])
         model: QuestionCreate | Question,
         session: Session,
     ) -> Question:
+        await self.validate_related_models_exist(model, session)
+        return await super().save(model, session)
+
+    async def validate_related_models_exist(
+        self,
+        model: QuestionCreate | QuestionUpdate | Question,
+        session: Session,
+    ) -> None:
         from domuwa.game_types.services import GameTypeServices
         from domuwa.qna_categories.services import QnACategoryServices
 
@@ -79,7 +89,6 @@ class QuestionServices(CommonServices[QuestionCreate, QuestionUpdate, Question])
         )
         assert model.game_type_id is not None
         await self.find_related_model(model.game_type_id, GameTypeServices(), session)
-        return await super().save(model, session)
 
     @override
     async def delete(self, model: Question, session: Session):
