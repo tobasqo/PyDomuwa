@@ -1,7 +1,7 @@
 import logging
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session
 from typing_extensions import override
 
@@ -45,8 +45,8 @@ class AnswerRouter(
         self,
         session: Annotated[Session, Depends(get_db_session)],
         user: Annotated[User, Depends(auth.get_current_active_user)],
-        page: int = 1,  # TODO: validate to be gt 0
-        page_size: int = 25,
+        page: Annotated[int, Query(ge=1)],
+        page_size: Annotated[int, Query(ge=1)] = 25,
     ):
         offset = (page - 1) * page_size
         include_deleted = user.is_staff
@@ -59,8 +59,7 @@ class AnswerRouter(
         session: Annotated[Session, Depends(get_db_session)],
         user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
-        # TODO: game_category_id and game_type_id validation
-        model.author_id = user.id  # type: ignore
+        model.author_id = user.id
         return await super().create(model, session, user)
 
     @override

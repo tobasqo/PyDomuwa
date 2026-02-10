@@ -2,7 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Annotated, Generic, TypeVar, final
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlmodel import Session
 from starlette.responses import Response
 from typing_extensions import override
@@ -74,8 +74,8 @@ class BaseRouter(ABC, Generic[ServicesT, CreateModelT, UpdateModelT, DbModelT]):
     async def _get_all(
         self,
         session: Annotated[Session, Depends(get_db_session)],
-        page: int = 1,  # TODO: validate to be gt 0
-        page_size: int = 25,
+        page: Annotated[int, Query(ge=1)],
+        page_size: Annotated[int, Query(ge=1)] = 25,
     ):
         offset = (page - 1) * page_size
         return await self.services.get_all(session, offset, page_size)
@@ -213,8 +213,10 @@ class CommonRouter(BaseRouter[ServicesT, CreateModelT, UpdateModelT, DbModelT]):
     async def get_all(
         self,
         session: Annotated[Session, Depends(get_db_session)],
+        page: Annotated[int, Query(ge=1)],
+        page_size: Annotated[int, Query(ge=1)] = 25,
     ):
-        return await self._get_all(session)
+        return await self._get_all(session, page, page_size)
 
     @abstractmethod
     async def create(
@@ -257,9 +259,11 @@ class CommonRouterWithAuth(BaseRouter[ServicesT, CreateModelT, UpdateModelT, DbM
         self,
         session: Annotated[Session, Depends(get_db_session)],
         user: Annotated[User, Depends(auth.get_current_active_user)],
+        page: Annotated[int, Query(ge=1)],
+        page_size: Annotated[int, Query(ge=1)] = 25,
     ):
         del user
-        return await self._get_all(session)
+        return await self._get_all(session, page, page_size)
 
     @abstractmethod
     async def create(
