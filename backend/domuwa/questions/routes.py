@@ -78,7 +78,6 @@ class QuestionRouter(
         session: Annotated[Session, Depends(get_db_session)],
         user: Annotated[User, Depends(auth.get_current_active_user)],
     ):
-        # TODO: game_category_id and game_type_id validation
         model.author_id = user.id
         return await super().create(model, session, user)
 
