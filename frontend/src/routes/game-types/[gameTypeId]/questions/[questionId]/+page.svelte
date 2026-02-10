@@ -3,6 +3,7 @@
 
   const {data, form}: PageProps = $props();
   const {gameType, qnaCategories, question} = data;
+  // TODO: assert that form is not of type never
 </script>
 
 <div
@@ -49,7 +50,6 @@
             {/each}
           </select>
         </div>
-        <!-- TODO: fix this error on errors -->
         <input type="hidden" id="game-type" name="game-type" value={gameType.id}/>
         {#if form?.errors}
           <div class="mt-4 space-y-2">

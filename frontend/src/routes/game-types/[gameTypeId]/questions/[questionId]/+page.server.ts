@@ -16,11 +16,11 @@ export const load = async ({ fetch, cookies, params }) => {
 export const actions = {
   edit: async ({ fetch, cookies, request, params }) => {
     if (params.gameTypeId === undefined) {
-      throw error(400, "`gameTypeId` not found in path");
+      error(500, "`gameTypeId` not found in path");
     }
     const gameTypeId = parseInt(params.gameTypeId);
     if (params.questionId === undefined) {
-      throw error(400, "`questionId` not found in path");
+      error(500, "`questionId` not found in path");
     }
     const questionId = parseInt(params.questionId);
     const formData = await request.formData();
@@ -37,29 +37,25 @@ export const actions = {
     if (isActionFailure(result)) {
       return result;
     }
-    throw redirect(
-      303,
-      `/game-types/${gameTypeId}/questions/${(result as Question).id}`,
-    );
+    redirect(303, `/game-types/${gameTypeId}/questions/${(result as Question).id}`);
   },
   toggleExclude: async ({ fetch, cookies, request, params }) => {
     if (params.gameTypeId === undefined) {
-      throw error(400, "`gameTypeId` not found in path");
+      error(500, "`gameTypeId` not found in path");
     }
     const gameTypeId = parseInt(params.gameTypeId);
     if (params.questionId === undefined) {
-      throw error(400, "`questionId` not found in path");
+      error(500, "`questionId` not found in path");
     }
     const questionId = parseInt(params.questionId);
     const formData = await request.formData();
     const exclude = formData.get("exclude");
     if (exclude === null) {
-      throw error(400, "`exclude` not found in form");
+      error(500, "`exclude` not found in form");
     }
-    console.debug(`toggling exclude for question=${questionId} exclude=${exclude}`);
     await apiClient.updateQuestion(fetch, cookies, questionId, {
       excluded: exclude === "true",
     });
-    throw redirect(303, `/game-types/${gameTypeId}/questions`);
+    redirect(303, `/game-types/${gameTypeId}/questions`);
   },
 } satisfies Actions;
