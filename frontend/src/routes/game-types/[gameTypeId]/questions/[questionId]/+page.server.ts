@@ -58,4 +58,16 @@ export const actions = {
     });
     redirect(303, `/game-types/${gameTypeId}/questions`);
   },
+  delete: async ({ fetch, cookies, params }) => {
+    if (params.gameTypeId === undefined) {
+      error(500, "`gameTypeId` not found in path");
+    }
+    const gameTypeId = parseInt(params.gameTypeId);
+    if (params.questionId === undefined) {
+      error(500, "`questionId` not found in path");
+    }
+    const questionId = parseInt(params.questionId);
+    await apiClient.deleteQuestion(fetch, cookies, questionId);
+    redirect(303, `/game-types/${gameTypeId}/questions`);
+  },
 } satisfies Actions;

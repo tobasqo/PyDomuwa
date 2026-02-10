@@ -133,6 +133,10 @@ async function updateQuestion(
   return updatedQuestion.data;
 }
 
+async function deleteQuestion(fetch: Fetch, cookies: Cookies, questionId: number) {
+  await questionsRoute.delete(fetch, cookies, questionId);
+}
+
 async function createUser(fetch: Fetch, cookies: Cookies, userData: UserCreate) {
   const userCreate = UserCreateSchema.safeParse(userData);
   if (!userCreate.success) {
@@ -168,4 +172,5 @@ export const apiClient = {
   createQuestion,
   updateQuestion,
   getAllQuestionsForGameType,
+  deleteQuestion,
 };
